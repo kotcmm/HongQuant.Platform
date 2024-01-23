@@ -1,0 +1,24 @@
+﻿<mah:MetroWindow x:Class="HongQuant.Platform.Views.Hong.Setting.HongSetting"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HongQuant.Platform.Views.Hong.Setting"
+        mc:Ignorable="d"
+        Title="数据配置" Height="480" Width="800" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <TabControl TabStripPlacement="Bottom" mah:TabControlHelper.Underlined="TabPanel">
+            <TabItem Header="基础配置">
+                <local:BaseSetting></local:BaseSetting>
+            </TabItem>
+            <TabItem Header="品种配置">
+                <local:ContractConfig></local:ContractConfig>
+            </TabItem>
+            <TabItem Header="组合配置">
+                <local:ContractCombination></local:ContractCombination>
+            </TabItem>
+            <TabItem Header="优选组合"></TabItem>
+        </TabControl>
+    </Grid>
+</mah:MetroWindow>

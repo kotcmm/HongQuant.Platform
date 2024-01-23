@@ -1,0 +1,51 @@
+﻿<UserControl x:Class="HongQuant.Platform.Views.Hong.HongMain"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HongQuant.Platform.Views.Hong"
+             xmlns:infrastucture="clr-namespace:HongQuant.Platform.Infrastucture.Drops.Files" xmlns:shows="clr-namespace:HongQuant.Platform.Views.Hong.Shows"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid infrastucture:DependencyObjectHook.Receiver="{Binding DropMonitor}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid>
+            <StackPanel Orientation="Horizontal" Margin="8" Cursor="Hand">
+                <Button 
+                    Style="{StaticResource MaterialDesignFlatButton}"
+                    Command="{Binding OpenSettingCommand}">
+                    参数配置
+                </Button>
+                <Button 
+                    Style="{StaticResource MaterialDesignFlatButton}">
+                    导入数据
+                </Button>
+                <Label Content="组合方案：" Margin="6 0 0 0"></Label>
+                <ComboBox Width="140" Margin="6 0 16 0" >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                <TextBlock Margin="16 0 0 0">默认</TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button 
+                    Command="{Binding StartRunCommand}"
+                    Style="{StaticResource MaterialDesignFlatButton}">
+                    开始计算
+                </Button>
+                <Button 
+                    Style="{StaticResource MaterialDesignFlatButton}">
+                    导出结果
+                </Button>
+            </StackPanel>
+            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
+        </Grid>
+        <shows:SignalDataView Grid.Row="1"></shows:SignalDataView>
+    </Grid>
+</UserControl>
