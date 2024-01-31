@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="HongQuant.Platform.Views.YiTou.YiTouMain"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:infrastucture="clr-namespace:HongQuant.Platform.Infrastucture.Drops.Files" 
+             xmlns:configs="clr-namespace:HongQuant.Platform.Views.YiTou.Configs"
+             xmlns:viewModels="clr-namespace:HongQuant.Platform.ViewModels.YiTou.Configs"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid infrastucture:DependencyObjectHook.Receiver="{Binding DropMonitor}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <ScrollViewer Margin="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <StackPanel Orientation="Horizontal">
+            <Button Style="{StaticResource MaterialDesignFlatButton}"
+                    Margin="10 0 0 0" Content="导入数据" 
+                    Command="{Binding OpenFileCommand}" ></Button>
+            <ComboBox ItemsSource="{Binding AlgorithmTypes}"
+              SelectedItem="{Binding SelectAlgorithmType}"
+              DisplayMemberPath="Name" 
+              Margin="10 0 0 0" 
+              Width="140"></ComboBox>
+            <ContentControl Content="{Binding Config}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type viewModels:CycleConfigIncomeViewModel}">
+                        <configs:CycleConfig DataContext="{Binding}"/>
+                    </DataTemplate>
+                        <DataTemplate DataType="{x:Type viewModels:Multiple5ConfigIncomeViewModel}">
+                        <configs:Multiple5Config DataContext="{Binding}"/>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Margin="10 0 0 0" Content="导出数据" Command="{Binding SaveFileCommand}"></Button>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Margin="10 0 0 0" Content="图表分析" Command="{Binding BarChartCommand}"></Button>
+        </StackPanel>
+        </ScrollViewer>
+        <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
+        <ListView Grid.Row="1" 
+                  ItemsSource="{Binding IncomeStatistics}" 
+                  SelectedItem="{Binding IncomeStatistic}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="120" Header="开始日期" DisplayMemberBinding="{Binding Start,StringFormat=yyyyMMdd}"/>
+                    <GridViewColumn Width="120" Header="结束日期" DisplayMemberBinding="{Binding End,StringFormat=yyyyMMdd}"/>
+                    <GridViewColumn Width="160" Header="累计收益%" DisplayMemberBinding="{Binding Total,StringFormat=F2}"/>
+                    <GridViewColumn Width="160" Header="最大回撤%" DisplayMemberBinding="{Binding MaxRetracement,StringFormat=F2}"/>
+                    <GridViewColumn Width="160" Header="回撤日期" DisplayMemberBinding="{Binding RetracementDate,StringFormat=yyyyMMdd}"/>
+                    <GridViewColumn Width="160" Header="最大收益%" DisplayMemberBinding="{Binding MaxTotal,StringFormat=F2}"/>
+                    <GridViewColumn Width="160" Header="收益日期" DisplayMemberBinding="{Binding MaxTotalDate,StringFormat=yyyyMMdd}"/>
+                    <GridViewColumn Width="160" Header="交易天数" DisplayMemberBinding="{Binding DayCount}"/>
+                    <GridViewColumn Width="160" Header="累计杠杆" DisplayMemberBinding="{Binding LastMultiples}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</UserControl>

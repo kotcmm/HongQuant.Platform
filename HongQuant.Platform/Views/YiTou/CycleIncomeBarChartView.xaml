@@ -1,0 +1,27 @@
+﻿<mah:MetroWindow x:Class="HongQuant.Platform.Views.YiTou.CycleIncomeBarChartView"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+        xmlns:local="clr-namespace:HongQuant.Platform.Views.YiTou"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        xmlns:view="clr-namespace:HongQuant.Platform.Views.YiTou" xmlns:chartviews="clr-namespace:HongQuant.Platform.Views.YiTou.ChartViews"
+                 Title="图表分析" Height="450" Width="800">
+    <Window.Resources>
+        <view:IntToBoolConverter x:Key="IntToBoolConverter"></view:IntToBoolConverter>
+    </Window.Resources>
+    <Grid>
+        <TabControl>
+            <TabItem Header="风险收益">
+                <chartviews:NetWorthAndRateChartView DataContext="{Binding NetWorthAndRateChartViewModel}"/>
+            </TabItem>
+            <TabItem Header="样本数据">
+                <chartviews:SampleChartView/>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</mah:MetroWindow>

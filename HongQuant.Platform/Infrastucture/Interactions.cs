@@ -7,4 +7,7 @@ public class Interactions
     public static readonly Interaction<string, bool> HongSettingError = new();
     public static readonly Interaction<string, string> HongSettingSaveFileDialog = new();
     public static readonly Interaction<string, string> HongSettingOpenFileDialog = new();
+
+
+    public static readonly Interaction<string, string> YiTouOpenFileDialog = new();
 }

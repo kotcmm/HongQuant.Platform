@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="HongQuant.Platform.Views.YiTou.Configs.Multiple5Config"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HongQuant.Platform.Views.YiTou.Configs"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="800">
+    <Grid>
+        <StackPanel Orientation="Horizontal">
+            <CheckBox Margin="14 0 0 0" IsChecked="{Binding UseIncome,UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+            <TextBlock Padding="10 14 0 0">目标收益：</TextBlock>
+            <TextBox Padding="2 3 0 0" Text="{Binding MaxIncome,UpdateSourceTrigger=PropertyChanged}" Width="60" Height="30"></TextBox>
+            <TextBlock Padding="0 14 0 0">%</TextBlock>
+            <CheckBox Margin="14 0 0 0" IsChecked="{Binding UseTime,UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+            <TextBlock Padding="4 14 0 0">目标时间：</TextBlock>
+            <TextBox Padding="2 3 0 0" Text="{Binding MaxTime,UpdateSourceTrigger=PropertyChanged}" Width="60" Height="30"></TextBox>
+            <TextBlock Padding="0 14 0 0">月</TextBlock>
+            <TextBlock Padding="10 14 0 0">初始杠杆：</TextBlock>
+            <TextBox Padding="2 3 0 0" Text="{Binding Start,UpdateSourceTrigger=PropertyChanged}" Width="60" Height="30"></TextBox>
+            <TextBlock Padding="10 14 0 0">杠杆增量：</TextBlock>
+            <TextBox Padding="2 3 0 0" Text="{Binding Increment,UpdateSourceTrigger=PropertyChanged}" Width="60" Height="30"></TextBox>
+            <TextBlock Padding="10 14 0 0">杠杆上限：</TextBlock>
+            <TextBox Padding="2 3 0 0" Text="{Binding Max,UpdateSourceTrigger=PropertyChanged}" Width="60" Height="30"></TextBox>
+            <TextBlock Padding="10 14 0 0">时间间隔：</TextBlock>
+            <TextBox Padding="2 3 0 0" Text="{Binding Month,UpdateSourceTrigger=PropertyChanged}" Width="60" Height="30"></TextBox>
+            <TextBlock Padding="5 14 0 0">月</TextBlock>
+        </StackPanel>
+    </Grid>
+</UserControl>

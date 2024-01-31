@@ -5,8 +5,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HongQuant.Platform" 
-        xmlns:hong="clr-namespace:HongQuant.Platform.Views.Hong"
-        mc:Ignorable="d"
+        xmlns:hong="clr-namespace:HongQuant.Platform.Views.Hong" 
+        xmlns:yitou="clr-namespace:HongQuant.Platform.Views.YiTou"
+                      mc:Ignorable="d"
         Title="HONG QUANT"  Height="650" Width="1200" WindowState="Maximized">
     <Window.Resources>
         <ResourceDictionary>
@@ -21,7 +22,9 @@
             <TabItem Header="鸿观量化" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
                 <hong:HongMain/>
             </TabItem>
-            <TabItem Header="易投量化" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}"></TabItem>
+            <TabItem Header="易投量化" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
+                <yitou:YiTouMain/>
+            </TabItem>
         </TabControl>
     </Grid>
 </controls:MetroWindow>

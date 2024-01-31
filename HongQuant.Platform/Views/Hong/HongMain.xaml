@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:HongQuant.Platform.Views.Hong"
-             xmlns:infrastucture="clr-namespace:HongQuant.Platform.Infrastucture.Drops.Files" xmlns:shows="clr-namespace:HongQuant.Platform.Views.Hong.Shows"
+             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:infrastucture="clr-namespace:HongQuant.Platform.Infrastucture.Drops.Files" 
+             xmlns:shows="clr-namespace:HongQuant.Platform.Views.Hong.Shows"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid infrastucture:DependencyObjectHook.Receiver="{Binding DropMonitor}">
@@ -46,6 +48,12 @@
             </StackPanel>
             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
         </Grid>
-        <shows:SignalDataView Grid.Row="1"></shows:SignalDataView>
+        <TabControl Grid.Row="1"
+                TabStripPlacement="Bottom" 
+                controls:TabControlHelper.Underlined="TabPanel">
+            <TabItem Header="基础数据">
+                <shows:SignalDataView Grid.Row="1"></shows:SignalDataView>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

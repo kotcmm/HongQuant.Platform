@@ -1,10 +1,15 @@
-﻿using ReactiveUI;
+﻿using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using OfficeOpenXml;
+using ReactiveUI;
 using Serilog;
+using SkiaSharp;
 using System.Diagnostics;
 using System.Reactive;
 using System.Text;
 using System.Windows;
 using System.Windows.Threading;
+using LicenseContext = OfficeOpenXml.LicenseContext;
 
 namespace HongQuant.Platform;
 /// <summary>
@@ -14,7 +19,11 @@ public partial class App : Application
 {
     public App()
     {
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty = false;
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        LiveCharts.Configure(config =>
+            config.HasGlobalSKTypeface(SKFontManager.Default.MatchCharacter('汉')));
         _ = new AppBootstrapper();
     }
 

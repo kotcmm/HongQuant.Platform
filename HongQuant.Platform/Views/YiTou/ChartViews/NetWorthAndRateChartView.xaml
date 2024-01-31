@@ -1,0 +1,54 @@
+﻿<UserControl x:Class="HongQuant.Platform.Views.YiTou.ChartViews.NetWorthAndRateChartView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HongQuant.Platform.Views.YiTou.ChartViews"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <GroupBox Header="累计净值" 
+              materialDesign:ColorZoneAssist.Background="LightGray"
+              materialDesign:ColorZoneAssist.Foreground="White"
+              materialDesign:ColorZoneAssist.Mode="Custom">
+            <GroupBox.HeaderTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <TextBlock
+                          Margin="8,0,0,0"
+                          VerticalAlignment="Center"
+                          HorizontalAlignment="Left"
+                          Text="{Binding}" 
+                          Width="140"/>
+                        <Button Command="{Binding DataContext.SaveFile,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type UserControl}}}" 
+                            Margin="20 0 0 0" 
+                            HorizontalAlignment="Right"
+                            Width="120"
+                            Style="{StaticResource MaterialDesignOutlinedSecondaryLightButton}">导出数据</Button>
+                    </Grid>
+                </DataTemplate>
+            </GroupBox.HeaderTemplate>
+            <lvc:CartesianChart Series="{Binding LineSeries}"
+            YAxes="{Binding YAxes}" 
+            XAxes ="{Binding XAxes}"
+            ZoomMode="X"
+            Grid.Row="1"/>
+        </GroupBox>
+
+        <GroupBox Grid.Row="1" Header="最大回撤" 
+              materialDesign:ColorZoneAssist.Background="LightGray"
+              materialDesign:ColorZoneAssist.Foreground="White"
+              materialDesign:ColorZoneAssist.Mode="Custom">
+            <lvc:CartesianChart Series="{Binding Series}"
+            YAxes="{Binding YAxes1}" 
+            XAxes ="{Binding XAxes}"
+            ZoomMode="X"/>
+        </GroupBox>
+    </Grid>
+</UserControl>
