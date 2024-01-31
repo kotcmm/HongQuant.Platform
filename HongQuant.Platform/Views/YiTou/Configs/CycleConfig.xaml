@@ -9,7 +9,7 @@
     <Grid>
         <StackPanel Orientation="Horizontal">
             <TextBlock Padding="10 14 0 0">结算周期：</TextBlock>
-            <TextBox Padding="2 3 0 0" Text="{Binding Month,UpdateSourceTrigger=PropertyChanged}" Width="60" Height="30"></TextBox>
+            <TextBox HorizontalContentAlignment="Center" Text="{Binding Month,UpdateSourceTrigger=PropertyChanged}" Width="60" Height="30"></TextBox>
             <TextBlock Padding="0 14 0 0">个月</TextBlock>
         </StackPanel>
     </Grid>
