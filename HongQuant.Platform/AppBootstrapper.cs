@@ -4,6 +4,7 @@ using HongQuant.Platform.ViewModels.Hong.Setting;
 using HongQuant.Platform.ViewModels.Hong.Setting.ContractCombinationViewModels;
 using HongQuant.Platform.ViewModels.Hong.Setting.ContractConfigViewModels;
 using HongQuant.Platform.ViewModels.Hong.Shows;
+using HongQuant.Platform.ViewModels.Original;
 using HongQuant.Platform.ViewModels.YiTou;
 using HongQuant.Platform.ViewModels.YiTou.ChartViews;
 using Splat;
@@ -14,6 +15,9 @@ namespace HongQuant.Platform
     {
         public AppBootstrapper()
         {
+            Locator.CurrentMutable.Register(() => new OriginalMainViewModel());
+            Locator.CurrentMutable.Register(() => new ShowDataViewModel());
+
             Locator.CurrentMutable.Register(() => new HongMainViewModel());
             Locator.CurrentMutable.Register(() => new ContractConfigViewModel());
             Locator.CurrentMutable.Register(() => new ContractCombinationViewModel()); 
@@ -27,6 +31,7 @@ namespace HongQuant.Platform
             Locator.CurrentMutable.RegisterConstant(new CombinationService(), typeof(ICombinationService));
             Locator.CurrentMutable.RegisterConstant(new HongAnalysisService(), typeof(IHongAnalysisService));
             Locator.CurrentMutable.RegisterConstant(new CycleIncomeService(), typeof(ICycleIncomeService));
+            Locator.CurrentMutable.RegisterConstant(new OriginalService(), typeof(IOriginalService));
         }
     }
 }

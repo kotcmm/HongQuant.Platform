@@ -1,4 +1,4 @@
-﻿namespace HongQuant.Analysis.Hong.Formula;
+﻿namespace HongQuant.Analysis;
 public class ConvertTradeDate
 {
     private readonly Queue<IGrouping<DateOnly, DateTime>> _historyTradeDates;
@@ -31,7 +31,7 @@ public class ConvertTradeDate
 
     private DateOnly Night(DateTime dateTime)
     {
-        return dateTime.Year > Year ? DefaultNight(dateTime) : 
+        return dateTime.Year > Year ? DefaultNight(dateTime) :
             ByHistoryNight(dateTime);
     }
 

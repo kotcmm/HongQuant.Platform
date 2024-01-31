@@ -7,7 +7,8 @@
         xmlns:local="clr-namespace:HongQuant.Platform" 
         xmlns:hong="clr-namespace:HongQuant.Platform.Views.Hong" 
         xmlns:yitou="clr-namespace:HongQuant.Platform.Views.YiTou"
-                      mc:Ignorable="d"
+        xmlns:original="clr-namespace:HongQuant.Platform.Views.Original"
+        mc:Ignorable="d"
         Title="HONG QUANT"  Height="650" Width="1200" WindowState="Maximized">
     <Window.Resources>
         <ResourceDictionary>
@@ -19,6 +20,9 @@
     <Grid>
         <TabControl TabStripPlacement="Left" 
             controls:TabControlHelper.Underlined="TabPanel">
+            <TabItem Header="原始数据" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
+                <original:OriginalMain/>
+            </TabItem>
             <TabItem Header="鸿观量化" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
                 <hong:HongMain/>
             </TabItem>
