@@ -32,7 +32,7 @@
                     <DataTemplate DataType="{x:Type viewModels:CycleConfigIncomeViewModel}">
                         <configs:CycleConfig DataContext="{Binding}"/>
                     </DataTemplate>
-                        <DataTemplate DataType="{x:Type viewModels:Multiple5ConfigIncomeViewModel}">
+                    <DataTemplate DataType="{x:Type viewModels:Multiple5ConfigIncomeViewModel}">
                         <configs:Multiple5Config DataContext="{Binding}"/>
                     </DataTemplate>
                 </ContentControl.Resources>
@@ -65,27 +65,5 @@
                 <DataGridTextColumn Width="140" Header="累计杠杆" Binding="{Binding LastMultiples}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <!--<ListView Grid.Row="1" 
-                  ItemsSource="{Binding IncomeStatistics}" 
-                  SelectedItem="{Binding IncomeStatistic}">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignGridViewItem}">
-                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                </Style>
-            </ListView.ItemContainerStyle>
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Width="140" Header="开始日期" DisplayMemberBinding="{Binding Start,StringFormat=yyyyMMdd}"/>
-                    <GridViewColumn Width="140" Header="结束日期" DisplayMemberBinding="{Binding End,StringFormat=yyyyMMdd}"/>
-                    <GridViewColumn Width="160" Header="累计收益%" DisplayMemberBinding="{Binding Total,StringFormat=F2}"/>
-                    <GridViewColumn Width="160" Header="最大回撤%" DisplayMemberBinding="{Binding MaxRetracement,StringFormat=F2}"/>
-                    <GridViewColumn Width="140" Header="回撤日期" DisplayMemberBinding="{Binding RetracementDate,StringFormat=yyyyMMdd}"/>
-                    <GridViewColumn Width="160" Header="最大收益%" DisplayMemberBinding="{Binding MaxTotal,StringFormat=F2}"/>
-                    <GridViewColumn Width="140" Header="收益日期" DisplayMemberBinding="{Binding MaxTotalDate,StringFormat=yyyyMMdd}"/>
-                    <GridViewColumn Width="140" Header="交易天数" DisplayMemberBinding="{Binding DayCount}"/>
-                    <GridViewColumn Width="140" Header="累计杠杆" DisplayMemberBinding="{Binding LastMultiples}"/>
-                </GridView>
-            </ListView.View>
-        </ListView>-->
     </Grid>
 </UserControl>

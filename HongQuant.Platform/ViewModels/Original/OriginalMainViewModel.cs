@@ -12,8 +12,6 @@ public class OriginalMainViewModel : ReactiveObject
 
     public FileDropMonitor DropMonitor { get; }
 
-    public ICommand StartRunCommand { get; }
-
     public OriginalMainViewModel()
     {
         _originalService = Locator.Current.GetService<IOriginalService>()!;
@@ -21,20 +19,10 @@ public class OriginalMainViewModel : ReactiveObject
         DropMonitor = new FileDropMonitor();
 
         DropMonitor.Dropped.Subscribe(OpenFile);
-
-        StartRunCommand = ReactiveCommand.Create(StartRun);
     }
 
     private void OpenFile(IEnumerable<FileInfo> files)
     {
         _originalService.LoadFile(files);
-    }
-
-    public void StartRun()
-    {
-        foreach (var item in _originalService.FileIndexs.Items)
-        {
-            item.Calculate();
-        }
     }
 }

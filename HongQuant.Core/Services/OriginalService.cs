@@ -4,13 +4,30 @@ using HongQuant.Analysis.Original;
 namespace HongQuant.Core.Services;
 public class OriginalService : IOriginalService
 {
-    private readonly SourceList<BasicDataFile> _fileIndexs = new();
-    public IObservableList<BasicDataFile> FileIndexs => _fileIndexs.AsObservableList();
+    private readonly SourceList<IDataFile> _fileIndexs = new();
+    public IObservableList<IDataFile> FileIndexs => _fileIndexs.AsObservableList();
+
+    private readonly SourceCache<IDataFile, string> _combinationFileIndexs = new(x=>x.Id);
+    public IObservableCache<IDataFile, string> CombinationFileIndexs => _combinationFileIndexs.AsObservableCache();
+
+    public void Combination(List<IDataFile> basicDataFiles)
+    {
+        var combination = new CombinationBasicDataFile(basicDataFiles);
+
+        _combinationFileIndexs.AddOrUpdate(combination.Calculate());
+    }
 
     public void LoadFile(IEnumerable<FileInfo> fileInfos)
     {
         _fileIndexs.Clear();
 
-        _fileIndexs.AddRange(fileInfos.Select(fileInfo => new BasicDataFile(fileInfo)));
+        _fileIndexs.AddRange(fileInfos
+            .Select(fileInfo => new BasicDataFile(fileInfo))
+            .Select(x=>x.Calculate()));
+    }
+
+    public void Remove(string id)
+    {
+        _combinationFileIndexs.RemoveKey(id);
     }
 }

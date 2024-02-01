@@ -1,5 +1,4 @@
 ﻿using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Text;
 
 namespace HongQuant.Analysis.Original;
@@ -8,19 +7,12 @@ namespace HongQuant.Analysis.Original;
 ///  原始数据的单个文件
 /// </summary>
 /// <param name="fileInfo"></param>
-public class BasicDataFile(FileInfo fileInfo)
+public class BasicDataFile(FileInfo fileInfo) : DataFile
 {
     /// <summary>
     ///     信号文件信息
     /// </summary>
     public FileInfo FileInfo { get; } = fileInfo;
-
-    private readonly Subject<IEnumerable<BasicTransformData>> _calculateChangeSubject = new();
-
-    /// <summary>
-    /// 计算原始数据后触发改变
-    /// </summary>
-    public IObservable<IEnumerable<BasicTransformData>> CalculateChange => _calculateChangeSubject.AsObservable();
 
     /// <summary>
     /// 加载原始数据
@@ -46,17 +38,19 @@ public class BasicDataFile(FileInfo fileInfo)
     }
 
     private List<BasicData> _basicDatas = [];
-    public IEnumerable<BasicTransformData> Calculate(bool isReload = false)
+    public override BasicDataFile Calculate()
     {
-        if (_basicDatas.Count == 0 || isReload)
+        if (_basicDatas.Count == 0)
         {
             _basicDatas = Load().ToList();
         }
+
+        Name = FileInfo.Name;
 
         var signalDatas = _basicDatas.TransformBasicDatas();
 
         _calculateChangeSubject.OnNext(signalDatas);
 
-        return signalDatas;
+        return this;
     }
 }

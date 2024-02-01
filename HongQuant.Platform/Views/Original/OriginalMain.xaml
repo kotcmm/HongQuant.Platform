@@ -18,11 +18,6 @@
                     Style="{StaticResource MaterialDesignFlatButton}">
                     导入数据
                 </Button>
-                <Button 
-                    Command="{Binding StartRunCommand}"
-                    Style="{StaticResource MaterialDesignFlatButton}">
-                    开始计算
-                </Button>
             </StackPanel>
             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
         </Grid>

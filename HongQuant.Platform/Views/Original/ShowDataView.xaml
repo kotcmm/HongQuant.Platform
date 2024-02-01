@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:HongQuant.Platform.Views.Original"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -11,36 +12,101 @@
             <ColumnDefinition Width="240"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <ListBox BorderThickness="0,0,1,0" 
-             BorderBrush="LightGray"
-             ItemsSource="{Binding FileIndexs}"
-             SelectedItem="{Binding FileIndex}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Path}"></TextBlock>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <DataGrid Grid.Column="1" 
-              Background="White"
-              AutoGenerateColumns="False" 
-              IsReadOnly="True"
-              CanUserAddRows="False"
-              CanUserDeleteRows="False"
-              CanUserSortColumns="False"
-              CellStyle="{StaticResource DatagridCellStyleCenter}"
-              ColumnHeaderStyle ="{StaticResource DataGridColumnHeaderCenter}"
-              ItemsSource="{Binding FileIndex.Items}">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="时间" Binding="{Binding SignalDateTime,StringFormat=yyyy年MM月dd日 HH:mm}"/>
-                <DataGridTextColumn Header="交易日" Binding="{Binding TradeDate,StringFormat=yyyy年MM月dd日}"/>
-                <DataGridTextColumn Header="权益" MinWidth="80" Binding="{Binding Equity}"/>
-                <DataGridTextColumn Header="今日盈亏" MinWidth="80" Binding="{Binding TodayProfitAndLoss}"/>
-                <DataGridTextColumn Header="收益率" MinWidth="80" Binding="{Binding Yields,StringFormat=P2}"/>
-                <DataGridTextColumn Header="累计收益率" MinWidth="80" Binding="{Binding TotalYields,StringFormat=P2}"/>
-                <DataGridTextColumn Header="实时回撤" MinWidth="80" Binding="{Binding WithdrawDeep,StringFormat=P2}"/>
-                <DataGridTextColumn Header="最大回撤" MinWidth="80" Binding="{Binding MaxWithdraw,StringFormat=P2}"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Border BorderBrush="LightGray" BorderThickness="0,0,1,0">
+            <ListView ItemsSource="{Binding FileIndexs}"
+                      SelectedItem="{Binding FileIndex}">
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="组合计算" Command="{Binding CombinationCommand}"/>
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignListBoxItem}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding IsSelected}" Margin="0 0 5 0"></CheckBox>
+                            <TextBlock Text="{Binding Name}"></TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Border>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
+            </Grid.RowDefinitions>
+            <DataGrid 
+                  Background="White"
+                  AutoGenerateColumns="False" 
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserSortColumns="False"
+                  CellStyle="{StaticResource DatagridCellStyleCenter}"
+                  ColumnHeaderStyle ="{StaticResource DataGridColumnHeaderCenter}"
+                  ItemsSource="{Binding SelectFileIndex.Items}">
+                <DataGrid.Columns>
+                    <!--<DataGridTextColumn Header="时间" Binding="{Binding SignalDateTime,StringFormat=yyyy年MM月dd日 HH:mm}"/>-->
+                    <DataGridTextColumn Header="交易日" Binding="{Binding TradeDate,StringFormat=yyyy年MM月dd日}"/>
+                    <DataGridTextColumn Header="权益" MinWidth="80" Binding="{Binding Equity}"/>
+                    <DataGridTextColumn Header="今日盈亏" MinWidth="80" Binding="{Binding TodayProfitAndLoss}"/>
+                    <DataGridTextColumn Header="今日收益率" MinWidth="80" Binding="{Binding Yields,StringFormat=P2}"/>
+                    <DataGridTextColumn Header="累计收益率" MinWidth="80" Binding="{Binding TotalYields,StringFormat=P2}"/>
+                    <DataGridTextColumn Header="实时回撤" MinWidth="80" Binding="{Binding WithdrawDeep,StringFormat=P2}"/>
+                    <DataGridTextColumn Header="最大回撤" MinWidth="80" Binding="{Binding MaxWithdraw,StringFormat=P2}"/>
+                    <DataGridTextColumn Header="回撤程度" MinWidth="80" Binding="{Binding WithdrawLevel,StringFormat=P2}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="0,1,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton
+                        BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
+                        Content="单个品种"
+                        ToolTip="{Binding FileIndex.Name}"
+                        IsChecked="True"
+                        GroupName="FileData"
+                        Style="{StaticResource MaterialDesignTabRadioButtonTop}" 
+                        Command="{Binding TabChangeCommand}"
+                        CommandParameter="{Binding FileIndex}"/>
+                    <ItemsControl ItemsSource="{Binding CombinationFileIndexs}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <RadioButton
+                                    GroupName="FileData"
+                                    BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
+                                    Style="{StaticResource MaterialDesignTabRadioButtonTop}" 
+                                    Command="{Binding DataContext.TabChangeCommand,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" />
+                                        <Button Command="{Binding DataContext.CloseCommand,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Template>
+                                                <ControlTemplate>
+                                                    <materialDesign:PackIcon
+                                                       Background="Transparent"
+                                                       Foreground="Red"
+                                                       Kind="Close" />
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </StackPanel>
+                                </RadioButton>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

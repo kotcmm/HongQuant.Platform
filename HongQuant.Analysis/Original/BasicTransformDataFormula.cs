@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace HongQuant.Analysis.Original;
+﻿namespace HongQuant.Analysis.Original;
 public static class BasicTransformDataFormula
 {
     public static IEnumerable<BasicTransformData> TransformBasicDatas(this IEnumerable<BasicData> basicDatas)
@@ -11,8 +9,46 @@ public static class BasicTransformDataFormula
             .AttachTradeDay()
             .LastByTradeDay()
             .AttachTodayProfitAndLoss()
+            .AttachYields()
+            .AttachTotalYields()
+            .AttachWithdrawDeep()
+            .AttachMaxWithdrawAndLevel()
             .ToList();
     }
+
+    public static IEnumerable<BasicTransformData> AttachMeragedBasicDatas(this IEnumerable<BasicTransformData> source)
+    {
+        return source
+            .AttachYields()
+            .AttachTotalYields()
+            .AttachWithdrawDeep()
+            .AttachMaxWithdrawAndLevel()
+            .ToList();
+    }
+
+    /// <summary>
+    /// 根据交易日合并数据
+    /// </summary>
+    /// <param name="basicDataFiles"></param>
+    /// <returns></returns>
+    public static IEnumerable<BasicTransformData> MeragedByTradeDate(this IEnumerable<IDataFile> basicDataFiles)
+    {
+        return basicDataFiles.SelectMany(x => x.Items)
+            .GroupBy(x => x.TradeDate)
+            .Select(x =>
+            {
+                var datas = x.ToList();
+
+                return new BasicTransformData()
+                {
+                    TradeDate = x.Key,
+                    Equity = Math.Round(datas.Sum(x => x.Equity),2),
+                    StartEquity = datas.Sum(x => x.StartEquity),
+                    TodayProfitAndLoss = Math.Round(datas.Sum(x => x.TodayProfitAndLoss),2),
+                };
+            });
+    }
+
 
     private static IEnumerable<BasicTransformData> TypeOfTransformData(this IEnumerable<BasicData> source)
     {
@@ -26,6 +62,12 @@ public static class BasicTransformDataFormula
         });
     }
 
+    /// <summary>
+    /// 过滤没有信号的前面数据，并赋值初始权益
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     private static IEnumerable<BasicTransformData> SkipAndInitStartEquity(this IEnumerable<BasicTransformData> source)
     {
         using var e = source.GetEnumerator();
@@ -96,6 +138,7 @@ public static class BasicTransformDataFormula
 
     /// <summary>
     /// 计算今日盈亏
+    /// 今日盈亏=今日最后一条权益-昨天最后一条权益
     /// </summary>
     /// <param name="source"></param>
     /// <returns></returns>
@@ -119,6 +162,98 @@ public static class BasicTransformDataFormula
             }
 
             preData = data;
+
+            yield return data;
+        }
+    }
+
+    /// <summary>
+    /// 计算收益率
+    /// 今日收益率=今日盈亏/本金
+    /// </summary>
+    /// <param name="source"></param>
+    public static IEnumerable<BasicTransformData> AttachYields(this IEnumerable<BasicTransformData> source)
+    {
+        using var e = source.GetEnumerator();
+
+        while (e.MoveNext())
+        {
+            var data = e.Current;
+
+            data.Yields = data.TodayProfitAndLoss / data.StartEquity;
+
+            yield return data;
+        }
+    }
+
+    /// <summary>
+    /// 计算累计收益率
+    /// 累计收益率 = 当前收益率 + 上一条累计收益率
+    /// 如果没有上一条收益率，就直接用当前收益率
+    /// </summary>
+    /// <returns></returns>
+    public static IEnumerable<BasicTransformData> AttachTotalYields(this IEnumerable<BasicTransformData> source)
+    {
+        return source.MyAggregate((f, p, c) =>
+        {
+            c.TotalYields = c.Yields + p.TotalYields;
+        }, f =>
+        {
+            f.TotalYields = f.Yields;
+            return f;
+        });
+    }
+
+    /// <summary>
+    /// 计算实时回撤
+    /// 实时回撤 = 当前累计收益率 - 历史最大累计收益率 (包含当前)
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public static IEnumerable<BasicTransformData> AttachWithdrawDeep(this IEnumerable<BasicTransformData> source)
+    {
+        SortedSet<double> historyTotalYields = [];
+
+        using var e = source.GetEnumerator();
+
+        while (e.MoveNext())
+        {
+            var data = e.Current;
+
+            historyTotalYields.Add(data.TotalYields);
+
+            if (historyTotalYields.Count == 1)
+            {
+                data.WithdrawDeep = data.TotalYields >= 0 ? 0 : data.TotalYields;
+            }
+            else
+            {
+                data.WithdrawDeep = data.TotalYields - historyTotalYields.Max;
+            }
+
+            yield return data;
+        }
+    }
+
+    /// <summary>
+    /// 计算最大回撤和回撤程度
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public static IEnumerable<BasicTransformData> AttachMaxWithdrawAndLevel(this IEnumerable<BasicTransformData> source)
+    {
+        SortedSet<double> historyWithdrawDeeps = [];
+
+        using var e = source.GetEnumerator();
+
+        while (e.MoveNext())
+        {
+            var data = e.Current;
+
+            historyWithdrawDeeps.Add(data.WithdrawDeep);
+
+            data.MaxWithdraw = historyWithdrawDeeps.Min;
+            data.WithdrawLevel = data.WithdrawDeep / (Math.Abs(data.MaxWithdraw) < 0.0001 ? 1 : data.MaxWithdraw);
 
             yield return data;
         }

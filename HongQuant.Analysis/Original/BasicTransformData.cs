@@ -29,4 +29,29 @@ public class BasicTransformData
     /// 今日盈亏
     /// </summary>
     public double TodayProfitAndLoss { get; set; }
+
+    /// <summary>
+    /// 今日收益率
+    /// </summary>
+    public double Yields { get; set; }
+
+    /// <summary>
+    /// 累计收益率
+    /// </summary>
+    public double TotalYields { get; set; }
+
+    /// <summary>
+    /// 实时回撤
+    /// </summary>
+    public double WithdrawDeep { get; set; }
+
+    /// <summary>
+    /// 最大回撤
+    /// </summary>
+    public double MaxWithdraw { get; set; }
+
+    /// <summary>
+    /// 回撤程度
+    /// </summary>
+    public double WithdrawLevel { get; set; }
 }
