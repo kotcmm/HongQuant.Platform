@@ -12,5 +12,7 @@ public interface ICycleIncomeService
 
     void Load(FileInfo fileInfo, IConfigIncome? config, AlgorithmType algorithmType);
 
+    void StatisticsData(IConfigIncome? config, AlgorithmType algorithmType, IEnumerable<IncomeInfoModel> source);
+
     void Save(string path, IEnumerable<BaseIncomeStatistics> incomes);
 }

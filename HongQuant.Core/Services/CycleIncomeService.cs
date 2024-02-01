@@ -22,9 +22,14 @@ public class CycleIncomeService : ICycleIncomeService
 
     public void Load(FileInfo fileInfo, IConfigIncome? config, AlgorithmType algorithmType)
     {
+        StatisticsData(config, algorithmType, ReadDatas(fileInfo));
+    }
+
+    public void StatisticsData(IConfigIncome? config, AlgorithmType algorithmType, IEnumerable<IncomeInfoModel> source)
+    {
         _source.Clear();
 
-        var datas = ReadDatas(fileInfo)
+        var datas = source
             .ToIncomeStatistics(algorithmType, config);
 
         _source.AddRange(datas);

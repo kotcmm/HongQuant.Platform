@@ -15,28 +15,34 @@
         </Grid.RowDefinitions>
         <ScrollViewer Margin="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <StackPanel Orientation="Horizontal">
-            <Button Style="{StaticResource MaterialDesignFlatButton}"
-                    Margin="10 0 0 0" Content="导入数据" 
-                    Command="{Binding OpenFileCommand}" ></Button>
-            <ComboBox ItemsSource="{Binding AlgorithmTypes}"
-              SelectedItem="{Binding SelectAlgorithmType}"
-              DisplayMemberPath="Name" 
-              Margin="10 0 0 0" 
-              Padding="28 0 0 0"
-              Width="140"
-              HorizontalContentAlignment="Center">
-                
-            </ComboBox>
-            <ContentControl Content="{Binding Config}">
-                <ContentControl.Resources>
-                    <DataTemplate DataType="{x:Type viewModels:CycleConfigIncomeViewModel}">
-                        <configs:CycleConfig DataContext="{Binding}"/>
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type viewModels:Multiple5ConfigIncomeViewModel}">
-                        <configs:Multiple5Config DataContext="{Binding}"/>
-                    </DataTemplate>
-                </ContentControl.Resources>
-            </ContentControl>
+                <ComboBox ItemsSource="{Binding CombinationFileIndexs}"
+                          SelectedItem="{Binding SelectFileIndex}"
+                          DisplayMemberPath="Name" 
+                          Margin="10 0 0 0" 
+                          Padding="28 0 0 0"
+                          Width="140"
+                          HorizontalContentAlignment="Center"/>
+                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                        Margin="10 0 0 0" Content="导入数据" 
+                        Command="{Binding OpenFileCommand}" ></Button>
+                <ComboBox ItemsSource="{Binding AlgorithmTypes}"
+                  SelectedItem="{Binding SelectAlgorithmType}"
+                  DisplayMemberPath="Name" 
+                  Margin="10 0 0 0" 
+                  Padding="28 0 0 0"
+                  Width="140"
+                  HorizontalContentAlignment="Center"/>
+
+                <ContentControl Content="{Binding Config}">
+                    <ContentControl.Resources>
+                        <DataTemplate DataType="{x:Type viewModels:CycleConfigIncomeViewModel}">
+                            <configs:CycleConfig DataContext="{Binding}"/>
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type viewModels:Multiple5ConfigIncomeViewModel}">
+                            <configs:Multiple5Config DataContext="{Binding}"/>
+                        </DataTemplate>
+                    </ContentControl.Resources>
+                </ContentControl>
                 <Button Style="{StaticResource MaterialDesignFlatButton}" Margin="10 0 0 0" Content="导出数据" Command="{Binding SaveFileCommand}"></Button>
                 <Button Style="{StaticResource MaterialDesignFlatButton}" Margin="10 0 0 0" Content="图表分析" Command="{Binding BarChartCommand}"></Button>
         </StackPanel>

@@ -2,6 +2,7 @@
 using HongQuant.Analysis.YiTou;
 using HongQuant.Core.Services;
 using HongQuant.Platform.Infrastucture.Drops.Files;
+using HongQuant.Platform.ViewModels.Original;
 using HongQuant.Platform.ViewModels.YiTou.Configs;
 using HongQuant.Platform.ViewModels.YiTou.IncomeStatistics;
 using ReactiveUI;
@@ -11,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Reactive.Linq;
 using System.Windows.Input;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HongQuant.Platform.ViewModels.YiTou;
 public class YiTouMainViewModel : ReactiveObject
@@ -38,19 +40,23 @@ public class YiTouMainViewModel : ReactiveObject
 
     public Interaction<string, string> SaveFileDialog { get; }
 
-
     public Interaction<YiTouMainViewModel, bool> OpenChartView { get; }
 
-
     private readonly ReadOnlyObservableCollection<IncomeStatisticsViewModel> _incomeStatistics;
-
     public ReadOnlyObservableCollection<IncomeStatisticsViewModel> IncomeStatistics => _incomeStatistics;
+
+    private readonly ReadOnlyObservableCollection<CombinationBasicDataFileViewModel> _combinationFileIndexs;
+    public ReadOnlyObservableCollection<CombinationBasicDataFileViewModel> CombinationFileIndexs => _combinationFileIndexs;
+
+    [Reactive]
+    public DataFileViewModel? SelectFileIndex { get; set; }
 
     private readonly ICycleIncomeService _cycleIncomeService;
 
     public YiTouMainViewModel()
     {
         _cycleIncomeService = Locator.Current.GetService<ICycleIncomeService>()!;
+        var originalService = Locator.Current.GetService<IOriginalService>()!;
 
         DropMonitor = new FileDropMonitor();
         ShowFileDialog = new Interaction<string, string>();
@@ -64,14 +70,6 @@ public class YiTouMainViewModel : ReactiveObject
         ];
 
         SelectAlgorithmType = AlgorithmTypes[0];
-        this.WhenAnyValue(x => x.SelectAlgorithmType).Subscribe(ConfigChang);
-        this.WhenAnyValue(x => x.Config)
-            .Subscribe(x => {
-                x?.Change.Subscribe(y =>
-                    {
-                        Load();
-                    });
-            });
 
         DropMonitor.Dropped.Subscribe(OpenFile);
         OpenFileCommand = ReactiveCommand.CreateFromTask(OpenFile);
@@ -97,6 +95,42 @@ public class YiTouMainViewModel : ReactiveObject
            .Bind(out _incomeStatistics)
            .DisposeMany()
            .Subscribe();
+
+        originalService
+              .CombinationFileIndexs
+              .Connect()
+              .Transform(f => new CombinationBasicDataFileViewModel(f))
+              .ObserveOn(RxApp.MainThreadScheduler)
+              .Bind(out _combinationFileIndexs)
+              .DisposeMany()
+              .Subscribe();
+
+        this.WhenAnyValue(x => x.SelectAlgorithmType).Subscribe(ConfigChang);
+        this.WhenAnyValue(x => x.Config).Subscribe(ConfigChange);
+        this.WhenAnyValue(x => x.SelectFileIndex).Subscribe(SelectFileIndexChange);
+    }
+
+    private void ConfigChange(IConfigIncomeViewModel? x)
+    {
+        x?.Change.Subscribe(y =>
+        {
+            SelectFileIndexChange(SelectFileIndex);
+            Load();
+        });
+    }
+
+    private void SelectFileIndexChange(DataFileViewModel? x)
+    {
+        if (x != null && x.Items != null)
+        {
+            var datas = x.Items.Select(x => new IncomeInfoModel(
+                x.TradeDate.ToDateTime(new()),
+                0,
+                x.Yields
+            ));
+
+            _cycleIncomeService.StatisticsData(Config?.Config, SelectAlgorithmType.Value, datas);
+        }
     }
 
     private async Task OpenFile()
