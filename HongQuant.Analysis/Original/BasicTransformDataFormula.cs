@@ -46,7 +46,8 @@ public static class BasicTransformDataFormula
                     StartEquity = datas.Sum(x => x.StartEquity),
                     TodayProfitAndLoss = Math.Round(datas.Sum(x => x.TodayProfitAndLoss),2),
                 };
-            });
+            })
+            .OrderBy(x=>x.TradeDate);
     }
 
 
@@ -59,7 +60,7 @@ public static class BasicTransformDataFormula
                 SignalDateTime = data.SignalDateTime!.Value,
                 Equity = data.Equity!.Value,
             };
-        });
+        }).OrderBy(x=>x.SignalDateTime);
     }
 
     /// <summary>
