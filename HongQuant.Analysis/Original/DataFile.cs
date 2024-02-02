@@ -12,5 +12,9 @@ public abstract class DataFile : IDataFile
 
     public string Name { get; protected set; } = string.Empty;
 
+    public string Product { get; protected set; } = string.Empty;
+
+    public string Strategy { get; protected set; } = string.Empty;
+
     public abstract IDataFile Calculate();
 }

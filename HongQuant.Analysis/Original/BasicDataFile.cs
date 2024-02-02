@@ -47,7 +47,13 @@ public class BasicDataFile(FileInfo fileInfo) : DataFile
 
         Name = FileInfo.Name;
 
-        var signalDatas = _basicDatas.TransformBasicDatas();
+        var s = Name.Split('_');
+
+        Product = s[0];
+
+        Strategy = s[1];
+
+        var signalDatas = _basicDatas.TransformBasicDatas(Product);
 
         _calculateChangeSubject.OnNext(signalDatas);
 

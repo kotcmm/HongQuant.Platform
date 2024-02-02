@@ -3,6 +3,10 @@
 namespace HongQuant.Platform.ViewModels.Original;
 public class BasicTransformDataViewModel(BasicTransformData item)
 {
+    /// <summary>
+    /// 品种
+    /// </summary>
+    public string Product { get; set; } = item.Product;
 
     /// <summary>
     /// 信号对应时间

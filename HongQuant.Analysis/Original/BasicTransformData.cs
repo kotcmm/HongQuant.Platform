@@ -6,6 +6,11 @@
 public class BasicTransformData
 {
     /// <summary>
+    /// 品种
+    /// </summary>
+    public string Product { get; set; } = string.Empty;
+
+    /// <summary>
     /// 信号对应时间
     /// </summary>
     public DateTime SignalDateTime { get; set; }

@@ -4,9 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:local="clr-namespace:HongQuant.Platform.Views.Original"
+             xmlns:view="clr-namespace:HongQuant.Platform.Views.Original"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <view:TypeToBoolConverter x:Key="TypeToBoolConverter"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="240"></ColumnDefinition>
@@ -52,6 +55,7 @@
                   ItemsSource="{Binding SelectFileIndex.Items}">
                 <DataGrid.Columns>
                     <!--<DataGridTextColumn Header="时间" Binding="{Binding SignalDateTime,StringFormat=yyyy年MM月dd日 HH:mm}"/>-->
+                    <DataGridTextColumn Header="品种" Binding="{Binding Product}"/>
                     <DataGridTextColumn Header="交易日" Binding="{Binding TradeDate,StringFormat=yyyy年MM月dd日}"/>
                     <DataGridTextColumn Header="权益" MinWidth="80" Binding="{Binding Equity}"/>
                     <DataGridTextColumn Header="今日盈亏" MinWidth="80" Binding="{Binding TodayProfitAndLoss}"/>
@@ -68,11 +72,16 @@
                         BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
                         Content="单个品种"
                         ToolTip="{Binding FileIndex.Name}"
-                        IsChecked="True"
-                        GroupName="FileData"
                         Style="{StaticResource MaterialDesignTabRadioButtonTop}" 
                         Command="{Binding TabChangeCommand}"
-                        CommandParameter="{Binding FileIndex}"/>
+                        CommandParameter="{Binding FileIndex}">
+                        <RadioButton.IsChecked>
+                            <MultiBinding ConverterParameter="1" Converter="{StaticResource TypeToBoolConverter}">
+                                <Binding Path="SelectFileIndex" Mode="OneWay"></Binding>
+                                <Binding Path="FileIndex" Mode="OneWay"></Binding>
+                            </MultiBinding>
+                        </RadioButton.IsChecked>
+                    </RadioButton>
                     <ItemsControl ItemsSource="{Binding CombinationFileIndexs}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -82,7 +91,6 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <RadioButton
-                                    GroupName="FileData"
                                     BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
                                     Style="{StaticResource MaterialDesignTabRadioButtonTop}" 
                                     Command="{Binding DataContext.TabChangeCommand,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"
@@ -101,6 +109,12 @@
                                             </Button.Template>
                                         </Button>
                                     </StackPanel>
+                                    <RadioButton.IsChecked>
+                                        <MultiBinding ConverterParameter="2" Converter="{StaticResource TypeToBoolConverter}">
+                                            <Binding Mode="OneWay" Path="DataContext.SelectFileIndex" RelativeSource="{RelativeSource FindAncestor,AncestorType=UserControl}"/>
+                                            <Binding Mode="OneWay" Path="DataContext" RelativeSource="{RelativeSource Self}"/>
+                                        </MultiBinding>
+                                    </RadioButton.IsChecked>
                                 </RadioButton>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

@@ -51,6 +51,13 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
               .Transform(f => new CombinationBasicDataFileViewModel(f))
               .ObserveOn(RxApp.MainThreadScheduler)
               .Bind(out _combinationFileIndexs)
+              .ForEachChange(x =>
+              {
+                  if (x.Reason != ChangeReason.Remove)
+                  {
+                      SelectFileIndex = x.Current;
+                  }
+              })
               .DisposeMany()
               .Subscribe();
 

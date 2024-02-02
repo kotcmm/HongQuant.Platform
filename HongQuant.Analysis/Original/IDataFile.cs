@@ -15,5 +15,9 @@ public interface IDataFile
 
     string Name { get;}
 
+    string Product { get; }
+
+    string Strategy { get; }
+
     IDataFile Calculate();
 }

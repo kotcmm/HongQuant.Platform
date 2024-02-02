@@ -9,7 +9,7 @@ public class CombinationBasicDataFile : DataFile
     {
         _basicDataFiles = basicDataFiles;
 
-        Id = string.Join("-", basicDataFiles.Select(x => x.Name));
+        Id = string.Join("-", basicDataFiles.Select(x => x.Product));
     }
 
     public override CombinationBasicDataFile Calculate()
@@ -17,7 +17,7 @@ public class CombinationBasicDataFile : DataFile
         Name = $"组合{_basicDataFiles.Count}品种";
 
         var signalDatas = _basicDataFiles
-            .MeragedByTradeDate()
+            .MeragedByTradeDate(_basicDataFiles.Count)
             .AttachMeragedBasicDatas();
 
         _calculateChangeSubject.OnNext(signalDatas);

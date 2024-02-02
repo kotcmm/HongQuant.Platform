@@ -1,10 +1,10 @@
 ﻿namespace HongQuant.Analysis.Original;
 public static class BasicTransformDataFormula
 {
-    public static IEnumerable<BasicTransformData> TransformBasicDatas(this IEnumerable<BasicData> basicDatas)
+    public static IEnumerable<BasicTransformData> TransformBasicDatas(this IEnumerable<BasicData> basicDatas, string product = "")
     {
         return basicDatas
-            .TypeOfTransformData()
+            .TypeOfTransformData(product)
             .SkipAndInitStartEquity()
             .AttachTradeDay()
             .LastByTradeDay()
@@ -30,8 +30,9 @@ public static class BasicTransformDataFormula
     /// 根据交易日合并数据
     /// </summary>
     /// <param name="basicDataFiles"></param>
+    /// <param name="count"></param>
     /// <returns></returns>
-    public static IEnumerable<BasicTransformData> MeragedByTradeDate(this IEnumerable<IDataFile> basicDataFiles)
+    public static IEnumerable<BasicTransformData> MeragedByTradeDate(this IEnumerable<IDataFile> basicDataFiles,int count = 0)
     {
         return basicDataFiles.SelectMany(x => x.Items)
             .GroupBy(x => x.TradeDate)
@@ -41,6 +42,7 @@ public static class BasicTransformDataFormula
 
                 return new BasicTransformData()
                 {
+                    Product = $"{count}({datas.Count})",
                     TradeDate = x.Key,
                     Equity = Math.Round(datas.Sum(x => x.Equity),2),
                     StartEquity = datas.Sum(x => x.StartEquity),
@@ -51,12 +53,13 @@ public static class BasicTransformDataFormula
     }
 
 
-    private static IEnumerable<BasicTransformData> TypeOfTransformData(this IEnumerable<BasicData> source)
+    private static IEnumerable<BasicTransformData> TypeOfTransformData(this IEnumerable<BasicData> source, string product = "")
     {
         return source.Select(data =>
         {
             return new BasicTransformData()
             {
+                Product = product,
                 SignalDateTime = data.SignalDateTime!.Value,
                 Equity = data.Equity!.Value,
             };
