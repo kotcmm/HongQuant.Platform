@@ -15,8 +15,15 @@
         <Grid>
             <StackPanel Orientation="Horizontal" Margin="8" Cursor="Hand">
                 <Button 
+                    ToolTip="{Binding FolderPath}"
+                    Command="{Binding OpenFolderCommand}"
                     Style="{StaticResource MaterialDesignFlatButton}">
-                    导入数据
+                    文件夹路径
+                </Button>
+                <Button 
+                    Command="{Binding RefreshFilesCommand}"
+                    Style="{StaticResource MaterialDesignFlatButton}">
+                    更新数据
                 </Button>
             </StackPanel>
             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
