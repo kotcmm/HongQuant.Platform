@@ -1,5 +1,7 @@
 ﻿using DynamicData;
+using HongQuant.Core.Models;
 using HongQuant.Core.Services;
+using HongQuant.Platform.Infrastucture;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Splat;
@@ -20,17 +22,34 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
     private readonly ReadOnlyObservableCollection<CombinationBasicDataFileViewModel> _combinationFileIndexs;
     public ReadOnlyObservableCollection<CombinationBasicDataFileViewModel> CombinationFileIndexs => _combinationFileIndexs;
 
+    private readonly ReadOnlyObservableCollection<ProductTemplatesViewModel> _productTemplates;
+    public ReadOnlyObservableCollection<ProductTemplatesViewModel> ProductTemplates => _productTemplates;
+
+
     [Reactive]
     public BasicDataFileViewModel? FileIndex { get; set; }
 
     [Reactive]
-    public DataFileViewModel? SelectFileIndex { get; set; } 
+    public DataFileViewModel? SelectFileIndex { get; set; }
+
+    [Reactive]
+    public bool IsTemplateDialogOpen { get; set; }
+
+    [Reactive]
+    public string TemplateName { get; set; } = string.Empty;
+
+    [Reactive]
+    public ProductTemplatesViewModel? SelectProductTemplate { get; set; }
 
     public ICommand CombinationCommand { get; }
 
     public ICommand TabChangeCommand { get; }
 
     public ICommand CloseCommand { get; }
+
+    public ICommand OpenSaveTemplateCommand { get; }
+
+    public ICommand SaveTemplateCommand { get; }
 
     public ShowDataViewModel()
     {
@@ -61,16 +80,84 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
               .DisposeMany()
               .Subscribe();
 
-        _cleanUp = new CompositeDisposable(fileIndexsDisposable, combinationFileIndexsDisposable);
+        var productTemplatessDisposable = _originalService
+             .ProductTemplates
+             .Connect()
+             .Transform(f => new ProductTemplatesViewModel
+             {
+                 Products = f.Products,
+                 TemplateName = f.TemplateName
+             })
+             .ObserveOn(RxApp.MainThreadScheduler)
+             .Bind(out _productTemplates)
+             .DisposeMany()
+             .Subscribe();
+
+        _cleanUp = new CompositeDisposable(fileIndexsDisposable, 
+            combinationFileIndexsDisposable,
+            productTemplatessDisposable);
 
         CombinationCommand = ReactiveCommand.Create(Combination);
         TabChangeCommand = ReactiveCommand.Create<DataFileViewModel>(TabChange);
         CloseCommand = ReactiveCommand.Create<DataFileViewModel>(Close);
+        OpenSaveTemplateCommand = ReactiveCommand.Create(OpenSaveTemplate);
+
+        SaveTemplateCommand = ReactiveCommand.CreateFromTask(SaveTemplateAsync);
 
         this.WhenAnyValue(x => x.FileIndex).Subscribe(x =>
         {
             SelectFileIndex = x;
         });
+        this.WhenAnyValue(x=>x.SelectProductTemplate).Subscribe(SelectProductTemplateChang);
+    }
+
+    private void SelectProductTemplateChang(ProductTemplatesViewModel? model)
+    {
+        if(model == null)
+        {
+            foreach (var item in FileIndexs)
+            {
+                item.IsSelected = false;
+            }
+        }
+        else
+        {
+            foreach (var item in FileIndexs)
+            {
+                item.IsSelected = model.Products.Any(m=>m == item.DataFile.Product);
+            }
+        }
+    }
+
+    private async Task SaveTemplateAsync()
+    {
+        var selectedNames = FileIndexs
+            .Where(x => x.IsSelected)
+            .Select(x => x.DataFile.Product)
+            .ToList();
+
+        IsTemplateDialogOpen = false;
+
+        if (selectedNames.Count > 0)
+        {
+            //TODO:保存
+            var productTemplate = new ProductTemplate
+            {
+                TemplateName = TemplateName,
+                Products = selectedNames
+            };
+
+            _originalService.SaveProductTemplate(productTemplate);
+        }
+        else
+        {
+            await Interactions.GlobalError.Handle("没有选择品种");
+        }
+    }
+
+    private void OpenSaveTemplate()
+    {
+        IsTemplateDialogOpen = true;
     }
 
     private void Close(DataFileViewModel model)

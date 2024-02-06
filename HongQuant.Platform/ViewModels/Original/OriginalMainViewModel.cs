@@ -23,6 +23,8 @@ public class OriginalMainViewModel : ReactiveObject
 
     public ICommand RefreshFilesCommand { get; }
 
+    public ICommand OpenProductTemplateSettingCommand { get; }
+
     public OriginalMainViewModel()
     {
         _originalService = Locator.Current.GetService<IOriginalService>()!;

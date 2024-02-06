@@ -1,5 +1,4 @@
 ﻿using HongQuant.Platform.ViewModels.Original;
-using Microsoft.Win32;
 using Splat;
 using System.Windows.Controls;
 

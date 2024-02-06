@@ -1,4 +1,5 @@
 ﻿using HongQuant.Platform.Infrastucture;
+using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 using ReactiveUI;
 
@@ -13,6 +14,8 @@ public partial class MainWindow
         InitializeComponent();
 
         Interactions.OpenFolderDialog.RegisterHandler(DoOpenFolder);
+
+        Interactions.GlobalError.RegisterHandler(GlobalError);
     }
 
     private void DoOpenFolder(IInteractionContext<string, string> context)
@@ -22,5 +25,12 @@ public partial class MainWindow
         var result = dialog.ShowDialog();
 
         context.SetOutput(result == true ? dialog.FolderName : string.Empty);
+    }
+
+    private async Task GlobalError(IInteractionContext<string, bool> context)
+    {
+        await this.ShowMessageAsync("错误提示", context.Input);
+
+        context.SetOutput(false);
     }
 }

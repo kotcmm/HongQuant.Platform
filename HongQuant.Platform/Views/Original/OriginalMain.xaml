@@ -20,10 +20,19 @@
                     Style="{StaticResource MaterialDesignFlatButton}">
                     文件夹路径
                 </Button>
+                <CheckBox>同步组合</CheckBox>
                 <Button 
                     Command="{Binding RefreshFilesCommand}"
                     Style="{StaticResource MaterialDesignFlatButton}">
                     更新数据
+                </Button>
+                <Button 
+                    Style="{StaticResource MaterialDesignFlatButton}">
+                    编辑模板
+                </Button>
+                <Button 
+                    Style="{StaticResource MaterialDesignFlatButton}">
+                    导出数据
                 </Button>
             </StackPanel>
             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />

@@ -3,6 +3,8 @@
 namespace HongQuant.Platform.Infrastucture;
 public class Interactions
 {
+    public static readonly Interaction<string, bool> GlobalError = new();
+
     public static readonly Interaction<string, string> OpenFolderDialog = new();
 
     public static readonly Interaction<string, bool> HongSettingConfirm = new();

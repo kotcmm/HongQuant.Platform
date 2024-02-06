@@ -5,12 +5,36 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:view="clr-namespace:HongQuant.Platform.Views.Original"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <view:TypeToBoolConverter x:Key="TypeToBoolConverter"/>
     </UserControl.Resources>
-    <Grid>
+    <materialDesign:DialogHost IsOpen="{Binding IsTemplateDialogOpen}">
+        <materialDesign:DialogHost.DialogContent>
+            <StackPanel Margin="16">
+                <TextBox Margin="0 8 0 0" Text="{Binding TemplateName}" materialDesign:HintAssist.Hint="模板名字"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+                    <Button Style="{StaticResource MaterialDesignFlatButton}"
+                        IsDefault="True"
+                        Margin="0 8 8 0"
+                        Command="{Binding DataContext.SaveTemplateCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type UserControl}}}">
+                        确定
+                    </Button>
+                    <Button Style="{StaticResource MaterialDesignFlatButton}"
+                        IsCancel="True"
+                        Margin="0 8 8 0"
+                        Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
+                        <Button.CommandParameter>
+                            <system:Boolean>False</system:Boolean>
+                        </Button.CommandParameter>
+                        取消
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </materialDesign:DialogHost.DialogContent>
+        <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="240"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
@@ -26,6 +50,8 @@
                     <ListView.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="组合计算" Command="{Binding CombinationCommand}"/>
+                            <Separator/>
+                            <MenuItem Header="保存模板" Command="{Binding OpenSaveTemplateCommand}"/>
                         </ContextMenu>
                     </ListView.ContextMenu>
                     <ListView.ItemContainerStyle>
@@ -45,7 +71,9 @@
                 <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
                 <ComboBox Grid.Row="1"
                       materialDesign:TextFieldAssist.HasClearButton="True"
-                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      ItemsSource="{Binding ProductTemplates}"
+                      SelectedItem="{Binding SelectProductTemplate}"
+                      DisplayMemberPath="TemplateName"
                      />
             </Grid>
         </Border>
@@ -64,6 +92,11 @@
                   CellStyle="{StaticResource DatagridCellStyleCenter}"
                   ColumnHeaderStyle ="{StaticResource DataGridColumnHeaderCenter}"
                   ItemsSource="{Binding SelectFileIndex.Items}">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                            <MenuItem Header="查看图表"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <!--<DataGridTextColumn Header="时间" Binding="{Binding SignalDateTime,StringFormat=yyyy年MM月dd日 HH:mm}"/>-->
                     <DataGridTextColumn Header="品种" Binding="{Binding Product}"/>
@@ -133,4 +166,5 @@
             </StackPanel>
         </Grid>
     </Grid>
+    </materialDesign:DialogHost>
 </UserControl>
