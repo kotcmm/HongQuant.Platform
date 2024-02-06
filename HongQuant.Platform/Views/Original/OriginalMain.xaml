@@ -27,6 +27,7 @@
                     更新数据
                 </Button>
                 <Button 
+                    Command="{Binding OpenProductTemplateSettingCommand}"
                     Style="{StaticResource MaterialDesignFlatButton}">
                     编辑模板
                 </Button>

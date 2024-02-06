@@ -12,6 +12,37 @@ public partial class OriginalMain : UserControl
     {
         InitializeComponent();
 
-        DataContext = Locator.Current.GetService<OriginalMainViewModel>();
+        var viewModel = Locator.Current.GetService<OriginalMainViewModel>();
+
+        DataContext = viewModel;
+
+        viewModel?.OpenProductTemplateSettingCommand.Subscribe(s =>
+        {
+            ShowProductTemplateSetting();
+        });
+    }
+
+    private ProductTemplateSettingView? _hongSetting;
+
+    private void ShowProductTemplateSetting()
+    {
+        if (_hongSetting == null)
+        {
+            _hongSetting = new ProductTemplateSettingView()
+            {
+                Owner = System.Windows.Application.Current.MainWindow,
+            };
+
+            _hongSetting.Closed += (s, e) =>
+            {
+                _hongSetting = null;
+            };
+
+            _hongSetting.Show();
+        }
+        else
+        {
+            _hongSetting.Focus();
+        }
     }
 }

@@ -6,6 +6,7 @@ using ReactiveUI.Fody.Helpers;
 using Splat;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows.Input;
 
@@ -23,7 +24,7 @@ public class OriginalMainViewModel : ReactiveObject
 
     public ICommand RefreshFilesCommand { get; }
 
-    public ICommand OpenProductTemplateSettingCommand { get; }
+    public ReactiveCommand<Unit, Unit> OpenProductTemplateSettingCommand { get; }
 
     public OriginalMainViewModel()
     {
@@ -36,6 +37,8 @@ public class OriginalMainViewModel : ReactiveObject
         OpenFolderCommand = ReactiveCommand.CreateFromTask(OpenFolder);
 
         RefreshFilesCommand = ReactiveCommand.CreateFromTask(RefreshFiles);
+
+        OpenProductTemplateSettingCommand = ReactiveCommand.Create<Unit>(integer => { });
     }
 
     private async Task RefreshFiles()

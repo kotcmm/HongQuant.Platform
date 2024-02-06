@@ -17,6 +17,7 @@ namespace HongQuant.Platform
         {
             Locator.CurrentMutable.Register(() => new OriginalMainViewModel());
             Locator.CurrentMutable.Register(() => new ShowDataViewModel());
+            Locator.CurrentMutable.Register(() => new ProductTemplateSettingViewModel());
 
             Locator.CurrentMutable.Register(() => new HongMainViewModel());
             Locator.CurrentMutable.Register(() => new ContractConfigViewModel());
