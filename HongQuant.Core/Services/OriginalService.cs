@@ -1,6 +1,8 @@
 ﻿using DynamicData;
 using HongQuant.Analysis.Original;
 using HongQuant.Core.Models;
+using HongQuant.Core.Stores;
+using LiteDB;
 
 namespace HongQuant.Core.Services;
 public class OriginalService : IOriginalService
@@ -11,8 +13,13 @@ public class OriginalService : IOriginalService
     private readonly SourceCache<IDataFile, string> _combinationFileIndexs = new(x=>x.Id);
     public IObservableCache<IDataFile, string> CombinationFileIndexs => _combinationFileIndexs.AsObservableCache();
 
-    private readonly SourceList<ProductTemplate> _productTemplates = new();
-    public IObservableList<ProductTemplate> ProductTemplates => _productTemplates.AsObservableList();
+    private readonly SourceCache<ProductTemplate, Guid> _productTemplates = new(x=>x.Id);
+    public IObservableCache<ProductTemplate, Guid> ProductTemplates => _productTemplates.AsObservableCache();
+
+    public OriginalService()
+    {
+        LoadTemplates();
+    }
 
     public void Combination(List<IDataFile> basicDataFiles)
     {
@@ -35,8 +42,24 @@ public class OriginalService : IOriginalService
         _combinationFileIndexs.RemoveKey(id);
     }
 
+    public void LoadTemplates()
+    {
+        var templates = ProductTemplateStore.LoadTemplates();
+
+        _productTemplates.AddOrUpdate(templates);
+    }
+
     public void SaveProductTemplate(ProductTemplate productTemplate)
     {
-        _productTemplates.Add(productTemplate);
+        _productTemplates.AddOrUpdate(productTemplate);
+
+        ProductTemplateStore.AddOrUpdate(productTemplate);
+    }
+
+    public void RemoveProductTemplate(Guid id)
+    {
+        _productTemplates.RemoveKey(id);
+
+        ProductTemplateStore.Remove(id);
     }
 }

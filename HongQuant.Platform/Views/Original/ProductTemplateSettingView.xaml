@@ -6,14 +6,38 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HongQuant.Platform.Views.Original"
         mc:Ignorable="d"
-        Title="品种组合配置" Height="450" Width="800">
+        Title="品种组合配置" Height="450" Width="800"  WindowStartupLocation="CenterOwner">
     <Grid>
         <DataGrid Background="White"
                AutoGenerateColumns="False" 
+               CellStyle="{StaticResource DatagridCellStyleCenter}"
+               ColumnHeaderStyle ="{StaticResource DataGridColumnHeaderCenter}"
                ItemsSource="{Binding ProductTemplates}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="组合名称" Binding="{Binding TemplateName}"/>
-                <DataGridTextColumn Header="品种列表" Binding="{Binding Products}"/>
+                <DataGridTextColumn Header="品种列表" MinWidth="400" Binding="{Binding Products}"/>
+                <DataGridTemplateColumn Header="操作" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="保存" 
+                                        Height="20"
+                                        Padding="0"
+                                        IsEnabled="{Binding IsEditing}"
+                                        Style="{StaticResource MaterialDesignFlatButton}"
+                                        Command="{Binding DataContext.SaveCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
+                                        CommandParameter="{Binding}"/>
+                                <Button Margin="18 0 0 0" Content="删除"
+                                        Foreground="Red"
+                                        Height="20"
+                                        Padding="0"
+                                        Style="{StaticResource MaterialDesignFlatButton}"
+                                        Command="{Binding DataContext.DeleteCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
+                                        CommandParameter="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

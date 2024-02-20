@@ -140,9 +140,9 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
 
         if (selectedNames.Count > 0)
         {
-            //TODO:保存
             var productTemplate = new ProductTemplate
             {
+                Id = Guid.NewGuid(),
                 TemplateName = TemplateName,
                 Products = selectedNames
             };

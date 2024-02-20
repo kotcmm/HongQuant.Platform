@@ -8,6 +8,8 @@ public class HongQuantDatabase : LiteDatabase
     private const string TableContractType = "ContractTypes";
     private const string TableContract = "Contracts";
     private const string TableCalculateConfig = "CalculateConfigs";
+    private const string ProductTemplate = "ProductTemplates";
+
     static HongQuantDatabase()
     {
         if (!Directory.Exists(Dir))
@@ -35,5 +37,6 @@ public class HongQuantDatabase : LiteDatabase
     public ILiteCollection<Contract> Contracts => GetCollection<Contract>(TableContract);
 
     public ILiteCollection<CalculateConfig> CalculateConfigs => GetCollection<CalculateConfig>(TableCalculateConfig);
-
+    
+    public ILiteCollection<ProductTemplate> ProductTemplates => GetCollection<ProductTemplate>(ProductTemplate);
 }

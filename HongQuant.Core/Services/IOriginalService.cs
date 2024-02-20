@@ -1,6 +1,7 @@
 ﻿using DynamicData;
 using HongQuant.Analysis.Original;
 using HongQuant.Core.Models;
+using LiteDB;
 
 namespace HongQuant.Core.Services;
 public interface IOriginalService
@@ -9,7 +10,7 @@ public interface IOriginalService
 
     IObservableCache<IDataFile, string> CombinationFileIndexs { get; }
 
-    IObservableList<ProductTemplate> ProductTemplates { get; }
+    IObservableCache<ProductTemplate, Guid> ProductTemplates { get; }
 
     void Combination(List<IDataFile> basicDataFiles);
 
@@ -18,4 +19,6 @@ public interface IOriginalService
     void LoadFile(IEnumerable<FileInfo> fileInfos);
 
     void SaveProductTemplate(ProductTemplate productTemplate);
+
+    void RemoveProductTemplate(Guid id);
 }
