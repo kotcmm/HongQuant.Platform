@@ -19,5 +19,5 @@ public interface IDataFile
 
     string Strategy { get; }
 
-    IDataFile Calculate();
+    IDataFile Calculate(string name = "");
 }

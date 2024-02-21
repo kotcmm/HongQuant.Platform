@@ -12,7 +12,7 @@ public interface IOriginalService
 
     IObservableCache<ProductTemplate, Guid> ProductTemplates { get; }
 
-    void Combination(List<IDataFile> basicDataFiles);
+    void Combination(List<IDataFile> basicDataFiles, string name = "");
 
     void Remove(string id);
 

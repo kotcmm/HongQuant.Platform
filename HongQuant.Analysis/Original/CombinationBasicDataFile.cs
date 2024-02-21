@@ -12,9 +12,10 @@ public class CombinationBasicDataFile : DataFile
         Id = string.Join("-", basicDataFiles.Select(x => x.Product));
     }
 
-    public override CombinationBasicDataFile Calculate()
+    public override CombinationBasicDataFile Calculate(string name = "")
     {
-        Name = $"组合{_basicDataFiles.Count}品种";
+        Name = string.IsNullOrEmpty(name) ?
+            $"组合{_basicDataFiles.Count}品种" : name;
 
         var signalDatas = _basicDataFiles
             .MeragedByTradeDate(_basicDataFiles.Count)

@@ -21,11 +21,11 @@ public class OriginalService : IOriginalService
         LoadTemplates();
     }
 
-    public void Combination(List<IDataFile> basicDataFiles)
+    public void Combination(List<IDataFile> basicDataFiles, string name = "")
     {
         var combination = new CombinationBasicDataFile(basicDataFiles);
 
-        _combinationFileIndexs.AddOrUpdate(combination.Calculate());
+        _combinationFileIndexs.AddOrUpdate(combination.Calculate(name));
     }
 
     public void LoadFile(IEnumerable<FileInfo> fileInfos)

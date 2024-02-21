@@ -16,5 +16,5 @@ public abstract class DataFile : IDataFile
 
     public string Strategy { get; protected set; } = string.Empty;
 
-    public abstract IDataFile Calculate();
+    public abstract IDataFile Calculate(string name = "");
 }

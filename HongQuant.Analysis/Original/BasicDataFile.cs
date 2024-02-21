@@ -38,7 +38,7 @@ public class BasicDataFile(FileInfo fileInfo) : DataFile
     }
 
     private List<BasicData> _basicDatas = [];
-    public override BasicDataFile Calculate()
+    public override BasicDataFile Calculate(string name = "")
     {
         if (_basicDatas.Count == 0)
         {

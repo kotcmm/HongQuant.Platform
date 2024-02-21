@@ -1,4 +1,5 @@
 ﻿using HongQuant.Core.Services;
+using HongQuant.Core.Stores;
 using HongQuant.Platform.Infrastucture;
 using HongQuant.Platform.Infrastucture.Drops.Files;
 using ReactiveUI;
@@ -20,6 +21,9 @@ public class OriginalMainViewModel : ReactiveObject
     [Reactive]
     public string FolderPath { get; set; } = string.Empty;
 
+    [Reactive]
+    public bool IsTemplateSync { get; set; }
+
     public ICommand OpenFolderCommand { get; }
 
     public ICommand RefreshFilesCommand { get; }
@@ -39,6 +43,45 @@ public class OriginalMainViewModel : ReactiveObject
         RefreshFilesCommand = ReactiveCommand.CreateFromTask(RefreshFiles);
 
         OpenProductTemplateSettingCommand = ReactiveCommand.Create<Unit>(integer => { });
+
+        FolderPathChange();
+
+        TemplateSyncChange();
+    }
+
+    private void TemplateSyncChange()
+    {
+        var str = GlobalSettingStroe.GetValue("TemplateSync");
+
+        if (!string.IsNullOrEmpty(str))
+        {
+            IsTemplateSync = bool.Parse(str);
+        }
+
+        this.WhenAnyValue(x => x.IsTemplateSync)
+                    .Subscribe(x =>
+                    {
+                        GlobalSettingStroe.SetValue(new Core.Models.GlobalSetting
+                        {
+                            Key = "TemplateSync",
+                            Value = x.ToString(),
+                        });
+                    });
+    }
+
+    private void FolderPathChange()
+    {
+        FolderPath = GlobalSettingStroe.GetValue("FolderPath") ?? string.Empty;
+
+        this.WhenAnyValue(x => x.FolderPath)
+            .Subscribe(x =>
+            {
+                GlobalSettingStroe.SetValue(new Core.Models.GlobalSetting
+                {
+                    Key = "FolderPath",
+                    Value = x,
+                });
+            });
     }
 
     private async Task RefreshFiles()
@@ -74,5 +117,24 @@ public class OriginalMainViewModel : ReactiveObject
     private void OpenFile(IEnumerable<FileInfo> files)
     {
         _originalService.LoadFile(files);
+
+        TemplateSync();
+    }
+
+    private void TemplateSync()
+    {
+        if (IsTemplateSync)
+        {
+            var templates = _originalService.ProductTemplates.Items;
+
+            foreach (var item in templates)
+            {
+                var fileIndexs = _originalService.FileIndexs.Items
+                    .Where(x => item.Products.Contains(x.Product))
+                    .ToList();
+
+                _originalService.Combination(fileIndexs, item.TemplateName);
+            }
+        }
     }
 }

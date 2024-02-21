@@ -20,7 +20,7 @@
                     Style="{StaticResource MaterialDesignFlatButton}">
                     文件夹路径
                 </Button>
-                <CheckBox>同步组合</CheckBox>
+                <CheckBox IsChecked="{Binding IsTemplateSync}">同步组合</CheckBox>
                 <Button 
                     Command="{Binding RefreshFilesCommand}"
                     Style="{StaticResource MaterialDesignFlatButton}">
