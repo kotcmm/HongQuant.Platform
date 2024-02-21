@@ -25,6 +25,7 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
     private readonly ReadOnlyObservableCollection<ProductTemplatesViewModel> _productTemplates;
     public ReadOnlyObservableCollection<ProductTemplatesViewModel> ProductTemplates => _productTemplates;
 
+    public static readonly Interaction<ShowDataViewModel, string> OpenShowChart = new();
 
     [Reactive]
     public BasicDataFileViewModel? FileIndex { get; set; }
@@ -50,6 +51,8 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
     public ICommand OpenSaveTemplateCommand { get; }
 
     public ICommand SaveTemplateCommand { get; }
+
+    public ICommand ShowChartCommand { get; }
 
     public ShowDataViewModel()
     {
@@ -101,6 +104,7 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
         TabChangeCommand = ReactiveCommand.Create<DataFileViewModel>(TabChange);
         CloseCommand = ReactiveCommand.Create<DataFileViewModel>(Close);
         OpenSaveTemplateCommand = ReactiveCommand.Create(OpenSaveTemplate);
+        ShowChartCommand = ReactiveCommand.CreateFromTask(ShowChartAsync);
 
         SaveTemplateCommand = ReactiveCommand.CreateFromTask(SaveTemplateAsync);
 
@@ -109,6 +113,11 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
             SelectFileIndex = x;
         });
         this.WhenAnyValue(x=>x.SelectProductTemplate).Subscribe(SelectProductTemplateChang);
+    }
+
+    private async Task ShowChartAsync()
+    {
+        await OpenShowChart.Handle(this);
     }
 
     private void SelectProductTemplateChang(ProductTemplatesViewModel? model)

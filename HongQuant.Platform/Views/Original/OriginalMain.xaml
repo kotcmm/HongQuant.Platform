@@ -32,6 +32,7 @@
                     编辑模板
                 </Button>
                 <Button 
+                    Command="{Binding ExportCommand}"
                     Style="{StaticResource MaterialDesignFlatButton}">
                     导出数据
                 </Button>

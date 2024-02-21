@@ -94,7 +94,7 @@
                   ItemsSource="{Binding SelectFileIndex.Items}">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                            <MenuItem Header="查看图表"/>
+                            <MenuItem Header="查看图表" Command="{Binding ShowChartCommand}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>

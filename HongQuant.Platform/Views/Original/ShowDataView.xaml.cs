@@ -1,4 +1,5 @@
 ﻿using HongQuant.Platform.ViewModels.Original;
+using ReactiveUI;
 using Splat;
 using System.Globalization;
 using System.Windows.Controls;
@@ -15,6 +16,37 @@ public partial class ShowDataView : UserControl
         InitializeComponent();
 
         DataContext = Locator.Current.GetService<ShowDataViewModel>();
+
+        ShowDataViewModel.OpenShowChart.RegisterHandler(ShowChart);
+    }
+
+    private ShowChartView? _showChartView;
+
+    private void ShowChart(IInteractionContext<ShowDataViewModel, string> context)
+    {
+        if(_showChartView == null)
+        {
+            _showChartView = new ShowChartView() 
+            { 
+                DataContext = new ShowChartViewModel(context.Input),
+                Owner = System.Windows.Application.Current.MainWindow,
+            };
+
+            _showChartView.Closed += ShowChartView_Closed;
+
+            _showChartView.Show();
+        }
+        else
+        {
+            _showChartView.Focus();
+        }
+
+        context.SetOutput(string.Empty);
+    }
+
+    private void ShowChartView_Closed(object? sender, EventArgs e)
+    {
+        _showChartView = null;
     }
 }
 

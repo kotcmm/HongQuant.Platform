@@ -28,6 +28,8 @@ public class OriginalMainViewModel : ReactiveObject
 
     public ICommand RefreshFilesCommand { get; }
 
+    public ICommand ExportCommand { get; }
+
     public ReactiveCommand<Unit, Unit> OpenProductTemplateSettingCommand { get; }
 
     public OriginalMainViewModel()
@@ -42,11 +44,18 @@ public class OriginalMainViewModel : ReactiveObject
 
         RefreshFilesCommand = ReactiveCommand.CreateFromTask(RefreshFiles);
 
+        ExportCommand = ReactiveCommand.Create(Export);
+
         OpenProductTemplateSettingCommand = ReactiveCommand.Create<Unit>(integer => { });
 
         FolderPathChange();
 
         TemplateSyncChange();
+    }
+
+    private void Export()
+    {
+        
     }
 
     private void TemplateSyncChange()
