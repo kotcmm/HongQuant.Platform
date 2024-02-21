@@ -17,6 +17,8 @@ public class CombinationBasicDataFile : DataFile
         Name = string.IsNullOrEmpty(name) ?
             $"组合{_basicDataFiles.Count}品种" : name;
 
+        Product = Name;
+
         var signalDatas = _basicDataFiles
             .MeragedByTradeDate(_basicDataFiles.Count)
             .AttachMeragedBasicDatas();

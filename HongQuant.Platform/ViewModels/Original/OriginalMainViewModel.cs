@@ -44,7 +44,7 @@ public class OriginalMainViewModel : ReactiveObject
 
         RefreshFilesCommand = ReactiveCommand.CreateFromTask(RefreshFiles);
 
-        ExportCommand = ReactiveCommand.Create(Export);
+        ExportCommand = ReactiveCommand.CreateFromTask(Export);
 
         OpenProductTemplateSettingCommand = ReactiveCommand.Create<Unit>(integer => { });
 
@@ -53,9 +53,26 @@ public class OriginalMainViewModel : ReactiveObject
         TemplateSyncChange();
     }
 
-    private void Export()
+    private async Task Export()
     {
-        
+        var dir = await Interactions.OpenFolderDialog.Handle("");
+
+        if (string.IsNullOrEmpty(dir)) return;
+
+        foreach (var item in _originalService.FileIndexs.Items)
+        {
+            SaveFile(dir,item);
+        }
+
+        foreach (var item in _originalService.CombinationFileIndexs.Items)
+        {
+            SaveFile(dir, item);
+        }
+    }
+
+    private void SaveFile(string dir,Analysis.Original.IDataFile item)
+    {
+        _originalService.Save(dir, item);
     }
 
     private void TemplateSyncChange()

@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows.Input;
+using static MaterialDesignThemes.Wpf.Theme.ToolBar;
 
 namespace HongQuant.Platform.ViewModels.Original;
 public class ShowDataViewModel : ReactiveObject, IDisposable
@@ -53,6 +54,8 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
     public ICommand SaveTemplateCommand { get; }
 
     public ICommand ShowChartCommand { get; }
+
+    public ICommand ExportCommand { get; }
 
     public ShowDataViewModel()
     {
@@ -105,7 +108,7 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
         CloseCommand = ReactiveCommand.Create<DataFileViewModel>(Close);
         OpenSaveTemplateCommand = ReactiveCommand.Create(OpenSaveTemplate);
         ShowChartCommand = ReactiveCommand.CreateFromTask(ShowChartAsync);
-
+        ExportCommand = ReactiveCommand.CreateFromTask(Export);
         SaveTemplateCommand = ReactiveCommand.CreateFromTask(SaveTemplateAsync);
 
         this.WhenAnyValue(x => x.FileIndex).Subscribe(x =>
@@ -118,6 +121,15 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
     private async Task ShowChartAsync()
     {
         await OpenShowChart.Handle(this);
+    }
+
+    private async Task Export()
+    {
+        var dir = await Interactions.OpenFolderDialog.Handle("");
+
+        if (string.IsNullOrEmpty(dir) || SelectFileIndex == null) return;
+
+        _originalService.Save(dir, SelectFileIndex.DataFile);
     }
 
     private void SelectProductTemplateChang(ProductTemplatesViewModel? model)

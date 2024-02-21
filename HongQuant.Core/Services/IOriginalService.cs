@@ -21,4 +21,6 @@ public interface IOriginalService
     void SaveProductTemplate(ProductTemplate productTemplate);
 
     void RemoveProductTemplate(Guid id);
+
+    void Save(string dir, IDataFile dataFile);
 }
