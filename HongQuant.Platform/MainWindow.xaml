@@ -20,13 +20,13 @@
     <Grid>
         <TabControl TabStripPlacement="Left" 
             controls:TabControlHelper.Underlined="TabPanel">
-            <TabItem Header="原始数据" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
+            <TabItem Header="基础数据" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
                 <original:OriginalMain/>
             </TabItem>
-            <TabItem Header="鸿观量化" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
+            <!--<TabItem Header="鸿观量化" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
                 <hong:HongMain/>
-            </TabItem>
-            <TabItem Header="易投量化" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
+            </TabItem>-->
+            <TabItem Header="定投择时" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
                 <yitou:YiTouMain/>
             </TabItem>
         </TabControl>
