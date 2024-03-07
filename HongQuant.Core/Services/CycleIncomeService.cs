@@ -85,6 +85,7 @@ public class CycleIncomeService : ICycleIncomeService
         worksheet.Cells["F1"].Value = "最大收益%";
         worksheet.Cells["G1"].Value = "收益日期";
         worksheet.Cells["H1"].Value = "累计天数";
+        worksheet.Cells["I1"].Value = "累计杠杆";
 
         int row = 2;
 
@@ -98,6 +99,7 @@ public class CycleIncomeService : ICycleIncomeService
             worksheet.Cells["F" + row].Value = item.MaxTotal;
             worksheet.Cells["G" + row].Value = item.MaxTotalDate.ToString("yyyyMMdd");
             worksheet.Cells["H" + row].Value = item.DayCount;
+            worksheet.Cells["I" + row].Value = item.LastMultiples;
 
             row++;
         }
