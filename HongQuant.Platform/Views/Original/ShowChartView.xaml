@@ -5,8 +5,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
-        xmlns:local="clr-namespace:HongQuant.Platform.Views.Original"
-        mc:Ignorable="d"
+        xmlns:showCharts="clr-namespace:HongQuant.Platform.ViewModels.Original.ShowCharts"
+        xmlns:local="clr-namespace:HongQuant.Platform.Views.Original" xmlns:showcharts="clr-namespace:HongQuant.Platform.Views.Original.ShowCharts"
+                 mc:Ignorable="d"
         Title="图表展示" Height="450" Width="800" WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>
@@ -14,41 +15,35 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Margin="10 0 0 0" Orientation="Horizontal">
-            <RadioButton Content="净利润"
-                         IsChecked="True"
-                         BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
-                         Style="{StaticResource MaterialDesignTabRadioButtonBottom}"
-                         Command="{Binding FieldChangeCommand}"
-                         CommandParameter="0"/>
             <RadioButton Margin="10 0 0 0" 
+                         IsChecked="True"
                          Content="收益率" 
                          BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
                          Style="{StaticResource MaterialDesignTabRadioButtonBottom}" 
                          Command="{Binding FieldChangeCommand}"
-                         CommandParameter="1"/>
+                         CommandParameter="0"/>
             <RadioButton Margin="10 0 0 0" 
                          Content="累计收益率" 
                          BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
                          Style="{StaticResource MaterialDesignTabRadioButtonBottom}"
                          Command="{Binding FieldChangeCommand}"
-                         CommandParameter="2"/>
+                         CommandParameter="1"/>
             <RadioButton Margin="10 0 0 0" 
                          Content="实时回撤" 
                          BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
                          Style="{StaticResource MaterialDesignTabRadioButtonBottom}"
                          Command="{Binding FieldChangeCommand}"
-                         CommandParameter="3"/>
-            <RadioButton Margin="10 0 0 0" 
-                         Content="最大回撤" 
-                         BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
-                         Style="{StaticResource MaterialDesignTabRadioButtonBottom}"
-                         Command="{Binding FieldChangeCommand}"
-                         CommandParameter="4"/>
+                         CommandParameter="2"/>
         </StackPanel>
-        <lvc:CartesianChart 
-            Series="{Binding TotalSeries}"
-            XAxes="{Binding TotalXAxes}"
-            ZoomMode="X" 
-            Grid.Row="1" />
+        <ContentControl Grid.Row="1" Content="{Binding ChartData}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type showCharts:YieldsChartData}">
+                    <showcharts:YieldsChartView DataContext="{Binding}"/>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type showCharts:BaseLineChartData}">
+                    <showcharts:LineChartView DataContext="{Binding}"/>
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
     </Grid>
 </mah:MetroWindow>
