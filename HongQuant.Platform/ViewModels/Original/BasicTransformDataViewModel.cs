@@ -24,6 +24,13 @@ public class BasicTransformDataViewModel(BasicTransformData item)
     public double Equity { get; set; } = item.Equity;
 
     /// <summary>
+    /// 持仓
+    /// </summary>
+    public int Position { get; set; } = item.Position;
+
+    public string PositionFormat { get; set; } = item.PositionFormat;
+
+    /// <summary>
     /// 今日盈亏
     /// </summary>
     public double TodayProfitAndLoss { get; set; } = item.TodayProfitAndLoss;

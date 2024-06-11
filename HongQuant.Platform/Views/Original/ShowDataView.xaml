@@ -110,6 +110,7 @@
                     <DataGridTextColumn Header="实时回撤" MinWidth="80" Binding="{Binding WithdrawDeep,StringFormat=P2}"/>
                     <DataGridTextColumn Header="最大回撤" MinWidth="80" Binding="{Binding MaxWithdraw,StringFormat=P2}"/>
                     <DataGridTextColumn Header="回撤程度" MinWidth="80" Binding="{Binding WithdrawLevel,StringFormat=P2}"/>
+                        <DataGridTextColumn Header="持仓" MinWidth="80" Binding="{Binding PositionFormat}"/>
                 </DataGrid.Columns>
             </DataGrid>
             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />

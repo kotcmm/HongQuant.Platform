@@ -9,7 +9,6 @@ using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows.Input;
-using static MaterialDesignThemes.Wpf.Theme.ToolBar;
 
 namespace HongQuant.Platform.ViewModels.Original;
 public class ShowDataViewModel : ReactiveObject, IDisposable

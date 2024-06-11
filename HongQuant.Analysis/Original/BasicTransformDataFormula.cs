@@ -45,6 +45,9 @@ public static class BasicTransformDataFormula
                     Product = $"{count}({datas.Count})",
                     TradeDate = x.Key,
                     Equity = Math.Round(datas.Sum(x => x.Equity),2),
+                    Position = datas.Sum(x => Math.Abs(x.Position)),
+                    LongPosition = datas.Count(x => x.Position == 1),
+                    ShortPosition = datas.Count(x => x.Position == -1),
                     StartEquity = datas.Sum(x => x.StartEquity),
                     TodayProfitAndLoss = Math.Round(datas.Sum(x => x.TodayProfitAndLoss),2),
                 };
@@ -62,6 +65,7 @@ public static class BasicTransformDataFormula
                 Product = product,
                 SignalDateTime = data.SignalDateTime!.Value,
                 Equity = data.Equity!.Value,
+                Position = data.Position!.Value,
             };
         }).OrderBy(x=>x.SignalDateTime);
     }

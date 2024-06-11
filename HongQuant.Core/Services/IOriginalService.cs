@@ -1,7 +1,6 @@
 ﻿using DynamicData;
 using HongQuant.Analysis.Original;
 using HongQuant.Core.Models;
-using LiteDB;
 
 namespace HongQuant.Core.Services;
 public interface IOriginalService

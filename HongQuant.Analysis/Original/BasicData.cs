@@ -17,6 +17,11 @@ public class BasicData
     /// </summary>
     public double? Equity { get; set; }
 
+    /// <summary>
+    /// 持仓
+    /// </summary>
+    public int? Position { get; set; }
+
     internal static BasicData? BuildData(string? line)
     {
         if (string.IsNullOrEmpty(line)) return null;
@@ -26,7 +31,8 @@ public class BasicData
         return new BasicData()
         {
             SignalDateTime = ConvertDateTime(items[0]),
-            Equity = ConvertDouble(items[1])
+            Equity = ConvertDouble(items[1]),
+            Position = ConvertInt(items[3]),
         };
     }
 
@@ -43,6 +49,11 @@ public class BasicData
     private static double? ConvertDouble(string item)
     {
         return double.TryParse(item.Trim(), out var value) ? value : null;
+    }
+
+    private static int? ConvertInt(string item)
+    {
+        return int.TryParse(item.Trim(), out var value) ? value : null;
     }
 
     internal bool Verify()

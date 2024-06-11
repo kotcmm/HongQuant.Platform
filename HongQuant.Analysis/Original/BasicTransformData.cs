@@ -31,6 +31,26 @@ public class BasicTransformData
     public double Equity { get; set; }
 
     /// <summary>
+    /// 持仓格式化
+    /// </summary>
+    public string PositionFormat => $"{Position},{LongPosition},{ShortPosition}";
+
+    /// <summary>
+    /// 持仓
+    /// </summary>
+    public int Position { get; set; }
+
+    /// <summary>
+    /// 多头持仓
+    /// </summary>
+    public int LongPosition { get; set; }
+
+    /// <summary>
+    /// 空头持仓
+    /// </summary>
+    public int ShortPosition { get; set; }
+
+    /// <summary>
     /// 今日盈亏
     /// </summary>
     public double TodayProfitAndLoss { get; set; }
