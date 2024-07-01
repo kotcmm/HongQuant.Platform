@@ -26,6 +26,7 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
     public ReadOnlyObservableCollection<ProductTemplatesViewModel> ProductTemplates => _productTemplates;
 
     public static readonly Interaction<ShowDataViewModel, string> OpenShowChart = new();
+    public static readonly Interaction<ShowDataViewModel, string> OpenShowLast = new();
 
     [Reactive]
     public BasicDataFileViewModel? FileIndex { get; set; }
@@ -53,6 +54,8 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
     public ICommand SaveTemplateCommand { get; }
 
     public ICommand ShowChartCommand { get; }
+
+    public ICommand ShowLastCommand { get; }
 
     public ICommand ExportCommand { get; }
 
@@ -98,7 +101,7 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
              .DisposeMany()
              .Subscribe();
 
-        _cleanUp = new CompositeDisposable(fileIndexsDisposable, 
+        _cleanUp = new CompositeDisposable(fileIndexsDisposable,
             combinationFileIndexsDisposable,
             productTemplatessDisposable);
 
@@ -107,6 +110,7 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
         CloseCommand = ReactiveCommand.Create<DataFileViewModel>(Close);
         OpenSaveTemplateCommand = ReactiveCommand.Create(OpenSaveTemplate);
         ShowChartCommand = ReactiveCommand.CreateFromTask(ShowChartAsync);
+        ShowLastCommand = ReactiveCommand.CreateFromTask(ShowLastAsync);
         ExportCommand = ReactiveCommand.CreateFromTask(Export);
         SaveTemplateCommand = ReactiveCommand.CreateFromTask(SaveTemplateAsync);
 
@@ -114,12 +118,17 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
         {
             SelectFileIndex = x;
         });
-        this.WhenAnyValue(x=>x.SelectProductTemplate).Subscribe(SelectProductTemplateChang);
+        this.WhenAnyValue(x => x.SelectProductTemplate).Subscribe(SelectProductTemplateChang);
     }
 
     private async Task ShowChartAsync()
     {
         await OpenShowChart.Handle(this);
+    }
+
+    private async Task ShowLastAsync()
+    {
+        await OpenShowLast.Handle(this);
     }
 
     private async Task Export()

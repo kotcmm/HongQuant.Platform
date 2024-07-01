@@ -51,6 +51,8 @@
                         <ContextMenu>
                             <MenuItem Header="组合计算" Command="{Binding CombinationCommand}"/>
                             <Separator/>
+                            <MenuItem Header="最新查看" Command="{Binding ShowLastCommand}"/>
+                            <Separator/>
                             <MenuItem Header="保存模板" Command="{Binding OpenSaveTemplateCommand}"/>
                         </ContextMenu>
                     </ListView.ContextMenu>

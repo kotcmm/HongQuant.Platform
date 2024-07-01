@@ -18,6 +18,7 @@ public partial class ShowDataView : UserControl
         DataContext = Locator.Current.GetService<ShowDataViewModel>();
 
         ShowDataViewModel.OpenShowChart.RegisterHandler(ShowChart);
+        ShowDataViewModel.OpenShowLast.RegisterHandler(ShowLast);
     }
 
     private ShowChartView? _showChartView;
@@ -47,6 +48,35 @@ public partial class ShowDataView : UserControl
     private void ShowChartView_Closed(object? sender, EventArgs e)
     {
         _showChartView = null;
+    }
+
+    private ShowLastView? _showLastView;
+
+    private void ShowLast(IInteractionContext<ShowDataViewModel, string> context)
+    {
+        if (_showLastView == null)
+        {
+            _showLastView = new ShowLastView()
+            {
+                DataContext = new ShowLastViewModel(context.Input),
+                Owner = System.Windows.Application.Current.MainWindow,
+            };
+
+            _showLastView.Closed += ShowLastView_Closed;
+
+            _showLastView.Show();
+        }
+        else
+        {
+            _showLastView.Focus();
+        }
+
+        context.SetOutput(string.Empty);
+    }
+
+    private void ShowLastView_Closed(object? sender, EventArgs e)
+    {
+        _showLastView = null;
     }
 }
 
