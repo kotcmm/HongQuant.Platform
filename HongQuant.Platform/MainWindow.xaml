@@ -8,6 +8,7 @@
         xmlns:hong="clr-namespace:HongQuant.Platform.Views.Hong" 
         xmlns:yitou="clr-namespace:HongQuant.Platform.Views.YiTou"
         xmlns:original="clr-namespace:HongQuant.Platform.Views.Original"
+        xmlns:realTime="clr-namespace:HongQuant.Platform.Views.RealTime"
         mc:Ignorable="d"
         Title="HONG QUANT"  Height="650" Width="1200" WindowState="Maximized">
     <Window.Resources>
@@ -20,6 +21,9 @@
     <Grid>
         <TabControl TabStripPlacement="Left" 
             controls:TabControlHelper.Underlined="TabPanel">
+            <TabItem Header="实时数据" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
+                <realTime:RealTimeMain/>
+            </TabItem>
             <TabItem Header="基础数据" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
                 <original:OriginalMain/>
             </TabItem>
