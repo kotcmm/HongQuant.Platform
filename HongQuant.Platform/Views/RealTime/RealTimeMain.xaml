@@ -12,7 +12,7 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid>
-            <Button>开始</Button>
+            <Button Command="{Binding StartCommand}">开始</Button>
         </Grid>
         <local:ProductListView Grid.Row="1"/>
     </Grid>

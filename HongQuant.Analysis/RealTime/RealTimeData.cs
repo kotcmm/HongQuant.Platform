@@ -25,11 +25,13 @@ public class RealTimeData
 
         var items = line.Split(',');
 
+        if(items.Length < 3) return null;
+
         return new RealTimeData()
         {
             SignalDateTime = ConvertDateTime(items[0]),
             Equity = ConvertDouble(items[1]),
-            Position = ConvertInt(items[3]),
+            Position = ConvertInt(items[2]),
         };
     }
 

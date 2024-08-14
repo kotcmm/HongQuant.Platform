@@ -1,20 +1,22 @@
 ﻿using DynamicData;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 
 namespace HongQuant.Analysis.RealTime;
 public class RealTimeDataSource
 {
+    private bool _initialization = false;
+
     public string Product { get; set; } = string.Empty;
 
     public string Strategy { get; set; } = string.Empty;
 
-    private readonly Subject<AnalyzedData> _subject = new();
-
-    public IObservable<IChangeSet<AnalyzedData, DateTime>> AnalyzedDatas => _subject.ToObservableChangeSet(x=>x.SignalDateTime);
+    private readonly SourceCache<AnalyzedData, DateTime> _analyzedDatas = new(x => x.SignalDateTime);
+    public ISourceCache<AnalyzedData, DateTime> AnalyzedDatas => _analyzedDatas;
 
     public void OnHistoryData(IEnumerable<string> datas)
     {
+        _initialization = false;
+
         var realTimeDatas = datas
             .Select(RealTimeData.BuildData)
             .OfType<RealTimeData>()
@@ -24,10 +26,14 @@ public class RealTimeDataSource
         {
             OnNext(realTimeData);
         }
+
+        _initialization = true;
     }
 
     public void OnRealTimeData(string line)
     {
+        if (!_initialization) return;
+
         var realTimeData = RealTimeData.BuildData(line);
 
         if (realTimeData != null && realTimeData.Verify())
@@ -46,6 +52,6 @@ public class RealTimeDataSource
             Position = realTimeData.Position!.Value,
         };
 
-        _subject.OnNext(analyzedData);
+        _analyzedDatas.AddOrUpdate(analyzedData);
     }
 }
