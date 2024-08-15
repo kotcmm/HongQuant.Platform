@@ -9,6 +9,7 @@ public class RealTimeMainViewModel : ReactiveObject
     private readonly IRealTimeDataService _realTimeDataService;
 
     public ICommand StartCommand { get; }
+    public ICommand AnalysisCommand { get; }
 
     public RealTimeMainViewModel()
     {
@@ -17,6 +18,11 @@ public class RealTimeMainViewModel : ReactiveObject
         StartCommand = ReactiveCommand.CreateFromTask(() =>
         {
            return _realTimeDataService.Start();
+        });
+
+        AnalysisCommand = ReactiveCommand.CreateFromTask(() =>
+        {
+            return _realTimeDataService.Start();
         });
     }
 }

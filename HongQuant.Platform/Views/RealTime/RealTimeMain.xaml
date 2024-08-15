@@ -11,9 +11,10 @@
             <RowDefinition Height="32"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid>
+        <StackPanel Orientation="Horizontal">
             <Button Command="{Binding StartCommand}">开始</Button>
-        </Grid>
+            <Button Command="{Binding AnalysisCommand}">统计</Button>
+        </StackPanel>
         <local:ProductListView Grid.Row="1"/>
     </Grid>
 </UserControl>
