@@ -35,6 +35,22 @@ public class RealTimeData
         };
     }
 
+    internal static RealTimeData? PreBuildData(string? line)
+    {
+        if (string.IsNullOrEmpty(line)) return null;
+
+        var items = line.Split(',');
+
+        if (items.Length < 6) return null;
+
+        return new RealTimeData()
+        {
+            SignalDateTime = ConvertDateTime(items[3]),
+            Equity = ConvertDouble(items[4]),
+            Position = ConvertInt(items[5]),
+        };
+    }
+
     private static readonly string[] formats = ["yyyyMMdd HH:mm:ss", "yyyy/MM/dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss"];
 
     private static DateTime? ConvertDateTime(string item)

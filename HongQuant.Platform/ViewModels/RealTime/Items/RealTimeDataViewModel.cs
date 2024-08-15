@@ -9,6 +9,7 @@ public class RealTimeDataViewModel
         SignalDateTime = data.SignalDateTime;
         Position = data.Position;
         Equity = data.Equity;
+        TodayProfitAndLoss = data.TodayProfitAndLoss;
     }
 
     /// <summary>
@@ -30,4 +31,9 @@ public class RealTimeDataViewModel
     /// 权益
     /// </summary>
     public double Equity { get; set; }
+
+    /// <summary>
+    /// 今日盈亏
+    /// </summary>
+    public double TodayProfitAndLoss { get; set; }
 }
