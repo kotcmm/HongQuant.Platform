@@ -12,6 +12,7 @@
             Series="{Binding Series}" 
             XAxes="{Binding XAxes}"
             YAxes="{Binding YAxes}"
-            TooltipPosition="Hidden"/>    
+            TooltipPosition="Hidden"
+            ZoomMode="None"/>    
     </Grid>
 </UserControl>

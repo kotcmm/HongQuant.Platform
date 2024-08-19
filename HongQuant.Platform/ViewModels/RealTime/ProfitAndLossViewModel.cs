@@ -20,9 +20,15 @@ public class ProfitAndLossViewModel : ReactiveObject, IDisposable
 
     public ISeries[] Series { get; set; }
 
-    public Axis[] XAxes { get; set; } = [new Axis { SeparatorsPaint = new SolidColorPaint(new SKColor(220, 220, 220)) }];
+    public Axis[] XAxes { get; set; } = [new Axis { 
+        //IsVisible = false ,
+        //Padding = new LiveChartsCore.Drawing.Padding(0)
+        Labeler = va=>""
+    }];
 
-    public Axis[] YAxes { get; set; } = [new Axis { IsVisible = false }];
+    public Axis[] YAxes { get; set; } = [new Axis { 
+        SeparatorsPaint = new SolidColorPaint(new SKColor(220, 220, 220)) ,
+    }];
 
     public ProfitAndLossViewModel()
     {
@@ -36,12 +42,12 @@ public class ProfitAndLossViewModel : ReactiveObject, IDisposable
             .DisposeMany()
             .Subscribe();
 
-        var rowSeries = new RowSeries<PilotInfo>
+        var rowSeries = new ColumnSeries<PilotInfo>
         {
             DataLabelsPaint = new SolidColorPaint(new SKColor(45, 45, 45)),
             DataLabelsPosition = DataLabelsPosition.Start,
             //DataLabelsTranslate = new(1, 0),
-            DataLabelsFormatter = point => $"{point.Model!.Name} {point.Coordinate.PrimaryValue}",
+            DataLabelsFormatter = point => $"{point.Model!.Name} \r\n {point.Coordinate.PrimaryValue}",
             MaxBarWidth = 50,
             Padding = 8,
         };
@@ -59,7 +65,10 @@ public class ProfitAndLossViewModel : ReactiveObject, IDisposable
 
         var timerDisposed = Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(x =>
         {
-            Series[0].Values = data.OrderBy(x => x.Value).ToArray();
+            Series[0].Values = data
+            .Where(x=>x.Position != 0)
+            .OrderByDescending(x => x.Value)
+            .ToArray();
         });
 
         _disposed = new CompositeDisposable(dataDisposed,timerDisposed);

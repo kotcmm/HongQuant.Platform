@@ -7,9 +7,11 @@ public class RealTimeDataViewModel
     {
         Product = data.Product;
         SignalDateTime = data.SignalDateTime;
+        TradeDate = data.TradeDate;
         Position = data.Position;
         Equity = data.Equity;
-        TodayProfitAndLoss = data.TodayProfitAndLoss;
+        ProfitAndLoss = data.ProfitAndLoss;
+        DayProfitAndLoss = data.DayProfitAndLoss;
     }
 
     /// <summary>
@@ -23,6 +25,11 @@ public class RealTimeDataViewModel
     public DateTime SignalDateTime { get; set; }
 
     /// <summary>
+    /// 交易日
+    /// </summary>
+    public DateOnly TradeDate { get; set; }
+
+    /// <summary>
     /// 持仓
     /// </summary>
     public int Position { get; set; }
@@ -33,7 +40,13 @@ public class RealTimeDataViewModel
     public double Equity { get; set; }
 
     /// <summary>
-    /// 今日盈亏
+    /// 净盈亏
     /// </summary>
-    public double TodayProfitAndLoss { get; set; }
+    public double ProfitAndLoss { get; set; }
+
+    /// <summary>
+    /// 日净盈亏
+    /// </summary>
+    public double DayProfitAndLoss { get; set; }
+    
 }

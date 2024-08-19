@@ -57,6 +57,7 @@
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="时间" Binding="{Binding SignalDateTime,StringFormat=yyyy年MM月dd日 HH:mm}"/>
+                <DataGridTextColumn Header="交易日" Binding="{Binding TradeDate,StringFormat=yyyy年MM月dd日}"/>
                 <DataGridTextColumn Header="品种" Binding="{Binding Product}"/>
                 <DataGridTextColumn Header="持仓">
                     <DataGridTextColumn.ElementStyle>
@@ -78,17 +79,31 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <!--<DataGridTextColumn Header="交易日" Binding="{Binding SignalDateTime,StringFormat=yyyy年MM月dd日}"/>-->
                 <DataGridTextColumn Header="权益" MinWidth="80" Binding="{Binding Equity,StringFormat=F0}"/>
                 <DataGridTextColumn Header="净利润">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
-                            <Setter Property="Text" Value="{Binding TodayProfitAndLoss}"></Setter>
+                            <Setter Property="Text" Value="{Binding ProfitAndLoss}"></Setter>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding TodayProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="1">
+                                <DataTrigger Binding="{Binding ProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="1">
                                     <Setter Property="Foreground" Value="Red"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding TodayProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="-1">
+                                <DataTrigger Binding="{Binding ProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="-1">
+                                    <Setter Property="Foreground" Value="Green"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="日净利润">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="{Binding DayProfitAndLoss}"></Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DayProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="1">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding DayProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="-1">
                                     <Setter Property="Foreground" Value="Green"/>
                                 </DataTrigger>
                             </Style.Triggers>

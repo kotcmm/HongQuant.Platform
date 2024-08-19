@@ -123,8 +123,6 @@ public static class BasicTransformDataFormula
         {
             var data = e.Current;
 
-            var dateTime = data.SignalDateTime;
-
             data.TradeDate = tradeDate.GetTradeDate(data.SignalDateTime);
 
             yield return data;

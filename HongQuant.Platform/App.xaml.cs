@@ -23,7 +23,9 @@ public partial class App : Application
         FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty = false;
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         LiveCharts.Configure(config =>
-            config.HasGlobalSKTypeface(SKFontManager.Default.MatchCharacter('汉')));
+        {
+            config.HasGlobalSKTypeface(SKFontManager.Default.MatchCharacter('汉'));
+        });
         _ = new AppBootstrapper();
     }
 

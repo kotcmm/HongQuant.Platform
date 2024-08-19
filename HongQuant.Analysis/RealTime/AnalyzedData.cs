@@ -12,6 +12,11 @@ public class AnalyzedData
     public DateTime SignalDateTime { get; set; }
 
     /// <summary>
+    /// 交易日
+    /// </summary>
+    public DateOnly TradeDate { get; set; }
+
+    /// <summary>
     /// 持仓
     /// </summary>
     public int Position { get; set; }
@@ -22,25 +27,45 @@ public class AnalyzedData
     public double Equity { get; set; }
 
     /// <summary>
-    /// 今日盈亏
+    /// 净盈亏
     /// </summary>
-    public double TodayProfitAndLoss { get; set; }
+    public double ProfitAndLoss { get; set; }
 
     /// <summary>
-    /// 计算今日盈亏
-    /// 今日盈亏=今日最后一条权益-昨天最后一条权益
+    /// 今日盈亏
+    /// </summary>
+    public double DayProfitAndLoss { get; set; }
+
+    /// <summary>
+    /// 计算净盈亏
+    /// 净盈亏=当前一条权益-上一条权益
     /// </summary>
     /// <param name="firstData"></param>
     /// <param name="preData"></param>
-    public void AttachTodayProfitAndLoss(AnalyzedData firstData, AnalyzedData? preData)
+    public void AttachProfitAndLoss(AnalyzedData firstData, AnalyzedData? preData)
     {
         if (preData == null)
         {
-            TodayProfitAndLoss = Equity - firstData.Equity;
+            ProfitAndLoss = Equity - firstData.Equity;
+            DayProfitAndLoss = ProfitAndLoss;
         }
         else
         {
-            TodayProfitAndLoss = Math.Round(Equity - preData.Equity, 2);
+            ProfitAndLoss = Math.Round(Equity - preData.Equity, 2);
+            DayProfitAndLoss = TradeDate == preData.TradeDate ?
+                (ProfitAndLoss + preData.DayProfitAndLoss) : ProfitAndLoss;
+        }
+    }
+
+    /// <summary>
+    /// 计算交易日
+    /// </summary>
+    /// <param name="tradeDate"></param>
+    public void AttachTradeDay(ConvertTradeDate? tradeDate)
+    {
+        if (tradeDate != null)
+        {
+            TradeDate = tradeDate.GetTradeDate(SignalDateTime);
         }
     }
 }

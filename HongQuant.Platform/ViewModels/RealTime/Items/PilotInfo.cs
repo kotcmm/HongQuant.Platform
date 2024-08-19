@@ -1,5 +1,6 @@
 ﻿using HongQuant.Analysis.RealTime;
 using LiveChartsCore.Defaults;
+using MahApps.Metro.Controls;
 using ReactiveUI;
 using System.Reactive.Linq;
 
@@ -17,9 +18,13 @@ public class PilotInfo : ObservableValue, IDisposable
             .ObserveOn(RxApp.MainThreadScheduler)
             .Do(changes => 
             {
-                foreach (var change in changes) {
-                    Value = change.Current.TodayProfitAndLoss;
-                };
+                var change = changes.LastOrDefault();
+
+                if(change.Current != null)
+                {
+                    Value = change.Current.ProfitAndLoss;
+                    Position = change.Current.Position;
+                }
             }).Subscribe();
 
     }
@@ -28,6 +33,11 @@ public class PilotInfo : ObservableValue, IDisposable
     /// 品种
     /// </summary>
     public string Name { get; set; }
+
+    /// <summary>
+    /// 持仓状态
+    /// </summary>
+    public int Position { get; set; }
 
     public void Dispose()
     {
