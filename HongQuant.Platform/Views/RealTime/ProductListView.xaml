@@ -3,9 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:HongQuant.Platform.Views.RealTime"
+             xmlns:local="clr-namespace:HongQuant.Platform.Views.RealTime" 
+             xmlns:converters="clr-namespace:HongQuant.Platform.Infrastucture.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <converters:ValueConverter x:Key="ValueConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="240"></ColumnDefinition>
@@ -75,8 +79,22 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <!--<DataGridTextColumn Header="交易日" Binding="{Binding SignalDateTime,StringFormat=yyyy年MM月dd日}"/>-->
-                <DataGridTextColumn Header="权益" MinWidth="80" Binding="{Binding Equity}"/>
-                <DataGridTextColumn Header="净利润" MinWidth="80" Binding="{Binding TodayProfitAndLoss}"/>
+                <DataGridTextColumn Header="权益" MinWidth="80" Binding="{Binding Equity,StringFormat=F0}"/>
+                <DataGridTextColumn Header="净利润">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="{Binding TodayProfitAndLoss}"></Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding TodayProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="1">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding TodayProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="-1">
+                                    <Setter Property="Foreground" Value="Green"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
                 <!--<DataGridTextColumn Header="收益率" MinWidth="80" Binding="{Binding Yields,StringFormat=P2}"/>
                 <DataGridTextColumn Header="累计收益率" MinWidth="80" Binding="{Binding TotalYields,StringFormat=P2}"/>
                 <DataGridTextColumn Header="实时回撤" MinWidth="80" Binding="{Binding WithdrawDeep,StringFormat=P2}"/>

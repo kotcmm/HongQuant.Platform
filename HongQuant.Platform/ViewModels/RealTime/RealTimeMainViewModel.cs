@@ -11,6 +11,8 @@ public class RealTimeMainViewModel : ReactiveObject
     public ICommand StartCommand { get; }
     public ICommand AnalysisCommand { get; }
 
+    public static readonly Interaction<string, string> OpenRealTimeAnalysis = new();
+
     public RealTimeMainViewModel()
     {
         _realTimeDataService = Locator.Current.GetService<IRealTimeDataService>()!;
@@ -20,9 +22,9 @@ public class RealTimeMainViewModel : ReactiveObject
            return _realTimeDataService.Start();
         });
 
-        AnalysisCommand = ReactiveCommand.CreateFromTask(() =>
+        AnalysisCommand = ReactiveCommand.Create(() =>
         {
-            return _realTimeDataService.Start();
+            OpenRealTimeAnalysis.Handle(string.Empty).Subscribe();
         });
     }
 }
