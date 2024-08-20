@@ -64,7 +64,6 @@ public class ProfitAndLossViewModel : ReactiveObject, IDisposable
     private static ProfitAndLossInfo[] GetValue(ReadOnlyObservableCollection<AnalyzedDataViewModel> data, Func<AnalyzedDataViewModel, ProfitAndLossInfo> func)
     {
         return [.. data
-                .Where(x => x.HasPosition())
                 .Select(x => func(x))
                 .OrderByDescending(x => x.Value)];
     }
