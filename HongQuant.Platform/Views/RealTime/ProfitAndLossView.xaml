@@ -10,40 +10,39 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <RadioButton
-                Content="半小时"
-                IsChecked="True"
-                Command="{Binding UpdateCycleCommand}"
-                CommandParameter="{x:Static items:CycleType.HalfAnHour}"
-                Style="{StaticResource MaterialDesignTabRadioButtonBottom}" />
-            <RadioButton
-                Content="日"
-                IsChecked="False"
-                Command="{Binding UpdateCycleCommand}"
-                CommandParameter="{x:Static items:CycleType.Day}"
-                Style="{StaticResource MaterialDesignTabRadioButtonBottom}" />
-            <RadioButton
-                Content="周"
-                Command="{Binding UpdateCycleCommand}"
-                CommandParameter="{x:Static items:CycleType.Week}"
-                IsChecked="False"
-                Style="{StaticResource MaterialDesignTabRadioButtonBottom}" />
-            <RadioButton
-                Content="月"
-                IsChecked="False"
-                Command="{Binding UpdateCycleCommand}"
-                CommandParameter="{x:Static items:CycleType.Month}"
-                Style="{StaticResource MaterialDesignTabRadioButtonBottom}" />
-        </StackPanel>
+        <Border BorderBrush="LightBlue" BorderThickness="2">
+            <lvc:CartesianChart
+                Series="{Binding Series}" 
+                XAxes="{Binding XAxes}"
+                YAxes="{Binding YAxes}"
+                TooltipPosition="Hidden"
+                ZoomMode="None"/>
+        </Border>
+        
         <lvc:CartesianChart Grid.Row="1"
-            Series="{Binding Series}" 
+            Series="{Binding DaySeries}" 
             XAxes="{Binding XAxes}"
             YAxes="{Binding YAxes}"
             TooltipPosition="Hidden"
-            ZoomMode="None"/>    
+            ZoomMode="None"/>
+        <Border BorderBrush="LightBlue" BorderThickness="2" Grid.Row="2">
+            <lvc:CartesianChart 
+            Series="{Binding WeekSeries}" 
+            XAxes="{Binding XAxes}"
+            YAxes="{Binding YAxes}"
+            TooltipPosition="Hidden"
+            ZoomMode="None" Background="Black"/>
+        </Border>
+        <lvc:CartesianChart Grid.Row="3"
+            Series="{Binding MonthSeries}" 
+            XAxes="{Binding XAxes}"
+            YAxes="{Binding YAxes}"
+            TooltipPosition="Hidden"
+            ZoomMode="None"/>
     </Grid>
 </UserControl>

@@ -1,5 +1,4 @@
 ﻿using DynamicData;
-using HongQuant.Analysis.RealTime;
 using HongQuant.Core.Services;
 using HongQuant.Platform.ViewModels.RealTime.Items;
 using LiveChartsCore;
@@ -13,26 +12,26 @@ using Splat;
 using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Windows.Input;
 
 namespace HongQuant.Platform.ViewModels.RealTime;
 public class ProfitAndLossViewModel : ReactiveObject, IDisposable
 {
     private readonly CompositeDisposable _disposed;
 
-    private CycleType _cycleType = CycleType.HalfAnHour;
-
     public ISeries[] Series { get; set; }
+    public ISeries[] DaySeries { get; set; }
+    public ISeries[] WeekSeries { get; set; }
+    public ISeries[] MonthSeries { get; set; }
 
     public Axis[] XAxes { get; set; } = [new Axis { 
         Labeler = va=>""//隐藏x轴的效果
     }];
 
     public Axis[] YAxes { get; set; } = [new Axis { 
-        SeparatorsPaint = new SolidColorPaint(new SKColor(220, 220, 220)) ,
+        //SeparatorsPaint = new SolidColorPaint(new SKColor(220, 220, 220)) ,
+        ShowSeparatorLines = false,
+        Labeler = va=>""//隐藏Y轴的效果
     }];
-
-    public ICommand UpdateCycleCommand { get; set; }
 
     public ProfitAndLossViewModel()
     {
@@ -40,64 +39,56 @@ public class ProfitAndLossViewModel : ReactiveObject, IDisposable
 
         var dataDisposed = realTimeDataService.RealTimeDataSources
             .Connect()
-            .Transform(x =>new ProfitAndLossInfo(x, GetProfitAndLoss))
+            .Transform(x => new AnalyzedDataViewModel(x))
             .ObserveOn(RxApp.MainThreadScheduler)
-            .Bind(out ReadOnlyObservableCollection<ProfitAndLossInfo> data)
+            .Bind(out ReadOnlyObservableCollection<AnalyzedDataViewModel> data)
             .DisposeMany()
             .Subscribe();
 
-        var rowSeries = new ColumnSeries<ProfitAndLossInfo>
+        Series = [CreateColumnSeries()];
+        DaySeries = [CreateColumnSeries()];
+        WeekSeries = [CreateColumnSeries()];
+        MonthSeries = [CreateColumnSeries()];
+
+        var timerDisposed = Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(x =>
+        {
+            Series[0].Values = GetValue(data,d=>d.ProfitAndLoss);
+            DaySeries[0].Values = GetValue(data,d=>d.DayProfitAndLoss);
+            WeekSeries[0].Values = GetValue(data,d=>d.WeekProfitAndLoss);
+            MonthSeries[0].Values = GetValue(data,d=>d.MonthProfitAndLoss);
+        });
+
+        _disposed = new CompositeDisposable(dataDisposed, timerDisposed);
+    }
+
+    private static ProfitAndLossInfo[] GetValue(ReadOnlyObservableCollection<AnalyzedDataViewModel> data, Func<AnalyzedDataViewModel, ProfitAndLossInfo> func)
+    {
+        return [.. data
+                .Where(x => x.HasPosition())
+                .Select(x => func(x))
+                .OrderByDescending(x => x.Value)];
+    }
+
+    private static ColumnSeries<ProfitAndLossInfo> CreateColumnSeries()
+    {
+        var columnSeries = new ColumnSeries<ProfitAndLossInfo>
         {
             DataLabelsPaint = new SolidColorPaint(new SKColor(45, 45, 45)),
             DataLabelsPosition = DataLabelsPosition.Start,
-            //DataLabelsTranslate = new(1, 0),
             DataLabelsFormatter = point => $"{point.Model!.Name} \r\n {point.Coordinate.PrimaryValue:F0}",
             MaxBarWidth = 50,
             Padding = 8,
         };
 
-        rowSeries.OnPointMeasured(point =>
+        columnSeries.OnPointMeasured(point =>
         {
             if (point.Visual is null) return;
-            var paint = point.Model!.Value > 0 ? 
+            var paint = point.Model!.Value > 0 ?
                 new SolidColorPaint(new SKColor(250, 0, 0)) :
                 new SolidColorPaint(new SKColor(0, 250, 0));
             point.Visual.Fill = paint;
         });
-
-        Series = [rowSeries];
-
-        var timerDisposed = Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(x =>
-        {
-            Series[0].Values = data
-            .Where(x=>x.Position != 0)
-            .OrderByDescending(x => x.Value)
-            .ToArray();
-        });
-
-        _disposed = new CompositeDisposable(dataDisposed,timerDisposed);
-
-        UpdateCycleCommand = ReactiveCommand.Create<CycleType>(cycleType =>
-        {
-            _cycleType = cycleType;
-
-            foreach (var item in data)
-            {
-                item.UpdateValue(cycleType);
-            }
-        });
-    }
-
-    private double GetProfitAndLoss(AnalyzedData analyzedData)
-    {
-        return _cycleType switch
-        {
-            CycleType.HalfAnHour => analyzedData.ProfitAndLoss,
-            CycleType.Day => analyzedData.DayProfitAndLoss,
-            CycleType.Week => analyzedData.WeekProfitAndLoss,
-            CycleType.Month => analyzedData.MonthProfitAndLoss,
-            _ => throw new NotImplementedException()
-        };
+        return columnSeries;
     }
 
     public void Dispose()
