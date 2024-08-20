@@ -93,7 +93,7 @@ public class RealTimeDataSource
 
     private void TryCalculation(AnalyzedData analyzedData, AnalyzedData firstData, AnalyzedData? preData)
     {
-        analyzedData.AttachTradeDay(_tradeDate);
+        analyzedData.AttachTradeDayAnWeekOfYear(_tradeDate);
         analyzedData.AttachProfitAndLoss(firstData, preData);
         
         _analyzedDatas.AddOrUpdate(analyzedData);

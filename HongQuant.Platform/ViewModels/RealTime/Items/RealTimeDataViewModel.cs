@@ -12,6 +12,8 @@ public class RealTimeDataViewModel
         Equity = data.Equity;
         ProfitAndLoss = data.ProfitAndLoss;
         DayProfitAndLoss = data.DayProfitAndLoss;
+        WeekProfitAndLoss = data.WeekProfitAndLoss;
+        MonthProfitAndLoss = data.MonthProfitAndLoss;
     }
 
     /// <summary>
@@ -48,5 +50,15 @@ public class RealTimeDataViewModel
     /// 日净盈亏
     /// </summary>
     public double DayProfitAndLoss { get; set; }
+
+    /// <summary>
+    /// 周净盈亏
+    /// </summary>
+    public double WeekProfitAndLoss { get; set; }
+
+    /// <summary>
+    /// 月净盈亏
+    /// </summary>
+    public double MonthProfitAndLoss { get; set; }
     
 }

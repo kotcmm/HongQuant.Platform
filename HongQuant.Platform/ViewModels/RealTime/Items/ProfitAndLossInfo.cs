@@ -1,15 +1,14 @@
 ﻿using HongQuant.Analysis.RealTime;
 using LiveChartsCore.Defaults;
-using MahApps.Metro.Controls;
 using ReactiveUI;
 using System.Reactive.Linq;
 
 namespace HongQuant.Platform.ViewModels.RealTime.Items;
-public class PilotInfo : ObservableValue, IDisposable
+public class ProfitAndLossInfo : ObservableValue, IDisposable
 {
     private readonly IDisposable _disposed;
 
-    public PilotInfo(RealTimeDataSource dataSource)
+    public ProfitAndLossInfo(RealTimeDataSource dataSource,Func<AnalyzedData, double> func)
     {
         Name = dataSource.Product;
 
@@ -22,11 +21,28 @@ public class PilotInfo : ObservableValue, IDisposable
 
                 if(change.Current != null)
                 {
-                    Value = change.Current.ProfitAndLoss;
+                    Value = func?.Invoke(change.Current);
                     Position = change.Current.Position;
+                    _analyzedData = change.Current;
                 }
             }).Subscribe();
 
+    }
+
+    private AnalyzedData? _analyzedData;
+
+    public void UpdateValue(CycleType cycleType)
+    {
+        if (_analyzedData == null) return;
+
+        Value = cycleType switch
+        {
+            CycleType.HalfAnHour => _analyzedData.ProfitAndLoss,
+            CycleType.Day => _analyzedData.DayProfitAndLoss,
+            CycleType.Week => _analyzedData.WeekProfitAndLoss,
+            CycleType.Month => _analyzedData.MonthProfitAndLoss,
+            _ => throw new NotImplementedException()
+        };
     }
 
     /// <summary>

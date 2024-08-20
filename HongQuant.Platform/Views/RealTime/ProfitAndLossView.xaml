@@ -4,11 +4,42 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:HongQuant.Platform.Views.RealTime"
+             xmlns:items="clr-namespace:HongQuant.Platform.ViewModels.RealTime.Items"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <lvc:CartesianChart 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <RadioButton
+                Content="半小时"
+                IsChecked="True"
+                Command="{Binding UpdateCycleCommand}"
+                CommandParameter="{x:Static items:CycleType.HalfAnHour}"
+                Style="{StaticResource MaterialDesignTabRadioButtonBottom}" />
+            <RadioButton
+                Content="日"
+                IsChecked="False"
+                Command="{Binding UpdateCycleCommand}"
+                CommandParameter="{x:Static items:CycleType.Day}"
+                Style="{StaticResource MaterialDesignTabRadioButtonBottom}" />
+            <RadioButton
+                Content="周"
+                Command="{Binding UpdateCycleCommand}"
+                CommandParameter="{x:Static items:CycleType.Week}"
+                IsChecked="False"
+                Style="{StaticResource MaterialDesignTabRadioButtonBottom}" />
+            <RadioButton
+                Content="月"
+                IsChecked="False"
+                Command="{Binding UpdateCycleCommand}"
+                CommandParameter="{x:Static items:CycleType.Month}"
+                Style="{StaticResource MaterialDesignTabRadioButtonBottom}" />
+        </StackPanel>
+        <lvc:CartesianChart Grid.Row="1"
             Series="{Binding Series}" 
             XAxes="{Binding XAxes}"
             YAxes="{Binding YAxes}"

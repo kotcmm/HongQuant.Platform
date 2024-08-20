@@ -83,7 +83,7 @@
                 <DataGridTextColumn Header="净利润">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
-                            <Setter Property="Text" Value="{Binding ProfitAndLoss}"></Setter>
+                            <Setter Property="Text" Value="{Binding ProfitAndLoss,StringFormat=F0}"></Setter>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="1">
                                     <Setter Property="Foreground" Value="Red"/>
@@ -98,12 +98,42 @@
                 <DataGridTextColumn Header="日净利润">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
-                            <Setter Property="Text" Value="{Binding DayProfitAndLoss}"></Setter>
+                            <Setter Property="Text" Value="{Binding DayProfitAndLoss,StringFormat=F0}"></Setter>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding DayProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="1">
                                     <Setter Property="Foreground" Value="Red"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding DayProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="-1">
+                                    <Setter Property="Foreground" Value="Green"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="周净利润">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="{Binding WeekProfitAndLoss,StringFormat=F0}"></Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding WeekProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="1">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding WeekProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="-1">
+                                    <Setter Property="Foreground" Value="Green"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="月净利润">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="{Binding MonthProfitAndLoss,StringFormat=F0}"></Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MonthProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="1">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding MonthProfitAndLoss,Converter={StaticResource ValueConverter}}" Value="-1">
                                     <Setter Property="Foreground" Value="Green"/>
                                 </DataTrigger>
                             </Style.Triggers>

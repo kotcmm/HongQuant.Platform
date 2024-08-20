@@ -1,4 +1,6 @@
-﻿namespace HongQuant.Analysis.RealTime;
+﻿using System.Globalization;
+
+namespace HongQuant.Analysis.RealTime;
 public class AnalyzedData
 {
     /// <summary>
@@ -17,6 +19,11 @@ public class AnalyzedData
     public DateOnly TradeDate { get; set; }
 
     /// <summary>
+    /// 第几周
+    /// </summary>
+    public int WeekOfYear { get; set; }
+
+    /// <summary>
     /// 持仓
     /// </summary>
     public int Position { get; set; }
@@ -32,9 +39,34 @@ public class AnalyzedData
     public double ProfitAndLoss { get; set; }
 
     /// <summary>
-    /// 今日盈亏
+    /// 日盈亏
     /// </summary>
     public double DayProfitAndLoss { get; set; }
+
+    /// <summary>
+    /// 周盈亏
+    /// </summary>
+    public double WeekProfitAndLoss { get; set; }
+
+    /// <summary>
+    /// 月盈亏
+    /// </summary>
+    public double MonthProfitAndLoss { get; set; }
+
+    /// <summary>
+    /// 获取当年
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    public static int GetWeekNumOfTheYear(DateTime date)
+    {
+        CultureInfo cultureInfo = new CultureInfo("zh-CN");
+        Calendar calendar = cultureInfo.Calendar;
+        int weekOfYear = calendar.GetWeekOfYear(date, 
+            cultureInfo.DateTimeFormat.CalendarWeekRule, 
+            cultureInfo.DateTimeFormat.FirstDayOfWeek);
+        return weekOfYear;
+    }
 
     /// <summary>
     /// 计算净盈亏
@@ -48,12 +80,17 @@ public class AnalyzedData
         {
             ProfitAndLoss = Equity - firstData.Equity;
             DayProfitAndLoss = ProfitAndLoss;
+            WeekProfitAndLoss = ProfitAndLoss;
         }
         else
         {
             ProfitAndLoss = Math.Round(Equity - preData.Equity, 2);
             DayProfitAndLoss = TradeDate == preData.TradeDate ?
                 (ProfitAndLoss + preData.DayProfitAndLoss) : ProfitAndLoss;
+            WeekProfitAndLoss = WeekOfYear == preData.WeekOfYear ?
+                (ProfitAndLoss + preData.WeekProfitAndLoss) : ProfitAndLoss;
+            MonthProfitAndLoss = TradeDate.Month == preData.TradeDate.Month ?
+                (ProfitAndLoss + preData.MonthProfitAndLoss) : ProfitAndLoss;
         }
     }
 
@@ -61,11 +98,12 @@ public class AnalyzedData
     /// 计算交易日
     /// </summary>
     /// <param name="tradeDate"></param>
-    public void AttachTradeDay(ConvertTradeDate? tradeDate)
+    public void AttachTradeDayAnWeekOfYear(ConvertTradeDate? tradeDate)
     {
         if (tradeDate != null)
         {
             TradeDate = tradeDate.GetTradeDate(SignalDateTime);
+            WeekOfYear = GetWeekNumOfTheYear(TradeDate.ToDateTime(new TimeOnly()));
         }
     }
 }
