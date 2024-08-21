@@ -1,6 +1,4 @@
-﻿using LiteDB;
-
-namespace HongQuant.Core.Models;
+﻿namespace HongQuant.Core.Models;
 public class ProductTemplate
 {
     public Guid Id { get; set; }

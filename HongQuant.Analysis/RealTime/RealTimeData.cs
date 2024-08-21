@@ -19,6 +19,16 @@ public class RealTimeData
     /// </summary>
     public int? Position { get; set; }
 
+    /// <summary>
+    /// 多头持仓
+    /// </summary>
+    public int LongPosition { get; set; }
+
+    /// <summary>
+    /// 空头持仓
+    /// </summary>
+    public int ShortPosition { get; set; }
+
     internal static RealTimeData? BuildData(string? line)
     {
         if (string.IsNullOrEmpty(line)) return null;

@@ -1,6 +1,7 @@
 ﻿using DynamicData;
 using HongQuant.Analysis.RealTime;
 using HongQuant.Core.Models;
+using HongQuant.Core.Stores;
 using MessagePack;
 using MessagePack.Resolvers;
 using System.Net.WebSockets;
@@ -10,12 +11,18 @@ namespace HongQuant.Core.Services;
 public class RealTimeDataService : IRealTimeDataService
 {
     private readonly WebsocketClient _websocketClient;
+    private readonly ProductPoolStore _productPoolStore;
 
-    private readonly SourceCache<RealTimeDataSource, string> _realTimeDataSources = new(x=>x.Product);
+    private readonly SourceCache<RealTimeDataSource, string> _realTimeDataSources = new(x=>x.Product + x.Strategy);
     public ISourceCache<RealTimeDataSource, string> RealTimeDataSources => _realTimeDataSources;
+
+    private readonly SourceCache<CombRealTimeDataSource, string> _combRealTimeDataSources = new(x => x.Product + x.Strategy);
+    public ISourceCache<CombRealTimeDataSource, string> CombRealTimeDataSources => _combRealTimeDataSources;
 
     public RealTimeDataService()
     {
+        _productPoolStore = new ProductPoolStore();
+
         var url = new Uri("ws://127.0.0.1:5650");
 
         _websocketClient = new WebsocketClient(url)
@@ -48,15 +55,54 @@ public class RealTimeDataService : IRealTimeDataService
     {
         var historyFileData = MessagePackSerializer.Deserialize<HistoryFileData>(packData.Data, ContractlessStandardResolver.Options);
 
+        OnSingleHistory(historyFileData);
+
+        OnCombHistory(historyFileData);
+    }
+
+    private void OnSingleHistory(HistoryFileData historyFileData)
+    {
         var realTimeDataSource = new RealTimeDataSource
         {
             Product = historyFileData.Product,
             Strategy = historyFileData.Strategy,
         };
 
-        _realTimeDataSources.AddOrUpdate(realTimeDataSource);
-
         realTimeDataSource.OnHistoryData(historyFileData.Datas);
+
+        _realTimeDataSources.AddOrUpdate(realTimeDataSource);
+    }
+
+    private void OnCombHistory(HistoryFileData historyFileData)
+    {
+        var product = historyFileData.Product;
+        var strategy = historyFileData.Strategy;
+
+        var pools = _productPoolStore.GetPools(product);
+
+        foreach (var pool in pools)
+        {
+            var key = pool + strategy;
+
+            var data = _combRealTimeDataSources.Lookup(key);
+
+            if (data.HasValue)
+            {
+                data.Value.OnHistoryData(product, historyFileData.Datas);
+            }
+            else
+            {
+                var realTimeDataSource = new CombRealTimeDataSource()
+                {
+                    Product = pool,
+                    Strategy = strategy,
+                };
+
+                realTimeDataSource.OnHistoryData(product, historyFileData.Datas);
+
+                _combRealTimeDataSources.AddOrUpdate(realTimeDataSource);
+            }   
+        }
     }
 
     private void OnRealTime(PackData packData)

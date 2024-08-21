@@ -19,16 +19,21 @@ public class RealTimeDataSource
 
     public void OnHistoryData(IEnumerable<string> datas)
     {
-        _initialization = false;
-
-        Clean();
-
         var historyDatas = datas
             .Select(RealTimeData.BuildData)
             .OfType<RealTimeData>()
             .Where(x => x.Verify())
             .OrderBy(x=>x.SignalDateTime)
             .ToList();
+
+        OnHistoryData(historyDatas);
+    }
+
+    public void OnHistoryData(IEnumerable<RealTimeData> historyDatas)
+    {
+        _initialization = false;
+
+        Clean();
 
         var dateTimes = historyDatas
             .Select(x => x.SignalDateTime)
