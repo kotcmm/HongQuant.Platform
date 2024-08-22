@@ -16,6 +16,36 @@ public partial class RealTimeMain : UserControl
         DataContext = Locator.Current.GetService<RealTimeMainViewModel>();
 
         RealTimeMainViewModel.OpenRealTimeAnalysis.RegisterHandler(OnOpenRealTimeAnalysis);
+        RealTimeMainViewModel.OpenProductPool.RegisterHandler(OnOpenProductPool);
+    }
+
+    private ProductPoolView? _productPoolView;
+
+    private void OnOpenProductPool(IInteractionContext<string, string> context)
+    {
+        if (_productPoolView == null)
+        {
+            _productPoolView = new ProductPoolView()
+            {
+                DataContext = new ProductPoolViewModel(),
+                Owner = System.Windows.Application.Current.MainWindow,
+            };
+
+            _productPoolView.Closed += ProductPoolView_Closed;
+
+            _productPoolView.Show();
+        }
+        else
+        {
+            _productPoolView.Focus();
+        }
+
+        context.SetOutput(string.Empty);
+    }
+
+    private void ProductPoolView_Closed(object? sender, EventArgs e)
+    {
+        _productPoolView = null;
     }
 
     private RealTimeAnalysisView? _realTimeAnalysisView;

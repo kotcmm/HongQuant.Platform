@@ -10,8 +10,10 @@ public class RealTimeMainViewModel : ReactiveObject
 
     public ICommand StartCommand { get; }
     public ICommand AnalysisCommand { get; }
+    public ICommand ProductPoolCommand { get; }
 
     public static readonly Interaction<string, string> OpenRealTimeAnalysis = new();
+    public static readonly Interaction<string, string> OpenProductPool = new();
 
     public RealTimeMainViewModel()
     {
@@ -25,6 +27,11 @@ public class RealTimeMainViewModel : ReactiveObject
         AnalysisCommand = ReactiveCommand.Create(() =>
         {
             OpenRealTimeAnalysis.Handle(string.Empty).Subscribe();
+        });
+
+        ProductPoolCommand = ReactiveCommand.Create(() =>
+        {
+            OpenProductPool.Handle(string.Empty).Subscribe();
         });
     }
 }

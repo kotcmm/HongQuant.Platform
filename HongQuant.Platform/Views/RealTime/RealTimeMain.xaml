@@ -14,6 +14,7 @@
         <StackPanel Orientation="Horizontal">
             <Button Command="{Binding StartCommand}">开始</Button>
             <Button Command="{Binding AnalysisCommand}">统计</Button>
+            <Button Command="{Binding ProductPoolCommand}">品种池</Button>
         </StackPanel>
         <local:ProductListView Grid.Row="1"/>
     </Grid>
