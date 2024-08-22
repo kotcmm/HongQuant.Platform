@@ -4,14 +4,13 @@ using HongQuant.Core.Models;
 namespace HongQuant.Core.Stores;
 public class ProductPoolStore
 {
-    public IEnumerable<string> GetPools(string product)
+    public IEnumerable<ProductPool> GetPools(string product)
     {
         using var db = new HongQuantDatabase();
 
         var query = db.ProductPools.FindAll().ToList();
 
         return query.Where(x => x.Products.Contains(product,StringComparer.CurrentCultureIgnoreCase))
-                    .Select(x => x.Name)
                     .ToList();
     }
 

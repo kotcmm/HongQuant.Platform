@@ -1,7 +1,15 @@
 ﻿namespace HongQuant.Analysis.RealTime;
 public class CombRealTimeDataSource : RealTimeDataSource
 {
-    public Dictionary<string, IEnumerable<string>> _histories = [];
+    private readonly Dictionary<string, IEnumerable<string>> _histories = [];
+
+    public void OnProduct(IEnumerable<string> products)
+    {
+        foreach (var product in products)
+        {
+            _histories[product] = [];
+        }
+    }
 
     public void OnHistoryData(string product, IEnumerable<string> datas)
     {
@@ -30,6 +38,7 @@ public class CombRealTimeDataSource : RealTimeDataSource
                             Position = x.Count(y => y.Position != 0),
                             LongPosition = x.Count(y => y.Position == 1),
                             ShortPosition = x.Count(y => y.Position == -1)
-                        });
+                        })
+                        .OrderBy(x => x.SignalDateTime);
     }
 }

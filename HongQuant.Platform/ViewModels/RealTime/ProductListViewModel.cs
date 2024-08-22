@@ -13,6 +13,8 @@ public class ProductListViewModel : ReactiveObject
     private readonly ReadOnlyObservableCollection<RealTimeDataSourceViewModel> _productIndexs;
     public ReadOnlyObservableCollection<RealTimeDataSourceViewModel> ProductIndexs => _productIndexs;
 
+    private readonly ReadOnlyObservableCollection<RealTimeDataSourceViewModel> _productCombIndexs;
+    public ReadOnlyObservableCollection<RealTimeDataSourceViewModel> ProductCombIndexs => _productCombIndexs;
     [Reactive]
     public RealTimeDataSourceViewModel? ProductIndex { get; set; }
 
@@ -25,6 +27,14 @@ public class ProductListViewModel : ReactiveObject
             .Transform(f => new RealTimeDataSourceViewModel(f))
             .ObserveOn(RxApp.MainThreadScheduler)
             .Bind(out _productIndexs)
+            .DisposeMany()
+            .Subscribe();
+
+        realTimeDataService.CombRealTimeDataSources
+            .Connect()
+            .Transform(f => new RealTimeDataSourceViewModel(f))
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Bind(out _productCombIndexs)
             .DisposeMany()
             .Subscribe();
     }

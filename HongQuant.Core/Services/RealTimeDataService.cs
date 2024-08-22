@@ -82,7 +82,7 @@ public class RealTimeDataService : IRealTimeDataService
 
         foreach (var pool in pools)
         {
-            var key = pool + strategy;
+            var key = pool.Name + strategy;
 
             var data = _combRealTimeDataSources.Lookup(key);
 
@@ -94,9 +94,11 @@ public class RealTimeDataService : IRealTimeDataService
             {
                 var realTimeDataSource = new CombRealTimeDataSource()
                 {
-                    Product = pool,
+                    Product = pool.Name,
                     Strategy = strategy,
                 };
+
+                realTimeDataSource.OnProduct(pool.Products);
 
                 realTimeDataSource.OnHistoryData(product, historyFileData.Datas);
 
