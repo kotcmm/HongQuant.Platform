@@ -2,6 +2,7 @@
 using System.Globalization;
 
 namespace HongQuant.Analysis.RealTime;
+
 public class RealTimeData
 {
     /// <summary>
@@ -18,16 +19,6 @@ public class RealTimeData
     /// 持仓
     /// </summary>
     public int? Position { get; set; }
-
-    /// <summary>
-    /// 多头持仓
-    /// </summary>
-    public int LongPosition { get; set; }
-
-    /// <summary>
-    /// 空头持仓
-    /// </summary>
-    public int ShortPosition { get; set; }
 
     internal static RealTimeData? BuildData(string? line)
     {

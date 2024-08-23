@@ -16,51 +16,25 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Border BorderBrush="LightGray" BorderThickness="0,0,1,0">
-            <TabControl>
-                <TabItem Header="单品种">
-                    <ListView ItemsSource="{Binding ProductIndexs}"
-                              SelectedItem="{Binding ProductIndex}">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignListBoxItem}">
-                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsSelected}" Margin="0 0 5 0"></CheckBox>
-                                    <TextBlock>
-                    <Run Text="{Binding Strategy}"></Run>
-                    <Run Text="{Binding Product}"></Run>
-                                    </TextBlock>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </TabItem>
-                <TabItem Header="组合品种">
-                    <ListView ItemsSource="{Binding ProductCombIndexs}"
-                              SelectedItem="{Binding ProductIndex}">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignListBoxItem}">
-                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsSelected}" Margin="0 0 5 0"></CheckBox>
-                                    <TextBlock>
-                    <Run Text="{Binding Strategy}"></Run>
-                    <Run Text="{Binding Product}"></Run>
-                                    </TextBlock>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </TabItem>
-            </TabControl>
-            
+            <ListView ItemsSource="{Binding ProductIndexs}"
+           SelectedItem="{Binding ProductIndex}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignListBoxItem}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding IsSelected}" Margin="0 0 5 0"></CheckBox>
+                            <TextBlock>
+                                 <Run Text="{Binding Strategy}"></Run>
+                                 <Run Text="{Binding Product}"></Run>
+                            </TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </Border>
         <DataGrid 
               Grid.Column="1"

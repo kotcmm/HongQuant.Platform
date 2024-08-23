@@ -1,5 +1,5 @@
 ﻿namespace HongQuant.Analysis.RealTime;
-public class CombRealTimeDataSource : RealTimeDataSource
+public class CombRealTimeDataSource : RealTimeDataSource<CombRealTimeData,CombAnalyzedData>
 {
     private readonly Dictionary<string, IEnumerable<string>> _histories = [];
 
@@ -23,7 +23,7 @@ public class CombRealTimeDataSource : RealTimeDataSource
         }
     }
 
-    private IEnumerable<RealTimeData> GetMergeDatas()
+    private IEnumerable<CombRealTimeData> GetMergeDatas()
     {
         return _histories
                         .Values.SelectMany(x => x)
@@ -31,7 +31,7 @@ public class CombRealTimeDataSource : RealTimeDataSource
                         .OfType<RealTimeData>()
                         .Where(x => x.Verify())
                         .GroupBy(x => x.SignalDateTime)
-                        .Select(x => new RealTimeData
+                        .Select(x => new CombRealTimeData
                         {
                             SignalDateTime = x.Key,
                             Equity = x.Sum(y => y.Equity),
@@ -40,5 +40,26 @@ public class CombRealTimeDataSource : RealTimeDataSource
                             ShortPosition = x.Count(y => y.Position == -1)
                         })
                         .OrderBy(x => x.SignalDateTime);
+    }
+
+    protected override (CombRealTimeData?, CombRealTimeData?) BuildRealTimeData(string line)
+    {
+        var realTimeData = CombRealTimeData.From(RealTimeData.BuildData(line));
+        var preRealTimeData = CombRealTimeData.From(RealTimeData.PreBuildData(line));
+
+        return (realTimeData, preRealTimeData);
+    }
+
+    protected override CombAnalyzedData BuildAnalyzedData(CombRealTimeData realTimeData)
+    {
+        return new CombAnalyzedData
+        {
+            Product = Product,
+            SignalDateTime = realTimeData.SignalDateTime!.Value,
+            Equity = realTimeData.Equity!.Value,
+            Position = realTimeData.Position!.Value,
+            LongPosition = realTimeData.LongPosition,
+            ShortPosition = realTimeData.ShortPosition,
+        };
     }
 }

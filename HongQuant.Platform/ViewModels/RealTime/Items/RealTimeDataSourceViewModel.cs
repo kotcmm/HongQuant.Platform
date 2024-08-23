@@ -7,7 +7,7 @@ using System.Reactive.Linq;
 namespace HongQuant.Platform.ViewModels.RealTime.Items;
 public class RealTimeDataSourceViewModel
 {
-    public RealTimeDataSourceViewModel(RealTimeDataSource realTimeData)
+    public RealTimeDataSourceViewModel(SingleRealTimeDataSource realTimeData)
     {
         Product = realTimeData.Product;
         Strategy = realTimeData.Strategy;

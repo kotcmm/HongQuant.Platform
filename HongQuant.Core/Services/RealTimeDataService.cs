@@ -13,8 +13,8 @@ public class RealTimeDataService : IRealTimeDataService
     private readonly WebsocketClient _websocketClient;
     private readonly ProductPoolStore _productPoolStore;
 
-    private readonly SourceCache<RealTimeDataSource, string> _realTimeDataSources = new(x=>x.Product + x.Strategy);
-    public ISourceCache<RealTimeDataSource, string> RealTimeDataSources => _realTimeDataSources;
+    private readonly SourceCache<SingleRealTimeDataSource, string> _realTimeDataSources = new(x=>x.Product + x.Strategy);
+    public ISourceCache<SingleRealTimeDataSource, string> RealTimeDataSources => _realTimeDataSources;
 
     private readonly SourceCache<CombRealTimeDataSource, string> _combRealTimeDataSources = new(x => x.Product + x.Strategy);
     public ISourceCache<CombRealTimeDataSource, string> CombRealTimeDataSources => _combRealTimeDataSources;
@@ -62,7 +62,7 @@ public class RealTimeDataService : IRealTimeDataService
 
     private void OnSingleHistory(HistoryFileData historyFileData)
     {
-        var realTimeDataSource = new RealTimeDataSource
+        var realTimeDataSource = new SingleRealTimeDataSource
         {
             Product = historyFileData.Product,
             Strategy = historyFileData.Strategy,

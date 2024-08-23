@@ -2,34 +2,24 @@
 using System.Reactive.Linq;
 
 namespace HongQuant.Analysis.RealTime;
-public class RealTimeDataSource
+public abstract class RealTimeDataSource<TRealTimeData, TAnalyzedData> 
+    where TRealTimeData: RealTimeData
+    where TAnalyzedData : AnalyzedData
 {
     private bool _initialization = false;
 
-    private AnalyzedData? _firstData;
-    private AnalyzedData? _preData;
+    private TAnalyzedData? _firstData;
+    private TAnalyzedData? _preData;
     private ConvertTradeDate? _tradeDate;
 
     public string Product { get; set; } = string.Empty;
 
     public string Strategy { get; set; } = string.Empty;
 
-    private readonly SourceCache<AnalyzedData, DateTime> _analyzedDatas = new(x => x.SignalDateTime);
-    public ISourceCache<AnalyzedData, DateTime> AnalyzedDatas => _analyzedDatas;
+    private readonly SourceCache<TAnalyzedData, DateTime> _analyzedDatas = new(x => x.SignalDateTime);
+    public ISourceCache<TAnalyzedData, DateTime> AnalyzedDatas => _analyzedDatas;
 
-    public void OnHistoryData(IEnumerable<string> datas)
-    {
-        var historyDatas = datas
-            .Select(RealTimeData.BuildData)
-            .OfType<RealTimeData>()
-            .Where(x => x.Verify())
-            .OrderBy(x=>x.SignalDateTime)
-            .ToList();
-
-        OnHistoryData(historyDatas);
-    }
-
-    public void OnHistoryData(IEnumerable<RealTimeData> historyDatas)
+    public void OnHistoryData(IEnumerable<TRealTimeData> historyDatas)
     {
         _initialization = false;
 
@@ -53,8 +43,7 @@ public class RealTimeDataSource
     {
         if (!_initialization) return;
 
-        var realTimeData = RealTimeData.BuildData(line);
-        var preRealTimeData = RealTimeData.PreBuildData(line);
+        var (realTimeData, preRealTimeData) = BuildRealTimeData(line);
 
         if (realTimeData != null && realTimeData.Verify() &&
             preRealTimeData != null && preRealTimeData.Verify())
@@ -63,7 +52,9 @@ public class RealTimeDataSource
         }
     }
 
-    private void OnNextHistory(RealTimeData realTimeData)
+    protected abstract (TRealTimeData?, TRealTimeData?) BuildRealTimeData(string line);
+
+    private void OnNextHistory(TRealTimeData realTimeData)
     {
         var analyzedData = BuildAnalyzedData(realTimeData);
 
@@ -74,7 +65,7 @@ public class RealTimeDataSource
         TrySetPreData(analyzedData, analyzedData.SignalDateTime);
     }
 
-    private void OnNexRealTimeData(RealTimeData realTimeData, RealTimeData preRealTimeData)
+    private void OnNexRealTimeData(TRealTimeData realTimeData, TRealTimeData preRealTimeData)
     {
         if (_firstData == null) return;
 
@@ -85,18 +76,9 @@ public class RealTimeDataSource
         TrySetPreData(analyzedData, preRealTimeData.SignalDateTime!.Value);
     }
 
-    private AnalyzedData BuildAnalyzedData(RealTimeData realTimeData)
-    {
-        return new AnalyzedData
-        {
-            Product = Product,
-            SignalDateTime = realTimeData.SignalDateTime!.Value,
-            Equity = realTimeData.Equity!.Value,
-            Position = realTimeData.Position!.Value,
-        };  
-    }
+    protected abstract TAnalyzedData BuildAnalyzedData(TRealTimeData realTimeData);
 
-    private void TryCalculation(AnalyzedData analyzedData, AnalyzedData firstData, AnalyzedData? preData)
+    private void TryCalculation(TAnalyzedData analyzedData, TAnalyzedData firstData, TAnalyzedData? preData)
     {
         analyzedData.AttachTradeDayAnWeekOfYear(_tradeDate);
         analyzedData.AttachProfitAndLoss(firstData, preData);
@@ -104,7 +86,7 @@ public class RealTimeDataSource
         _analyzedDatas.AddOrUpdate(analyzedData);
     }
 
-    private void TrySetPreData(AnalyzedData analyzedData, DateTime signalDateTime)
+    private void TrySetPreData(TAnalyzedData analyzedData, DateTime signalDateTime)
     {
         if (_preData == null || _preData.SignalDateTime < signalDateTime)
         {

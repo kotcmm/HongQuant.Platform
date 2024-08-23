@@ -8,14 +8,25 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="32"></RowDefinition>
+            <RowDefinition Height="46"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" Margin="4">
             <Button Command="{Binding StartCommand}">开始</Button>
             <Button Command="{Binding AnalysisCommand}">统计</Button>
             <Button Command="{Binding ProductPoolCommand}">品种池</Button>
         </StackPanel>
-        <local:ProductListView Grid.Row="1"/>
+        <TabControl TabStripPlacement="Bottom" 
+                    BorderThickness="0,1,0,1" 
+                    BorderBrush="LightGray"  
+                    Grid.Row="1">
+            <TabItem Header="单品种">
+                <local:ProductListView/>
+            </TabItem>
+            <TabItem Header="组合品种">
+                <local:CombProductListView/>
+            </TabItem>
+        </TabControl>
+        
     </Grid>
 </UserControl>

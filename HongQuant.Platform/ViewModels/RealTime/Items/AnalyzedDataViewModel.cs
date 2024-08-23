@@ -7,7 +7,7 @@ public class AnalyzedDataViewModel
 {
     private readonly IDisposable _disposed;
 
-    public AnalyzedDataViewModel(RealTimeDataSource dataSource)
+    public AnalyzedDataViewModel(SingleRealTimeDataSource dataSource)
     {
         Name = dataSource.Product;
 
