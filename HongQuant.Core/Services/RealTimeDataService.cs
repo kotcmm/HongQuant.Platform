@@ -115,7 +115,9 @@ public class RealTimeDataService : IRealTimeDataService
         {
             if(string.IsNullOrEmpty(realTimeData.Value)) continue;
 
-            var data = _realTimeDataSources.Lookup(realTimeData.Product);
+            var key = realTimeData.Product + realTimeData.Strategy;
+
+            var data = _realTimeDataSources.Lookup(key);
             
             if (data.HasValue)
             {
