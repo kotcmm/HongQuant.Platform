@@ -13,6 +13,9 @@ public static class BasicTransformDataFormula
             .AttachTotalYields()
             .AttachWithdrawDeep()
             .AttachMaxWithdrawAndLevel()
+            .AttachHLC()
+            .AttachHasSignal()
+            .AttachTotalProfit()
             .ToList();
     }
 
@@ -23,6 +26,7 @@ public static class BasicTransformDataFormula
             .AttachTotalYields()
             .AttachWithdrawDeep()
             .AttachMaxWithdrawAndLevel()
+            .AttachHLC()
             .ToList();
     }
 
@@ -260,6 +264,132 @@ public static class BasicTransformDataFormula
 
             data.MaxWithdraw = historyWithdrawDeeps.Min;
             data.WithdrawLevel = data.WithdrawDeep / (Math.Abs(data.MaxWithdraw) < 0.0001 ? 1 : data.MaxWithdraw);
+
+            yield return data;
+        }
+    }
+
+    /// <summary>
+    /// 中上中轨计算
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public static IEnumerable<BasicTransformData> AttachHLC(this IEnumerable<BasicTransformData> source)
+    {
+        List<double> historyEquitys = [];
+
+        using var e = source.GetEnumerator();
+
+        while (e.MoveNext())
+        {
+            var data = e.Current;
+
+            historyEquitys.Add(data.Equity);
+
+            if (historyEquitys.Count > 20)//20要改成可配置
+            {
+                historyEquitys.RemoveAt(0);
+            }
+
+            if (historyEquitys.Count == 20)
+            {
+                SortedSet<double> equitys = new(historyEquitys);
+
+                data.MaxEquity = equitys.Max;
+                data.MinEquity = equitys.Min;
+                data.AvgEquity = (equitys.Max + equitys.Min) / 2;
+            }
+
+            yield return data;
+        }
+    }
+
+    /// <summary>
+    /// 判断是否有信号
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public static IEnumerable<BasicTransformData> AttachHasSignal(this IEnumerable<BasicTransformData> source)
+    {
+        using var e = source.GetEnumerator();
+
+        BasicTransformData? preData = null;
+        bool? nextSignal = null;
+
+        while (e.MoveNext())
+        {
+            var data = e.Current;
+
+            if (preData != null && preData.MaxEquity != 0)
+            {
+                if (!preData.HasSignal && data.Equity > preData.MaxEquity)//突破上轨
+                {
+                    nextSignal = true;
+                }
+                else if (preData.HasSignal && data.Equity < preData.AvgEquity)//突破下轨
+                {
+                    nextSignal = false;
+                }
+                else
+                {
+                    if (nextSignal.HasValue)
+                    {
+                        data.HasSignal = nextSignal.Value;
+                        nextSignal = null;
+                    }
+                    else
+                    {
+                        data.HasSignal = preData.HasSignal;
+                    }
+                    
+                }
+            }
+
+            preData = data;
+
+            yield return data;
+        }
+    }
+
+    /// <summary>
+    /// 累计收益
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public static IEnumerable<BasicTransformData> AttachTotalProfit(this IEnumerable<BasicTransformData> source)
+    {
+        using var e = source.GetEnumerator();
+
+        BasicTransformData? preData = null;
+
+        while (e.MoveNext())
+        {
+            var data = e.Current;
+
+            if(preData == null)
+            {
+                data.TotalProfit = data.TodayProfitAndLoss;
+
+                if (data.HasSignal)
+                {
+                    data.TotalSignalProfit = data.TodayProfitAndLoss;
+                }
+            }
+            else
+            {
+                data.TotalProfit = preData.TotalProfit + data.TodayProfitAndLoss;
+
+                if (data.HasSignal)
+                {
+                    data.TotalSignalProfit = preData.TotalSignalProfit + data.TodayProfitAndLoss;
+                }
+                else
+                {
+                    data.TotalSignalProfit = preData.TotalSignalProfit;
+                }
+            }
+
+            preData = data;
 
             yield return data;
         }

@@ -105,15 +105,21 @@
                     <!--<DataGridTextColumn Header="时间" Binding="{Binding SignalDateTime,StringFormat=yyyy年MM月dd日 HH:mm}"/>-->
                     <DataGridTextColumn Header="品种" Binding="{Binding Product}"/>
                     <DataGridTextColumn Header="交易日" Binding="{Binding TradeDate,StringFormat=yyyy年MM月dd日}"/>
-                    <DataGridTextColumn Header="权益" MinWidth="80" Binding="{Binding Equity}"/>
+                    <DataGridTextColumn Header="权益" MinWidth="80" Binding="{Binding Equity,StringFormat=F0}"/>
                     <DataGridTextColumn Header="净利润" MinWidth="80" Binding="{Binding TodayProfitAndLoss}"/>
                     <DataGridTextColumn Header="收益率" MinWidth="80" Binding="{Binding Yields,StringFormat=P2}"/>
                     <DataGridTextColumn Header="累计收益率" MinWidth="80" Binding="{Binding TotalYields,StringFormat=P2}"/>
                     <DataGridTextColumn Header="实时回撤" MinWidth="80" Binding="{Binding WithdrawDeep,StringFormat=P2}"/>
                     <DataGridTextColumn Header="最大回撤" MinWidth="80" Binding="{Binding MaxWithdraw,StringFormat=P2}"/>
                     <DataGridTextColumn Header="回撤程度" MinWidth="80" Binding="{Binding WithdrawLevel,StringFormat=P2}"/>
-                        <DataGridTextColumn Header="持仓" MinWidth="80" Binding="{Binding PositionFormat}"/>
-                </DataGrid.Columns>
+                    <DataGridTextColumn Header="持仓(总,多,空)" MinWidth="80" Binding="{Binding PositionFormat}"/>
+                    <DataGridTextColumn Header="上轨" MinWidth="80" Binding="{Binding MaxEquity,StringFormat=F0}"/>
+                    <DataGridTextColumn Header="中轨" MinWidth="80" Binding="{Binding AvgEquity,StringFormat=F0}"/>
+                    <DataGridTextColumn Header="下轨" MinWidth="80" Binding="{Binding MinEquity,StringFormat=F0}"/>
+                    <DataGridTextColumn Header="信号" MinWidth="80" Binding="{Binding HasSignal}"/>
+                        <DataGridTextColumn Header="累计收益" MinWidth="80" Binding="{Binding TotalProfit,StringFormat=F0}"/>
+                        <DataGridTextColumn Header="累计信号收益" MinWidth="80" Binding="{Binding TotalSignalProfit,StringFormat=F0}"/>
+                    </DataGrid.Columns>
             </DataGrid>
             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
             <StackPanel Orientation="Horizontal" Grid.Row="1">

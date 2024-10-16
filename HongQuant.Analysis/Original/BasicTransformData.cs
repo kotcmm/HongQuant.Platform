@@ -79,4 +79,34 @@ public class BasicTransformData
     /// 回撤程度
     /// </summary>
     public double WithdrawLevel { get; set; }
+
+    /// <summary>
+    /// 上轨，最大的权益
+    /// </summary>
+    public double MaxEquity { get; set;  }
+
+    /// <summary>
+    /// 下轨，最小的权益
+    /// </summary>
+    public double MinEquity { get; set;  }
+
+    /// <summary>
+    /// 中轨，上下的平均
+    /// </summary>
+    public double AvgEquity { get; set;  }
+
+    /// <summary>
+    /// 是否有信号
+    /// </summary>
+    public bool HasSignal { get; set; }
+
+    /// <summary>
+    /// 累计盈利
+    /// </summary>
+    public double TotalProfit { get; set; }
+
+    /// <summary>
+    /// 信号累计盈利
+    /// </summary>
+    public double TotalSignalProfit { get; set; }
 }

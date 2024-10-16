@@ -59,4 +59,34 @@ public class BasicTransformDataViewModel(BasicTransformData item)
     /// 回撤程度
     /// </summary>
     public double WithdrawLevel { get; set; } = item.WithdrawLevel;
+
+    /// <summary>
+    /// 上轨，最大的权益
+    /// </summary>
+    public double MaxEquity { get; set; } = item.MaxEquity;
+
+    /// <summary>
+    /// 下轨，最小的权益
+    /// </summary>
+    public double MinEquity { get; set; } = item.MinEquity;
+
+    /// <summary>
+    /// 中轨，上下的平均
+    /// </summary>
+    public double AvgEquity { get; set; } = item.AvgEquity;
+
+    /// <summary>
+    /// 是否有信号
+    /// </summary>
+    public bool HasSignal { get; set; } = item.HasSignal;
+
+    /// <summary>
+    /// 累计盈利
+    /// </summary>
+    public double TotalProfit { get; set; } = item.TotalProfit;
+
+    /// <summary>
+    /// 信号累计盈利
+    /// </summary>
+    public double TotalSignalProfit { get; set; } = item.TotalSignalProfit;
 }
