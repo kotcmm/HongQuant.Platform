@@ -21,9 +21,9 @@
     <Grid>
         <TabControl TabStripPlacement="Left" 
             controls:TabControlHelper.Underlined="TabPanel">
-            <TabItem Header="实时数据" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
+            <!--<TabItem Header="实时数据" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
                 <realTime:RealTimeMain/>
-            </TabItem>
+            </TabItem>-->
             <TabItem Header="基础数据" Height="120" Padding="8" HeaderTemplate="{StaticResource TabItemHeader}">
                 <original:OriginalMain/>
             </TabItem>
