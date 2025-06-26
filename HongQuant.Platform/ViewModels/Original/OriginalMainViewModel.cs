@@ -61,7 +61,7 @@ public class OriginalMainViewModel : ReactiveObject
 
         foreach (var item in _originalService.FileIndexs.Items)
         {
-            SaveFile(dir,item);
+            SaveFile(dir, item);
         }
 
         foreach (var item in _originalService.CombinationFileIndexs.Items)
@@ -70,7 +70,7 @@ public class OriginalMainViewModel : ReactiveObject
         }
     }
 
-    private void SaveFile(string dir,Analysis.Original.IDataFile item)
+    private void SaveFile(string dir, Analysis.Original.IDataFile item)
     {
         _originalService.Save(dir, item);
     }
@@ -156,7 +156,7 @@ public class OriginalMainViewModel : ReactiveObject
             foreach (var item in templates)
             {
                 var fileIndexs = _originalService.FileIndexs.Items
-                    .Where(x => item.Products.Contains(x.Product))
+                    .Where(x => item.Products.Any(y => y.Product == x.Product && y.Strategy == x.Strategy))
                     .ToList();
 
                 _originalService.Combination(fileIndexs, item.TemplateName);

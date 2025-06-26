@@ -29,7 +29,7 @@ public class ProductTemplateSettingViewModel : ReactiveObject, IDisposable
              .Transform(f => new ProductTemplatesEditViewModel
              {
                  Id = f.Id,
-                 Products = string.Join(",",f.Products),
+                 SelectProducts = f.Products,
                  TemplateName = f.TemplateName
              })
              .ObserveOn(RxApp.MainThreadScheduler)
@@ -52,7 +52,7 @@ public class ProductTemplateSettingViewModel : ReactiveObject, IDisposable
         {
             Id = model.Id,
             TemplateName = model.TemplateName,
-            Products = model.Products.Split(',')
+            Products = model.SelectProducts
         };
 
         _originalService.SaveProductTemplate(productTemplate);

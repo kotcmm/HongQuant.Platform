@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿using HongQuant.Core.Models;
+using LiteDB;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -7,7 +8,7 @@ public class ProductTemplatesViewModel
 {
     public string TemplateName { get; set; } = string.Empty;
 
-    public IList<string> Products { get; set; } = [];
+    public IList<SelectProduct> Products { get; set; } = [];
 }
 
 public class ProductTemplatesEditViewModel : ReactiveObject
@@ -32,28 +33,13 @@ public class ProductTemplatesEditViewModel : ReactiveObject
         }
     }
 
-    private string _sourceProducts = string.Empty;
-    private string _products = string.Empty;
-    public string Products 
-    { 
-        get => _products;
-        set 
-        {
-            _products = value;
+    public string Products => string.Join(",", SelectProducts.Select(x => x.Product));
 
-            if (string.IsNullOrEmpty(_sourceProducts))
-            {
-                _sourceProducts = value;
-            }
-
-            SetIsEditing();
-        }
-    }
+    public IList<SelectProduct> SelectProducts { get; set; } = [];
 
     private void SetIsEditing()
     {
-        IsEditing = _products != _sourceProducts ||
-            _sourceTemplateName != _templateName;
+        IsEditing = _sourceTemplateName != _templateName;
     }
 
     [Reactive]

@@ -177,27 +177,28 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
         {
             foreach (var item in FileIndexs)
             {
-                item.IsSelected = model.Products.Any(m=>m == item.DataFile.Product);
+                item.IsSelected = model.Products
+                    .Any(m=> m.Product == item.DataFile.Product && m.Strategy == item.DataFile.Strategy);
             }
         }
     }
 
     private async Task SaveTemplateAsync()
     {
-        var selectedNames = FileIndexs
-            .Where(x => x.IsSelected)
-            .Select(x => x.DataFile.Product)
-            .ToList();
+        var selecteds = FileIndexs.Where(x => x.IsSelected);
+
+        var products = FileIndexs.Where(x => x.IsSelected)
+            .Select(x => new SelectProduct(x.DataFile.Product, x.DataFile.Strategy)).ToList();
 
         IsTemplateDialogOpen = false;
 
-        if (selectedNames.Count > 0)
+        if (products.Count > 0)
         {
             var productTemplate = new ProductTemplate
             {
                 Id = Guid.NewGuid(),
                 TemplateName = TemplateName,
-                Products = selectedNames
+                Products = products
             };
 
             _originalService.SaveProductTemplate(productTemplate);

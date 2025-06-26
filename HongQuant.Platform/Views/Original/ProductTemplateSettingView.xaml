@@ -15,7 +15,7 @@
                ItemsSource="{Binding ProductTemplates}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="组合名称" Binding="{Binding TemplateName}"/>
-                <DataGridTextColumn Header="品种列表" MinWidth="400" Binding="{Binding Products}"/>
+                <DataGridTextColumn Header="品种列表" MinWidth="400" Binding="{Binding Products,Mode=OneWay}"/>
                 <DataGridTemplateColumn Header="操作" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
