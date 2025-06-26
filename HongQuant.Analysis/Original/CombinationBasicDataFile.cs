@@ -14,8 +14,7 @@ public class CombinationBasicDataFile : DataFile
 
     public override CombinationBasicDataFile Calculate(string name = "")
     {
-        Name = string.IsNullOrEmpty(name) ?
-            $"组合{_basicDataFiles.Count}品种" : name;
+        Name = string.IsNullOrEmpty(name) ? DataNameToString() : name;
 
         Product = Name;
 
@@ -26,5 +25,14 @@ public class CombinationBasicDataFile : DataFile
         _calculateChangeSubject.OnNext(signalDatas);
 
         return this;
+    }
+
+    private string DataNameToString()
+    {
+        var groupedData = _basicDataFiles
+            .GroupBy(x => x.Strategy)
+            .Select(g => $"{g.Key}({g.Count()})");
+
+        return string.Join(", ", groupedData);
     }
 }
