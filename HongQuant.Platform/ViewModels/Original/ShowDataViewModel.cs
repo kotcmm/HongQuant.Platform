@@ -175,6 +175,16 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
         }
         else
         {
+            Product = model.Products
+                .Select(x => x.Product)
+                .Distinct()
+                .Aggregate((x, y) => $"{x},{y}");
+
+            Strategy = model.Products
+                .Select(x => x.Strategy)
+                .Distinct()
+                .Aggregate((x, y) => $"{x},{y}");
+
             foreach (var item in FileIndexs)
             {
                 item.IsSelected = model.Products
