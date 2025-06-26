@@ -41,6 +41,12 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
     public string TemplateName { get; set; } = string.Empty;
 
     [Reactive]
+    public string Product { get; set; } = string.Empty;
+
+    [Reactive]
+    public string Strategy { get; set; } = string.Empty;
+
+    [Reactive]
     public ProductTemplatesViewModel? SelectProductTemplate { get; set; }
 
     public ICommand CombinationCommand { get; }
@@ -63,10 +69,28 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
     {
         _originalService = Locator.Current.GetService<IOriginalService>()!;
 
+        var filterStrategy = this.WhenAnyValue(x => x.Strategy).Select(x =>
+        {
+            if (string.IsNullOrEmpty(x)) 
+                return f => true;
+
+            return (Func<BasicDataFileViewModel, bool>)(f => x.Split(",").Contains(f.DataFile.Strategy, StringComparer.OrdinalIgnoreCase));
+        });
+
+        var filterProduct = this.WhenAnyValue(x => x.Product).Select(x =>
+        {
+            if (string.IsNullOrEmpty(x))
+                return f => true;
+
+            return (Func<BasicDataFileViewModel, bool>)(f => x.Split(",").Contains(f.DataFile.Product, StringComparer.OrdinalIgnoreCase));
+        });
+
         var fileIndexsDisposable = _originalService
               .FileIndexs
               .Connect()
               .Transform(f => new BasicDataFileViewModel(f))
+              .Filter(filterStrategy)
+              .Filter(filterProduct)
               .ObserveOn(RxApp.MainThreadScheduler)
               .Bind(out _fileIndexs)
               .DisposeMany()

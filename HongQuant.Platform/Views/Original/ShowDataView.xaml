@@ -35,56 +35,68 @@
             </StackPanel>
         </materialDesign:DialogHost.DialogContent>
         <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="240"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <Border BorderBrush="LightGray" BorderThickness="0,0,1,0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition Height="40"></RowDefinition>
-                </Grid.RowDefinitions>
-                <ListView ItemsSource="{Binding FileIndexs}"
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="240"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Border BorderBrush="LightGray" BorderThickness="0,0,1,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="39"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="策略：" Margin="0 10 0 0"/>
+                        <TextBox Text="{Binding Strategy,UpdateSourceTrigger=PropertyChanged}" Height="36" Width="160" Padding="0 10 0 0"></TextBox>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <TextBlock Text="品种：" Margin="0 10 0 0"/>
+                        <TextBox Text="{Binding Product,UpdateSourceTrigger=PropertyChanged}" Height="36" Width="160" Padding="0 10 0 0"></TextBox>
+                    </StackPanel>
+                    <Border Grid.Row="2" BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 1 0 1" >
+                        <ListView Grid.Row="2" ItemsSource="{Binding FileIndexs}"
                         SelectedItem="{Binding FileIndex}">
-                    <ListView.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="组合计算" Command="{Binding CombinationCommand}"/>
-                            <Separator/>
-                            <MenuItem Header="最新查看" Command="{Binding ShowLastCommand}"/>
-                            <Separator/>
-                            <MenuItem Header="保存模板" Command="{Binding OpenSaveTemplateCommand}"/>
-                        </ContextMenu>
-                    </ListView.ContextMenu>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignListBoxItem}">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding IsSelected}" Margin="0 0 5 0"></CheckBox>
-                                <TextBlock Text="{Binding Name}"></TextBlock>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-                <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
-                <ComboBox Grid.Row="1"
+                            <ListView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="组合计算" Command="{Binding CombinationCommand}"/>
+                                    <Separator/>
+                                    <MenuItem Header="最新查看" Command="{Binding ShowLastCommand}"/>
+                                    <Separator/>
+                                    <MenuItem Header="保存模板" Command="{Binding OpenSaveTemplateCommand}"/>
+                                </ContextMenu>
+                            </ListView.ContextMenu>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignListBoxItem}">
+                                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding IsSelected}" Margin="0 0 5 0"></CheckBox>
+                                        <TextBlock Text="{Binding Name}"></TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Border>
+                    <ComboBox Grid.Row="3"
                       materialDesign:TextFieldAssist.HasClearButton="True"
                       ItemsSource="{Binding ProductTemplates}"
                       SelectedItem="{Binding SelectProductTemplate}"
                       DisplayMemberPath="TemplateName"
                      />
-            </Grid>
-        </Border>
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-            </Grid.RowDefinitions>
-            <DataGrid 
+
+                </Grid>
+            </Border>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="40"></RowDefinition>
+                </Grid.RowDefinitions>
+                <DataGrid 
                   Background="White"
                   AutoGenerateColumns="False" 
                   IsReadOnly="True"
@@ -94,88 +106,88 @@
                   CellStyle="{StaticResource DatagridCellStyleCenter}"
                   ColumnHeaderStyle ="{StaticResource DataGridColumnHeaderCenter}"
                   ItemsSource="{Binding SelectFileIndex.Items}">
-                <DataGrid.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="查看图表" Command="{Binding ShowChartCommand}"/>
-                        <Separator/>
-                        <MenuItem Header="导出数据" Command="{Binding ExportCommand}"/>
-                    </ContextMenu>
-                </DataGrid.ContextMenu>
-                <DataGrid.Columns>
-                    <!--<DataGridTextColumn Header="时间" Binding="{Binding SignalDateTime,StringFormat=yyyy年MM月dd日 HH:mm}"/>-->
-                    <DataGridTextColumn Header="品种" Binding="{Binding Product}"/>
-                    <DataGridTextColumn Header="交易日" Binding="{Binding TradeDate,StringFormat=yyyy年MM月dd日}"/>
-                    <DataGridTextColumn Header="权益" MinWidth="80" Binding="{Binding Equity,StringFormat=F0}"/>
-                    <DataGridTextColumn Header="净利润" MinWidth="80" Binding="{Binding TodayProfitAndLoss}"/>
-                    <DataGridTextColumn Header="收益率" MinWidth="80" Binding="{Binding Yields,StringFormat=P2}"/>
-                    <DataGridTextColumn Header="累计收益率" MinWidth="80" Binding="{Binding TotalYields,StringFormat=P2}"/>
-                    <DataGridTextColumn Header="实时回撤" MinWidth="80" Binding="{Binding WithdrawDeep,StringFormat=P2}"/>
-                    <DataGridTextColumn Header="最大回撤" MinWidth="80" Binding="{Binding MaxWithdraw,StringFormat=P2}"/>
-                    <DataGridTextColumn Header="回撤程度" MinWidth="80" Binding="{Binding WithdrawLevel,StringFormat=P2}"/>
-                    <DataGridTextColumn Header="持仓(总,多,空)" MinWidth="80" Binding="{Binding PositionFormat}"/>
-                    <DataGridTextColumn Header="上轨" MinWidth="80" Binding="{Binding MaxEquity,StringFormat=F0}"/>
-                    <DataGridTextColumn Header="中轨" MinWidth="80" Binding="{Binding AvgEquity,StringFormat=F0}"/>
-                    <DataGridTextColumn Header="下轨" MinWidth="80" Binding="{Binding MinEquity,StringFormat=F0}"/>
-                    <DataGridTextColumn Header="信号" MinWidth="80" Binding="{Binding HasSignal}"/>
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="查看图表" Command="{Binding ShowChartCommand}"/>
+                            <Separator/>
+                            <MenuItem Header="导出数据" Command="{Binding ExportCommand}"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                    <DataGrid.Columns>
+                        <!--<DataGridTextColumn Header="时间" Binding="{Binding SignalDateTime,StringFormat=yyyy年MM月dd日 HH:mm}"/>-->
+                        <DataGridTextColumn Header="品种" Binding="{Binding Product}"/>
+                        <DataGridTextColumn Header="交易日" Binding="{Binding TradeDate,StringFormat=yyyy年MM月dd日}"/>
+                        <DataGridTextColumn Header="权益" MinWidth="80" Binding="{Binding Equity,StringFormat=F0}"/>
+                        <DataGridTextColumn Header="净利润" MinWidth="80" Binding="{Binding TodayProfitAndLoss}"/>
+                        <DataGridTextColumn Header="收益率" MinWidth="80" Binding="{Binding Yields,StringFormat=P2}"/>
+                        <DataGridTextColumn Header="累计收益率" MinWidth="80" Binding="{Binding TotalYields,StringFormat=P2}"/>
+                        <DataGridTextColumn Header="实时回撤" MinWidth="80" Binding="{Binding WithdrawDeep,StringFormat=P2}"/>
+                        <DataGridTextColumn Header="最大回撤" MinWidth="80" Binding="{Binding MaxWithdraw,StringFormat=P2}"/>
+                        <DataGridTextColumn Header="回撤程度" MinWidth="80" Binding="{Binding WithdrawLevel,StringFormat=P2}"/>
+                        <DataGridTextColumn Header="持仓(总,多,空)" MinWidth="80" Binding="{Binding PositionFormat}"/>
+                        <DataGridTextColumn Header="上轨" MinWidth="80" Binding="{Binding MaxEquity,StringFormat=F0}"/>
+                        <DataGridTextColumn Header="中轨" MinWidth="80" Binding="{Binding AvgEquity,StringFormat=F0}"/>
+                        <DataGridTextColumn Header="下轨" MinWidth="80" Binding="{Binding MinEquity,StringFormat=F0}"/>
+                        <DataGridTextColumn Header="信号" MinWidth="80" Binding="{Binding HasSignal}"/>
                         <DataGridTextColumn Header="累计收益" MinWidth="80" Binding="{Binding TotalProfit,StringFormat=F0}"/>
                         <DataGridTextColumn Header="累计信号收益" MinWidth="80" Binding="{Binding TotalSignalProfit,StringFormat=F0}"/>
                     </DataGrid.Columns>
-            </DataGrid>
-            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
-            <StackPanel Orientation="Horizontal" Grid.Row="1">
-                <RadioButton
+                </DataGrid>
+                <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
+                <StackPanel Orientation="Horizontal" Grid.Row="1">
+                    <RadioButton
                         BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
                         Content="单个品种"
                         ToolTip="{Binding FileIndex.Name}"
                         Style="{StaticResource MaterialDesignTabRadioButtonTop}" 
                         Command="{Binding TabChangeCommand}"
                         CommandParameter="{Binding FileIndex}">
-                    <RadioButton.IsChecked>
-                        <MultiBinding ConverterParameter="1" Converter="{StaticResource TypeToBoolConverter}">
-                            <Binding Path="SelectFileIndex" Mode="OneWay"></Binding>
-                            <Binding Path="FileIndex" Mode="OneWay"></Binding>
-                        </MultiBinding>
-                    </RadioButton.IsChecked>
-                </RadioButton>
-                <ItemsControl ItemsSource="{Binding CombinationFileIndexs}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <RadioButton
+                        <RadioButton.IsChecked>
+                            <MultiBinding ConverterParameter="1" Converter="{StaticResource TypeToBoolConverter}">
+                                <Binding Path="SelectFileIndex" Mode="OneWay"></Binding>
+                                <Binding Path="FileIndex" Mode="OneWay"></Binding>
+                            </MultiBinding>
+                        </RadioButton.IsChecked>
+                    </RadioButton>
+                    <ItemsControl ItemsSource="{Binding CombinationFileIndexs}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <RadioButton
                                     BorderBrush="{DynamicResource Theme.ShowcaseBrush}"
                                     Style="{StaticResource MaterialDesignTabRadioButtonTop}" 
                                     Command="{Binding DataContext.TabChangeCommand,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"
                                     CommandParameter="{Binding}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Name}" />
-                                    <Button Command="{Binding DataContext.CloseCommand,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" />
+                                        <Button Command="{Binding DataContext.CloseCommand,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}">
-                                        <Button.Template>
-                                            <ControlTemplate>
-                                                <materialDesign:PackIcon
+                                            <Button.Template>
+                                                <ControlTemplate>
+                                                    <materialDesign:PackIcon
                                                        Background="Transparent"
                                                        Foreground="Red"
                                                        Kind="Close" />
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
-                                </StackPanel>
-                                <RadioButton.IsChecked>
-                                    <MultiBinding ConverterParameter="2" Converter="{StaticResource TypeToBoolConverter}">
-                                        <Binding Mode="OneWay" Path="DataContext.SelectFileIndex" RelativeSource="{RelativeSource FindAncestor,AncestorType=UserControl}"/>
-                                        <Binding Mode="OneWay" Path="DataContext" RelativeSource="{RelativeSource Self}"/>
-                                    </MultiBinding>
-                                </RadioButton.IsChecked>
-                            </RadioButton>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </StackPanel>
+                                    <RadioButton.IsChecked>
+                                        <MultiBinding ConverterParameter="2" Converter="{StaticResource TypeToBoolConverter}">
+                                            <Binding Mode="OneWay" Path="DataContext.SelectFileIndex" RelativeSource="{RelativeSource FindAncestor,AncestorType=UserControl}"/>
+                                            <Binding Mode="OneWay" Path="DataContext" RelativeSource="{RelativeSource Self}"/>
+                                        </MultiBinding>
+                                    </RadioButton.IsChecked>
+                                </RadioButton>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Grid>
         </Grid>
-    </Grid>
     </materialDesign:DialogHost>
 </UserControl>

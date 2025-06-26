@@ -19,6 +19,10 @@ public class DataFileViewModel : ReactiveObject
 
     public string Name => DataFile.Name;
 
+    public string Product => DataFile.Product;
+
+    public string Strategy => DataFile.Strategy;
+
     [Reactive]
     public IEnumerable<BasicTransformDataViewModel>? Items { get; set; }
 }
