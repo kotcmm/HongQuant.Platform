@@ -69,6 +69,29 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
     {
         _originalService = Locator.Current.GetService<IOriginalService>()!;
 
+        this.WhenAnyValue(x => x.FileIndex).Subscribe(x =>
+        {
+            SelectFileIndex = x;
+        });
+
+        var filterTemplate = this.WhenAnyValue(x => x.SelectProductTemplate).Select(x =>
+        {
+            if (x == null)
+            {
+                return (Func<BasicDataFileViewModel, bool>)(f => {
+                    f.IsSelected = false;
+                    return true;
+                });
+            }
+
+            return (Func<BasicDataFileViewModel, bool>)(f =>
+            {
+                var flag = x.Products.Any(m => m.Product == f.DataFile.Product && m.Strategy == f.DataFile.Strategy);
+                f.IsSelected = flag;
+                return flag;
+            });
+        });
+
         var filterStrategy = this.WhenAnyValue(x => x.Strategy).Select(x =>
         {
             if (string.IsNullOrEmpty(x)) 
@@ -89,6 +112,7 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
               .FileIndexs
               .Connect()
               .Transform(f => new BasicDataFileViewModel(f))
+              .Filter(filterTemplate)
               .Filter(filterStrategy)
               .Filter(filterProduct)
               .ObserveOn(RxApp.MainThreadScheduler)
@@ -137,12 +161,6 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
         ShowLastCommand = ReactiveCommand.CreateFromTask(ShowLastAsync);
         ExportCommand = ReactiveCommand.CreateFromTask(Export);
         SaveTemplateCommand = ReactiveCommand.CreateFromTask(SaveTemplateAsync);
-
-        this.WhenAnyValue(x => x.FileIndex).Subscribe(x =>
-        {
-            SelectFileIndex = x;
-        });
-        this.WhenAnyValue(x => x.SelectProductTemplate).Subscribe(SelectProductTemplateChang);
     }
 
     private async Task ShowChartAsync()
@@ -162,35 +180,6 @@ public class ShowDataViewModel : ReactiveObject, IDisposable
         if (string.IsNullOrEmpty(dir) || SelectFileIndex == null) return;
 
         _originalService.Save(dir, SelectFileIndex.DataFile);
-    }
-
-    private void SelectProductTemplateChang(ProductTemplatesViewModel? model)
-    {
-        if(model == null)
-        {
-            foreach (var item in FileIndexs)
-            {
-                item.IsSelected = false;
-            }
-        }
-        else
-        {
-            Product = model.Products
-                .Select(x => x.Product)
-                .Distinct()
-                .Aggregate((x, y) => $"{x},{y}");
-
-            Strategy = model.Products
-                .Select(x => x.Strategy)
-                .Distinct()
-                .Aggregate((x, y) => $"{x},{y}");
-
-            foreach (var item in FileIndexs)
-            {
-                item.IsSelected = model.Products
-                    .Any(m=> m.Product == item.DataFile.Product && m.Strategy == item.DataFile.Strategy);
-            }
-        }
     }
 
     private async Task SaveTemplateAsync()
