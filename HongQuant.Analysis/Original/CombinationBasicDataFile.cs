@@ -9,7 +9,10 @@ public class CombinationBasicDataFile : DataFile
     {
         _basicDataFiles = basicDataFiles;
 
-        Id = string.Join("-", basicDataFiles.Select(x => x.Product));
+        var products = basicDataFiles.Select(x => x.Product).Distinct();
+        var strategys = basicDataFiles.Select(x => x.Strategy).Distinct();
+
+        Id = $"{string.Join(":", strategys)}-{string.Join(":", products)}";
     }
 
     public override CombinationBasicDataFile Calculate(string name = "")
