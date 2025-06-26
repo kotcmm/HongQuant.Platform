@@ -15,7 +15,7 @@ public class ConvertTradeDate
     {
         return dateTime.Hour switch
         {
-            < 18 and > 8 => Day(dateTime),
+            < 18 and >= 8 => Day(dateTime),
             > 18 => Night(dateTime),
             < 8 => BeforeDawn(dateTime),
             _ => throw new NotImplementedException(),
