@@ -121,3 +121,25 @@
 - WindowChrome 标题栏和 Windows 原生 `SystemCommands` 不变，此轮仅调整视觉和选择框的数据展示。
 
 **待在 Windows 验证：** 首次打开空组合列表、已有组合时初始空白、选中组合后的回显、没有组合时禁用、最大化与还原切换图标、鼠标悬停关闭按钮颜色，以及在非默认 DPI 下按钮视觉一致性。当前环境仅完成 XAML 标签匹配与 JS 语法的静态检查，未运行 Windows WPF 构建。
+
+## 2026-11-01 · 修复主内容区无法点击
+
+### 问题与修复
+
+- 排查发现主工作区通过 `Microsoft.Web.WebView2.Wpf.WebView2`（`HwndHost` 子窗口）显示，而自定义标题栏使用 WPF `WindowChrome`；这种宿主组合存在独立 HWND 与 WPF 命中测试/airspace 兼容风险。改为微软提供的 `WebView2CompositionControl`（WPF `Control`），让鼠标事件由控件的 `OnMouseDown/Up/Move` 转发给浏览器。
+- 只对第二行的浏览器控件设置 `WindowChrome.IsHitTestVisibleInChrome=True`，保持第一行原标题栏可由 Windows 拖动。保留 WebView2 的 `CoreWebView2`、消息桥与 HTML 原型。
+- 移除宿主边框的 `ClipToBounds`，避免 HwndHost/组合宿主与 WPF 裁剪边界发生额外干扰。
+- 首次加载不再由 JS `ready` 与 `NavigationCompleted` 双重执行完整数据计算。
+- 前端勾选品种后立即更新选中状态，C# 只保存勾选集合，不重新构建、计算并重绘整张表。
+- 在 `TerminalDataBridge` 缓存当前数据源、当前参数对应的两类统计结果；仅在数据导入、切换来源、调整参数、创建或关闭组合时失效。
+- 增加 `window.error` / `unhandledrejection` 启动时注册、页面桥接完整性检查及首个 `pointerdown` 诊断。页面实际运行出现错误时显示信息，并在 VS 调试输出中记录输入是否成功到达 DOM。
+
+### 需要在 Windows 上复测
+
+1. 中间四个页面导航、搜索框、勾选框、右键菜单、组合标签、滑块及表格是否可点击。
+2. 连续勾选几十项时是否即时响应，不能每次都触发收益统计重算。
+3. 普通窗口及最大化下的标题栏拖动/窗口动画是否仍正常，网页区域不能误判为标题栏。
+4. 如果仍无法点击，查看 VS 调试输出是否出现 `[HongQuant WebView2] Pointer received`；如果有，说明鼠标已到 DOM，需要继续查 JS；如果没有，说明窗口输入层仍有问题。
+5. 运行前确认 NuGet WebView2 SDK 的 `WebView2CompositionControl` 可用（仓库使用 `Microsoft.Web.WebView2 1.0.4314.35`）。
+
+**当前验证范围：** 已核对 Microsoft 官方的 WPF WebView2CompositionControl 替换与鼠标输入机制，但当前容器没有 Windows .NET SDK，不能完成 WPF 编译与实机鼠标验证。不能宣称此问题已经运行验证通过。

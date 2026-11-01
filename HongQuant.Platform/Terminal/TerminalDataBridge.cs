@@ -30,6 +30,19 @@ internal sealed class TerminalDataBridge
         ["ret"] = 100, ["months"] = 36, ["lev0"] = 1, ["levStep"] = 1,
         ["levMax"] = 6, ["interval"] = 3, ["period"] = 12
     };
+    // 两种统计计算开销较大，缓存当前数据源和参数下的结果；
+    // 勾选品种、刷新标题栏等操作不应重复计算收益序列。
+    private IDataFile? _cachedSource;
+    private object? _cachedCompound;
+    private object? _cachedSettle;
+
+    private void InvalidateStatistics()
+    {
+        _cachedSource = null;
+        _cachedCompound = null;
+        _cachedSettle = null;
+    }
+
     private List<IDataFile> _files = [];
     private List<SourceEntry> _sources = [];
     private string _sourceId = string.Empty;
@@ -44,10 +57,18 @@ internal sealed class TerminalDataBridge
     {
         if (!_parameters.ContainsKey(key) || !double.IsFinite(value)) return;
         var min = key switch { "months" or "period" or "interval" => 1, "ret" => 1, "lev0" => .5, "levStep" => .5, _ => 1 };
-        _parameters[key] = Math.Max(min, Math.Min(value, 10000));
+        var normalized = Math.Max(min, Math.Min(value, 10000));
+        if (_parameters[key] == normalized) return;
+        _parameters[key] = normalized;
+        InvalidateStatistics();
     }
 
-    internal void SelectSource(string id) => _sourceId = id;
+    internal void SelectSource(string id)
+    {
+        if (_sourceId == id) return;
+        _sourceId = id;
+        InvalidateStatistics();
+    }
 
     internal bool TemplateSync =>
         bool.TryParse(GlobalSettingStroe.GetValue("TemplateSync"), out var enabled) && enabled;
@@ -75,6 +96,7 @@ internal sealed class TerminalDataBridge
         var combo = _sources.FirstOrDefault(x => x.Id == sourceId && x.Group == "组合");
         if (combo is null) return;
         _original.Remove(combo.File.Id);
+        InvalidateStatistics();
         if (_sourceId == sourceId)
             _sourceId = _sources.FirstOrDefault(x => x.Group == "单品")?.Id ?? string.Empty;
     }
@@ -131,6 +153,7 @@ internal sealed class TerminalDataBridge
         foreach (var existing in _original.CombinationFileIndexs.Items.ToArray())
             _original.Remove(existing.Id);
         _original.LoadFile(files);
+        InvalidateStatistics();
         if (bool.TryParse(GlobalSettingStroe.GetValue("TemplateSync"), out var sync) && sync)
         {
             foreach (var template in _original.ProductTemplates.Items)
@@ -155,6 +178,7 @@ internal sealed class TerminalDataBridge
         var result = _original.CombinationFileIndexs.Items.FirstOrDefault(x => x.Name == name);
         if (result is null) throw new InvalidOperationException("组合计算未生成结果。");
         _sourceId = ComboSourceId(result);
+        InvalidateStatistics();
     }
 
     internal void ExportSelected(string folder)
@@ -277,6 +301,14 @@ internal sealed class TerminalDataBridge
         var selected = _files.Select((f, index) => (f, index))
             .Where(x => _selectedFileIds.Contains(FileKey(x.f))).Select(x => x.index).ToArray();
         var selectedSource = _sources.FirstOrDefault(x => x.Id == _sourceId);
+
+        if (source is not null && !ReferenceEquals(source, _cachedSource))
+        {
+            _cachedSource = null;
+            _cachedCompound = ComputeRows(source, "compound");
+            _cachedSettle = ComputeRows(source, "settle");
+            _cachedSource = source;
+        }
         var result = new
         {
             requestId,
@@ -292,8 +324,8 @@ internal sealed class TerminalDataBridge
                 .Select(x => new { id = x.Id.ToString("D"), name = x.TemplateName }).ToArray(),
             singleSourceId = _sources.FirstOrDefault(x => x.Group == "单品")?.Id ?? string.Empty,
             equity,
-            compound = source is null ? null : ComputeRows(source, "compound"),
-            settle = source is null ? null : ComputeRows(source, "settle"),
+            compound = source is null ? null : _cachedCompound,
+            settle = source is null ? null : _cachedSettle,
             dateStart = equity.Length > 0 ? ((object[])equity[0])[0] : null,
             dateEnd = equity.Length > 0 ? ((object[])equity[^1])[0] : null,
             status = source is null ? "未导入数据" : "数据源已连接",

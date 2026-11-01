@@ -21,6 +21,8 @@ public partial class MainWindow : Window
     private int _lastRequest;
     private int _stateRevision;
     private bool _updatingHeader;
+    private bool _initialStateSent;
+    private bool _browserErrorReported;
 
     // 组合 ID 与 ComboBox 的纯字符串选项按位置对应。
     private List<string> _headerCombinationIds = [];
@@ -53,11 +55,48 @@ public partial class MainWindow : Window
             core.Settings.IsZoomControlEnabled = false;
             TerminalBrowser.ZoomFactor = 1.0;
             core.Settings.IsStatusBarEnabled = false;
+
+            // 在加载用户页面前监听运行时异常，避免「界面显示但按钮全部失效」时静默失败。
+            await core.AddScriptToExecuteOnDocumentCreatedAsync(@"
+                window.addEventListener('error', function(event) {
+                    window.chrome?.webview?.postMessage({
+                        action:'client-error',
+                        message:String(event.message || 'JavaScript error'),
+                        location:String(event.filename || '') + ':' + String(event.lineno || 0)
+                    });
+                });
+                window.addEventListener('unhandledrejection', function(event) {
+                    window.chrome?.webview?.postMessage({
+                        action:'client-error',
+                        message:String(event.reason || 'Promise rejection'),
+                        location:'unhandledrejection'
+                    });
+                });
+            ");
             core.WebMessageReceived += OnWebMessage;
+            core.ProcessFailed += (_, args) =>
+                Debug.WriteLine("[HongQuant WebView2] Renderer process failure: " + args.ProcessFailedKind);
             core.NavigationCompleted += async (_, args) =>
             {
-                if (args.IsSuccess) await SendState(0);
-                else MessageBox.Show($"UI 加载失败：{args.WebErrorStatus}", "HONG QUANT");
+                if (!args.IsSuccess)
+                {
+                    MessageBox.Show($"UI 加载失败：{args.WebErrorStatus}", "HONG QUANT");
+                    return;
+                }
+
+                // 有些环境 ready 消息先于 NavigationCompleted；只初始化一次真实数据。
+                if (!_initialStateSent)
+                    await SendState(0);
+
+                // 检查桥接与交互 DOM 是否确实初始化，而非只检查脚本可解析。
+                var health = await TerminalBrowser.ExecuteScriptAsync(
+                    "Boolean(window.__hqNative && window.__hqNative.applyState && document.querySelector('.nav-item[data-view=\"data\"]') && document.querySelector('#assetList'))");
+                if (health != "true" && !_browserErrorReported)
+                {
+                    _browserErrorReported = true;
+                    MessageBox.Show(this, "研究终端页面未完成初始化，主内容区操作不可用。请检查调试输出中的脚本错误。",
+                        "页面初始化失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             };
             var uiFolder = Path.Combine(AppContext.BaseDirectory, "Resources", "TerminalUi");
             if (!Directory.Exists(uiFolder))
@@ -90,7 +129,25 @@ public partial class MainWindow : Window
             switch (action)
             {
                 case "ready":
-                    await SendState(request);
+                    if (!_initialStateSent)
+                        await SendState(request);
+                    return;
+                case "input-probe":
+                    Debug.WriteLine("[HongQuant WebView2] Pointer received in document: "
+                        + ReadString(message, "target"));
+                    return;
+                case "client-error":
+                    Debug.WriteLine("[HongQuant WebView2] "
+                        + ReadString(message, "message") + " @ " + ReadString(message, "location"));
+                    if (!_browserErrorReported)
+                    {
+                        _browserErrorReported = true;
+                        MessageBox.Show(this,
+                            "研究终端页面发生脚本错误：" + Environment.NewLine
+                            + ReadString(message, "message") + Environment.NewLine
+                            + ReadString(message, "location"),
+                            "页面脚本错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                     return;
                 // 窗口控制已经移入原生 WPF 标题栏；不再从 WebView2 转发鼠标事件。
                 case "view-changed":
@@ -116,7 +173,9 @@ public partial class MainWindow : Window
                     if (message.TryGetProperty("indexes", out var indexes) &&
                         indexes.ValueKind == JsonValueKind.Array)
                         _data.SelectAssets(indexes.EnumerateArray().Where(x => x.TryGetInt32(out _)).Select(x => x.GetInt32()));
-                    break;
+                    // JS 已即时更新勾选与计数，省去两次昂贵收益统计及表格重绘。
+                    // 组合计算/其他状态变化仍继续发送完整状态。
+                    return;
                 case "sync-combination":
                 case "create-combination":
                     _data.SynchronizeCombination();
@@ -170,6 +229,7 @@ public partial class MainWindow : Window
         if (TerminalBrowser.CoreWebView2 is null) return;
         // WPF 标题栏和 WebView2 都能发起选择；状态版本由唯一发送方递增。
         var state = _data.BuildState(++_stateRevision);
+        _initialStateSent = true;
         UpdateNativeHeader(state);
         await TerminalBrowser.ExecuteScriptAsync("window.__hqNative && window.__hqNative.applyState(" + state + ");");
     }

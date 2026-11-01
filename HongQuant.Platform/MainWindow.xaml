@@ -64,7 +64,7 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <Border x:Name="WindowFrame" BorderBrush="#BBC7D8" Background="#F1F3F7" ClipToBounds="True">
+    <Border x:Name="WindowFrame" BorderBrush="#BBC7D8" Background="#F1F3F7">
         <Border.Style>
             <Style TargetType="{x:Type Border}">
                 <Setter Property="BorderThickness" Value="1"/>
@@ -183,8 +183,13 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <wv2:WebView2 x:Name="TerminalBrowser" Grid.Row="1"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <!-- 采用官方 WPF 组合渲染控件，避免 HwndHost 子窗口与 WindowChrome
+                 的非客户区命中测试/airspace 干扰网页鼠标事件。 -->
+            <wv2:WebView2CompositionControl x:Name="TerminalBrowser" Grid.Row="1"
+                                           HorizontalAlignment="Stretch"
+                                           VerticalAlignment="Stretch"
+                                           Focusable="True" IsHitTestVisible="True"
+                                           shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
         </Grid>
     </Border>
 </Window>

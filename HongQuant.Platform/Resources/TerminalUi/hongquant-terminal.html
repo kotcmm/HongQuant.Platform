@@ -2431,7 +2431,14 @@ html,body{height:100%;min-height:0;overflow:hidden}
     if(e.key==='Enter'){e.preventDefault();confirmTemplateName();}
   });
 
-  if(NATIVE) emitNative('ready');
+  // 只回传第一次真实鼠标输入以帮助区分窗口命中测试问题和脚本事件问题。
+  // 捕获监听不取消默认行为，也不改变页面上的点击/拖拽。
+  if (NATIVE) {
+    document.addEventListener('pointerdown',function(event) {
+      emitNative('input-probe',{target:event.target?.closest?.('button,input,a,.nav-item,.asset')?.className || event.target?.tagName || 'unknown'});
+    },{capture:true,once:true,passive:true});
+    emitNative('ready');
+  }
 
 })();
 </script>
