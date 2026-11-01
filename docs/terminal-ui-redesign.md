@@ -160,3 +160,14 @@ node scripts/verify-terminal-ui.mjs
 ```
 
 本次已在 V8 模拟 DOM 环境执行等效回归测试，初始化和主要事件均通过；**仍需在用户 Windows 机器上验证真实 WebView2 鼠标操作**。如果程序继续加载旧版 HTML，清理输出目录后重新生成，确认 `Resources/TerminalUi/hongquant-terminal.html` 已更新。
+
+
+## 2026-11-01 · 品种列表过滤计数与 Shift 文字选择修复
+
+- 左侧品种标签添加 `user-select:none` / `-webkit-user-select:none`，并取消标签 `selectstart` 与 `dragstart` 默认行为；搜索框不受影响，可正常选择输入的文字。
+- 每次过滤时计算当前实际显示的品种索引集合，右上角计数显示 **当前显示已选数 / 当前显示总数**，不是之前全局选择的数量；例如全部选择 14 个，搜 GD20 后仅 4 个匹配勾选，即显示 `4/24`。
+- 原有多次过滤的已选记录仍累计保留供组合计算。当前过滤条件下“全选”仅追加当前显示品种，“清空”仅取消当前显示品种，不会误清除其他过滤条件下已选的项目。
+- 取消过滤后重新展示全量数据，此时已选计数也恢复全量范围。保留原有 Shift 连选及右键组合计算。
+- 增强 `scripts/verify-terminal-ui.mjs`，检查过滤前后计数、隐藏选择保留、局部全选/清空、文本选择阻止以及页面脚本能完整初始化。
+
+回归测试运行：`node scripts/verify-terminal-ui.mjs`。本轮已用模拟 DOM 执行相应逻辑，尚未在 Windows GUI 做实机鼠标验证。

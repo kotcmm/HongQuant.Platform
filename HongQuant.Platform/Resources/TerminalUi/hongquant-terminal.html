@@ -306,6 +306,9 @@ button{font-family:inherit}
 .search input::placeholder{color:var(--text-4)}
 .search input:focus{border-color:rgba(76,141,255,.55);background:var(--bg-3);box-shadow:0 0 0 3px rgba(76,141,255,.1)}
 .asset-list{flex:1;overflow-y:auto;padding:2px 8px 10px}
+.asset-list, .asset-list .asset, .asset-list .asset *{
+  user-select:none;-webkit-user-select:none;
+}
 .asset{
   display:flex;align-items:center;gap:9px;height:30px;padding:0 7px;border-radius:6px;
   cursor:pointer;transition:.12s;
@@ -847,7 +850,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
           <div class="asset-pane">
             <div class="pane-head">
               <span class="t">品种</span>
-              <span class="count">已选 <b id="selCount" style="color:var(--accent-2)">12</b>/24</span>
+              <span class="count" id="assetSelectionSummary" title="当前显示的品种已选数量 / 当前显示的品种总数">已选 <b id="selCount" style="color:var(--accent-2)">0</b>/<span id="selTotal">0</span></span>
             </div>
             <div class="search">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="7.2" cy="7.2" r="4.4" stroke="currentColor" stroke-width="1.3"/><path d="M10.6 10.6L13.4 13.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -1378,27 +1381,40 @@ html,body{height:100%;min-height:0;overflow:hidden}
   var ACTIVE_TEMPLATE_ID = '';
   var NATIVE_TEMPLATES = [];
   var lastSingleSourceId = '';
+  var VISIBLE_ASSET_INDEXES = [];
+  function getVisibleAssetIndexes(filter){
+    var q = String(filter || '').trim().toLowerCase();
+    return ASSETS.reduce(function(result,a,idx){
+      var code = String(a[0] || '').toLowerCase();
+      var file = String(a[2] || a[1] || '').toLowerCase();
+      var name = String(a[1] || '').toLowerCase();
+      if (q && ![code,file,name].some(function(text){return text.indexOf(q)>=0;})) return result;
+      if (ACTIVE_TEMPLATE_ID && NATIVE_SELECTED.indexOf(idx)<0) return result;
+      result.push(idx);
+      return result;
+    },[]);
+  }
   function renderAssets(filter){
-    var q = (filter || '').trim().toLowerCase();
-    assetList.innerHTML = ASSETS.map(function(a, idx){
-      var code = a[0], cn = a[1];
-      var label = (code + ' ' + (a[2] || '')).toLowerCase();
-      if (q && label.indexOf(q) < 0 && cn.indexOf(q) < 0) return '';
-      if (ACTIVE_TEMPLATE_ID && NATIVE_SELECTED.indexOf(idx) < 0) return '';
-      var checked = NATIVE_SELECTED.indexOf(idx) >= 0 ? ' checked' : '';
+    VISIBLE_ASSET_INDEXES = getVisibleAssetIndexes(filter);
+    assetList.innerHTML = VISIBLE_ASSET_INDEXES.map(function(idx){
+      var a = ASSETS[idx], checked = NATIVE_SELECTED.indexOf(idx) >= 0 ? ' checked' : '';
       return '<label class="asset">' +
         '<input type="checkbox" data-idx="' + idx + '"' + checked + '>' +
         '<span class="box"><svg width="9" height="9" viewBox="0 0 10 10"><path d="M1.8 5.2l2.2 2.2L8.4 2.8" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
-        '<span class="asset-code">' + escapeText(code) + '</span>' +
+        '<span class="asset-code">' + escapeText(a[0]) + '</span>' +
         '<span class="asset-tail">' + escapeText(a[2] || '') + '</span>' +
       '</label>';
     }).join('');
     updateSelCount();
   }
   function updateSelCount(){
-    var n = NATIVE_SELECTED.length;
-    var el = $('#selCount');
-    if (el) el.textContent = n;
+    var selected = new Set(NATIVE_SELECTED);
+    var shownSelected = VISIBLE_ASSET_INDEXES.filter(function(idx){return selected.has(idx);}).length;
+    var el = $('#selCount'), total = $('#selTotal'), summary = $('#assetSelectionSummary');
+    if (el) el.textContent = shownSelected;
+    if (total) total.textContent = VISIBLE_ASSET_INDEXES.length;
+    if (summary) summary.title = '当前列表已选 ' + shownSelected + '/' + VISIBLE_ASSET_INDEXES.length +
+      '；所有过滤条件下累计已选 ' + NATIVE_SELECTED.length + ' 项';
   }
   var selectionAnchor = null; // 文件原始索引；跨渲染保留，Shift 选择基于当前可见顺序。
   function visibleAssetInputs(){
@@ -1450,22 +1466,32 @@ html,body{height:100%;min-height:0;overflow:hidden}
     selectionAnchor=currentIndex;
   },true);
   assetList.addEventListener('change',sendSelection);
+  // Shift 连选只勾选复选框，不允许浏览器顺带选中文字或拖动文件名。
+  assetList.addEventListener('selectstart',function(e){
+    if (e.target.closest && e.target.closest('label.asset')) e.preventDefault();
+  });
+  assetList.addEventListener('dragstart',function(e){
+    if (e.target.closest && e.target.closest('label.asset')) e.preventDefault();
+  });
 
   $('#selectAll').addEventListener('click',function(){
-    // 仅勾选当前过滤条件下可见的结果，隐藏的条目不应被全选。
-    var visible=visibleAssetInputs();
-    NATIVE_SELECTED=visible.map(function(input){return +input.dataset.idx;});
-    visible.forEach(function(input){input.checked=true;});
+    // 仅选中当前过滤结果；其他过滤条件下已有选择必须保留供组合使用。
+    var selected = new Set(NATIVE_SELECTED);
+    VISIBLE_ASSET_INDEXES.forEach(function(idx){selected.add(idx);});
+    NATIVE_SELECTED = Array.from(selected).sort(function(a,b){return a-b;});
+    visibleAssetInputs().forEach(function(input){input.checked=true;});
     selectionAnchor=null;
     updateSelCount();
     emitNative('select-assets',{indexes:NATIVE_SELECTED});
   });
   $('#clearAll').addEventListener('click',function(){
-    NATIVE_SELECTED=[];
+    // 只清除当前显示的品种，其他过滤条件下的已选品种不受影响。
+    var visible = new Set(VISIBLE_ASSET_INDEXES);
+    NATIVE_SELECTED = NATIVE_SELECTED.filter(function(idx){return !visible.has(idx);});
     visibleAssetInputs().forEach(function(input){input.checked=false;});
     selectionAnchor=null;
     updateSelCount();
-    emitNative('select-assets',{indexes:[]});
+    emitNative('select-assets',{indexes:NATIVE_SELECTED});
   });
 
   /* ───────── 渲染：表格 ───────── */

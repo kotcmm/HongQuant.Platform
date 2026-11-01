@@ -54,6 +54,21 @@ function get(key) {
   return elements.get(key);
 }
 
+// 对品种列表提供最小可用的复选框 DOM，实现过滤、全选和清空的动态验证。
+const assetList = get('#assetList');
+let assetMarkup = '';
+let assetInputs = [];
+Object.defineProperty(assetList, 'innerHTML', {
+  get() { return assetMarkup; },
+  set(markup) {
+    assetMarkup = markup;
+    assetInputs = Array.from(markup.matchAll(/<input type="checkbox" data-idx="(\d+)"( checked)?>/g),
+      match => ({ dataset: { idx: match[1] }, checked: Boolean(match[2]) }));
+  }
+});
+assetList.querySelectorAll = selector =>
+  selector === 'input[data-idx]' ? assetInputs : [];
+
 const document = {
   documentElement: get('html'),
   body: get('body'),
@@ -119,4 +134,58 @@ window.__hqNative.applyState({
 });
 assert.match(get('#assetList').innerHTML, /ag_GD20/, '真实数据快照未渲染到品种列表');
 
-console.log('PASS: 终端脚本初始化、菜单切换、刷新按钮和数据渲染均正常');
+// 过滤后的计数必须针对当前显示结果；旧选择不能因为搜索改变而丢失。
+window.__hqNative.applyState({
+  requestId: 2,
+  sourceId: 'file-0',
+  sources: [{ id:'file-0', name:'ag', code:'ag', grp:'单品', note:'ag' }],
+  assets: [
+    ['ag','ag_GD20','ag_GD20_history.csv','f0'],
+    ['ao','ao_GD20','ao_GD20_history.csv','f1'],
+    ['ag','ag_GD25','ag_GD25_history.csv','f2'],
+    ['ao','ao_GD25','ao_GD25_history.csv','f3'],
+    ['CF','CF_GD20','CF_GD20_history.csv','f4']
+  ],
+  selected: [0,2],
+  equity: [], compound: null, settle: null, status:'数据源已连接',
+  activeSourceName:'ag', templates: []
+});
+const search = get('#assetSearch');
+search.value = 'GD20';
+requireListener('#assetSearch:input')({ target: search });
+assert.equal(get('#selCount').textContent, 1, '筛选后只应统计当前可见的已选品种');
+assert.equal(get('#selTotal').textContent, 3, '筛选后的分母必须是当前可见的三个品种');
+assert.equal(assetInputs.length, 3, '列表应当只渲染匹配 GD20 的品种');
+assert.doesNotMatch(assetMarkup, /GD25/, 'GD25 应被过滤隐藏');
+
+requireListener('#selectAll:click')();
+const afterSelectAll = messages.at(-1);
+assert.equal(afterSelectAll.action, 'select-assets');
+assert.deepEqual([...afterSelectAll.indexes], [0,1,2,4],
+  '全选只能新增筛选结果，原已选的隐藏品种必须保留');
+assert.equal(get('#selCount').textContent, 3, '当前筛选结果全选后应显示 3/3');
+assert.equal(get('#selTotal').textContent, 3);
+
+requireListener('#clearAll:click')();
+const afterClear = messages.at(-1);
+assert.deepEqual([...afterClear.indexes], [2],
+  '清空当前筛选结果不能清除其他过滤条件下的选择');
+assert.equal(get('#selCount').textContent, 0);
+assert.equal(get('#selTotal').textContent, 3);
+
+search.value = '';
+requireListener('#assetSearch:input')({ target: search });
+assert.equal(get('#selCount').textContent, 1, '去掉过滤后，应恢复全量列表的已选计数');
+assert.equal(get('#selTotal').textContent, 5);
+
+assert.match(html, /-webkit-user-select:\s*none/,
+  '必须禁止品种列表 Shift 连选时出现浏览器原生文字高亮');
+const selectStartEvent = {
+  target: { closest: () => ({}) },
+  prevented: false,
+  preventDefault() { this.prevented = true; }
+};
+requireListener('#assetList:selectstart')(selectStartEvent);
+assert.ok(selectStartEvent.prevented, 'Shift 连选时不得触发浏览器原生文本选择');
+
+console.log('PASS: 页面初始化、菜单/刷新、真实数据渲染、过滤计数、全选/清空与防文字选中');
