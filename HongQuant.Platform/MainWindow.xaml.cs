@@ -22,7 +22,8 @@ public partial class MainWindow : Window
     private int _stateRevision;
     private bool _updatingHeader;
 
-    private sealed record HeaderSourceChoice(string Id, string Name);
+    // 组合 ID 与 ComboBox 的纯字符串选项按位置对应。
+    private List<string> _headerCombinationIds = [];
 
     public MainWindow()
     {
@@ -281,18 +282,13 @@ public partial class MainWindow : Window
     private void Close_Click(object sender, RoutedEventArgs e) =>
         SystemCommands.CloseWindow(this);
 
-    private async void ToggleTheme_Click(object sender, RoutedEventArgs e)
-    {
-        if (TerminalBrowser.CoreWebView2 is null) return;
-        await TerminalBrowser.ExecuteScriptAsync("document.getElementById('themeToggle')?.click();");
-        ThemeAction.Content = Equals(ThemeAction.Content, "☾") ? "☀" : "☾";
-    }
-
     private async void HeaderCombinationChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_updatingHeader || HeaderCombinationPicker.SelectedItem is not HeaderSourceChoice choice
-            || string.IsNullOrWhiteSpace(choice.Id)) return;
-        _data.SelectSource(choice.Id);
+        if (_updatingHeader) return;
+        var index = HeaderCombinationPicker.SelectedIndex;
+        if (index < 0 || index >= _headerCombinationIds.Count) return;
+
+        _data.SelectSource(_headerCombinationIds[index]);
         try { await SendState(++_lastRequest); }
         catch (Exception ex) { await ReportError(ex.Message); }
     }
@@ -305,23 +301,36 @@ public partial class MainWindow : Window
         try
         {
             var currentId = ReadString(state, "sourceId") ?? string.Empty;
-            var choices = new List<HeaderSourceChoice> { new(string.Empty, "选择组合") };
-            if (state.TryGetProperty("sources", out var sources))
+            var ids = new List<string>();
+            var names = new List<string>();
+            if (state.TryGetProperty("sources", out var sources)
+                && sources.ValueKind == JsonValueKind.Array)
             {
                 foreach (var item in sources.EnumerateArray())
                 {
                     if (ReadString(item, "grp") != "组合") continue;
                     var id = ReadString(item, "id") ?? string.Empty;
                     if (id == "combo" || string.IsNullOrEmpty(id)) continue;
-                    choices.Add(new HeaderSourceChoice(id, ReadString(item, "name") ?? "组合"));
+                    ids.Add(id);
+                    names.Add(ReadString(item, "name") ?? "未命名组合");
                 }
             }
-            HeaderCombinationPicker.ItemsSource = choices;
-            HeaderCombinationPicker.SelectedItem = choices.FirstOrDefault(x => x.Id == currentId) ?? choices[0];
+
+            // 使用字符串列表，不使用复杂对象作为 ComboBox 内容。
+            // 不添加“选择组合”等占位选项，也不自动选中第一个组合。
+            _headerCombinationIds = ids;
+            HeaderCombinationPicker.ItemsSource = names;
+            HeaderCombinationPicker.SelectedIndex = ids.FindIndex(id => id == currentId);
+            HeaderCombinationPicker.IsEnabled = ids.Count > 0;
+            HeaderCombinationPicker.ToolTip = ids.Count == 0 ? "暂无可选组合" : "选择已计算的组合";
+
             HeaderStatus.Text = ReadString(state, "status") ?? "未导入数据";
             HeaderSourceName.Text = ReadString(state, "activeSourceName") ?? "—";
         }
-        finally { _updatingHeader = false; }
+        finally
+        {
+            _updatingHeader = false;
+        }
     }
 
     protected override void OnSourceInitialized(EventArgs e)

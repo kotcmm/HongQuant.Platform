@@ -763,11 +763,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
       <div class="crumb">研究工作台<span class="sep">/</span><b id="crumbModule">基础数据</b><span class="sep">/</span><span id="crumbSource">GD20</span></div>
     </div>
     <div class="titlebar-right">
-      <button class="theme-btn" id="themeToggle" title="切换深浅主题" aria-label="切换深浅主题">
-        <svg id="themeIcon" width="13" height="13" viewBox="0 0 16 16" fill="none">
-          <path d="M13.2 9.6A5.6 5.6 0 116.4 2.8a4.6 4.6 0 006.8 6.8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-        </svg>
-      </button>
+      
       <button class="src-trigger" data-src-trigger aria-haspopup="listbox" aria-expanded="false" title="切换数据来源 · 全局唯一入口，基础数据与定投复利 / 周期结算 / 图表分析 同步">
         <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="4.2" rx="5.2" ry="2" stroke="currentColor" stroke-width="1.2"/><path d="M2.8 4.2v7.6c0 1.1 2.3 2 5.2 2s5.2-.9 5.2-2V4.2" stroke="currentColor" stroke-width="1.2"/><path d="M2.8 8c0 1.1 2.3 2 5.2 2s5.2-.9 5.2-2" stroke="currentColor" stroke-width="1.2"/></svg>
         <span class="k">来源</span><span class="code">GD20</span>
@@ -2277,31 +2273,9 @@ html,body{height:100%;min-height:0;overflow:hidden}
   Object.keys(PARAMS).forEach(function(k){ setParam(k, PARAMS[k], { silent:true }); });
 
   // 主题切换：所有颜色走 CSS 变量，切换后 SVG 与表格自动跟随
-  var root = document.documentElement;
-  var ICON_MOON = '<path d="M13.2 9.6A5.6 5.6 0 116.4 2.8a4.6 4.6 0 006.8 6.8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>';
-  var ICON_SUN = '<circle cx="8" cy="8" r="3.1" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.6v1.5M8 12.9v1.5M14.4 8h-1.5M3.1 8H1.6M12.5 3.5l-1 1M4.5 11.5l-1 1M12.5 12.5l-1-1M4.5 4.5l-1-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>';
-  function paintThemeIcon(){
-    var light = root.getAttribute('data-theme') === 'light';
-    var el = $('#themeIcon');
-    if (el) el.innerHTML = light ? ICON_MOON : ICON_SUN;
-    var btn = $('#themeToggle');
-    if (btn) btn.title = light ? '切换到深色主题' : '切换到浅色主题';
-  }
-  function setTheme(t){
-    root.setAttribute('data-theme', t);
-    try { localStorage.setItem('hq-theme', t); } catch (e) {}
-    paintThemeIcon();
-  }
-  var toggle = $('#themeToggle');
-  if (toggle){
-    toggle.addEventListener('click', function(){
-      setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
-    });
-  }
-  try {
-    var savedTheme = localStorage.getItem('hq-theme');
-    if (savedTheme === 'dark' || savedTheme === 'light') setTheme(savedTheme); else paintThemeIcon();
-  } catch (e) { paintThemeIcon(); }
+  // 统一浅色主题：忽略并清理历史保存的深色偏好。
+  document.documentElement.setAttribute('data-theme', 'light');
+  try { localStorage.removeItem('hq-theme'); } catch (e) {}
 
   // 初始化
   renderAssets('');
