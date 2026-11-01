@@ -1,0 +1,209 @@
+/* ══════════════════════════════════════════════════════════════
+   HONG QUANT Terminal · Design Tokens  v1.0
+   深色为默认（:root），浅色由 [data-theme="light"] 覆盖。
+   所有组件颜色都从这里取值，不要在业务样式里写死色值。
+
+   命名约定
+     --bg-N        表面层级，数字越大越靠前
+     --text-N      文字层级，数字越大越弱
+     --fill-N      无边框淡填充，数字越大越明显
+     --chart-*     仅图表 SVG 使用的色，避免和界面色互相牵制
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─────────── 深色（默认） ─────────── */
+:root {
+
+  /* 表面 Surface ─────────────────────── */
+  --bg-0: #07080A;                    /* 应用最底层，窗口外沿 */
+  --bg-1: #0B0D11;                    /* 主内容区底色 */
+  --bg-2: #101318;                    /* 面板 / 输入框 */
+  --bg-3: #151920;                    /* 按钮、卡片内嵌控件 */
+  --bg-4: #1B2029;                    /* hover / 选中态表面 */
+
+  /* 描边 Line ────────────────────────── */
+  --line: rgba(255,255,255,.065);     /* 1px 发丝线，用于分区分隔 */
+  --line-2: rgba(255,255,255,.11);    /* 强一档，用于控件边框 */
+
+  /* 文字 Text ────────────────────────── */
+  --text-1: #E9EDF3;                  /* 正文、单元格数值 */
+  --text-2: #9AA4B2;                  /* 次级说明、表头以外标签 */
+  --text-3: #616B7A;                  /* 表头、弱提示 */
+  --text-4: #454E5C;                  /* 占位符、分组标题 */
+
+  /* 品牌与语义色 ─────────────────────── */
+  --accent:      #4C8DFF;             /* 主色：仅用于可交互 + 当前选中 */
+  --accent-2:    #7FB0FF;             /* 主色提亮：图标、链接文字 */
+  --accent-soft: rgba(76,141,255,.12);/* 主色淡底：选中项背景 */
+  --up:          #F2605A;             /* 涨 / 正收益（中国习惯：红涨） */
+  --down:        #2FBF71;             /* 跌 / 负收益（绿跌） */
+  --gold:        #E3B455;             /* 杠杆 */
+  --orange:      #E8914C;             /* 风险 / 回撤 */
+  --violet:      #A98BFA;             /* 辅助数据色 1（交易天数等） */
+  --teal:        #46C99A;             /* 辅助数据色 2 */
+  --btn-primary-bg:       #2F63C9;    /* 主按钮底色：与白字对比 5.2:1 */
+  --btn-primary-bg-hover: #3A72DD;
+
+  /* 中性填充 Fill ─────────────────────── */
+  --fill-0:      rgba(255,255,255,.02);  /* 几乎不可见的分区底 */
+  --fill-1:      rgba(255,255,255,.035); /* 胶囊、标签底 */
+  --fill-2:      rgba(255,255,255,.06);  /* hover 底 */
+  --fill-3:      rgba(255,255,255,.09);  /* 滑块轨道、进度槽 */
+  --fill-strong: rgba(255,255,255,.22);  /* 复选框边框等，需明确可见 */
+
+  /* 结构件 ───────────────────────────── */
+  --hairline:  rgba(255,255,255,.038);  /* 表格行分隔线（比 --line 更淡） */
+  --panel:     rgba(12,15,20,.6);       /* 卡片背景 */
+  --th-bg:     #0D1015;                 /* 表头吸顶背景，必须不透明 */
+  --row-hover: rgba(76,141,255,.06);    /* 表格行 hover */
+  --track:     rgba(255,255,255,.09);   /* 进度条槽 */
+  --pane-bg:   rgba(0,0,0,.16);         /* 侧列 / 品种池底 */
+  --bar-bg:    rgba(0,0,0,.22);         /* 底部标签条底 */
+  --seg-bg:    rgba(0,0,0,.3);          /* 分段控件凹槽 */
+
+  /* 浮层 ─────────────────────────────── */
+  --tip-bg:   rgba(18,22,29,.97);       /* tooltip 背景 */
+  --tip-line: rgba(255,255,255,.13);    /* tooltip 描边 */
+
+  /* 背景与渐变 ───────────────────────── */
+  --app-bg:
+    radial-gradient(1100px 520px at 16% -12%, rgba(76,141,255,.13), transparent 62%),
+    radial-gradient(900px 460px at 92% 108%, rgba(70,201,154,.045), transparent 60%),
+    var(--bg-1);
+  --titlebar-grad: linear-gradient(180deg, rgba(255,255,255,.028), transparent);
+  --sidebar-grad:  linear-gradient(180deg, rgba(255,255,255,.014), transparent 40%);
+  --card-grad:     linear-gradient(165deg, var(--fill-1), rgba(255,255,255,.006));
+  --kpi-grad:      linear-gradient(160deg, rgba(255,255,255,.04), rgba(255,255,255,.008));
+
+  /* 阴影 ─────────────────────────────── */
+  --brand-shadow: 0 0 0 1px rgba(255,255,255,.1) inset, 0 4px 14px rgba(76,141,255,.3);
+
+  /* 滚动条 ───────────────────────────── */
+  --scroll:   rgba(255,255,255,.1);
+  --scroll-h: rgba(255,255,255,.2);
+
+  /* 图表专用 ─────────────────────────── */
+  --chart-grid:   rgba(255,255,255,.05);  /* 网格线，虚线 0.5px */
+  --chart-axis:   #616B7A;                /* Y 轴刻度文字 */
+  --chart-axisx:  #707A8A;                /* X 轴日期文字 */
+  --chart-axisr:  #8A7238;                /* 右轴（杠杆）刻度 */
+  --chart-nav:    #4C8DFF;                /* 净值曲线 */
+  --chart-lev:    #B98A2E;                /* 杠杆阶梯线 */
+  --chart-dd:     #E8914C;                /* 回撤曲线 */
+  --chart-zero:   rgba(255,255,255,.16);  /* 零基准线 */
+  --chart-cross:  rgba(255,255,255,.28);  /* hover 十字线 */
+  --chart-dotbg:  #0B0D11;                /* 数据点描边底色，需与图表底一致 */
+
+  /* 圆角 ─────────────────────────────── */
+  --r-sm: 6px;   /* 按钮、输入框、标签 */
+  --r-md: 9px;   /* 卡片、参数块 */
+  --r-lg: 12px;  /* 大容器（当前未使用，预留） */
+
+  /* 字体 ─────────────────────────────── */
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", "Liberation Mono", monospace;
+  --sans: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ═══════════ 浅色主题覆盖 ═══════════ */
+[data-theme="light"] {
+
+  --bg-0: #E9ECF2;
+  --bg-1: #F1F3F7;
+  --bg-2: #FFFFFF;
+  --bg-3: #FFFFFF;
+  --bg-4: #EEF1F6;
+
+  --line:   rgba(16,24,40,.10);
+  --line-2: rgba(16,24,40,.16);
+
+  --text-1: #0F1728;
+  --text-2: #3D4A5C;
+  --text-3: #5D6A7D;
+  --text-4: #8B95A6;
+
+  --accent:      #2563EB;
+  --accent-2:    #1D4ED8;
+  --accent-soft: rgba(37,99,235,.09);
+  --up:          #D92D20;
+  --down:        #079455;
+  --gold:        #A5761B;
+  --orange:      #C4692A;
+  --violet:      #7A5AF8;
+  --teal:        #0E9384;
+  --btn-primary-bg:       #2563EB;    /* 主按钮底色：与白字对比 5.6:1 */
+  --btn-primary-bg-hover: #1D4ED8;
+
+  --fill-0:      rgba(16,24,40,.014);
+  --fill-1:      rgba(16,24,40,.028);
+  --fill-2:      rgba(16,24,40,.05);
+  --fill-3:      rgba(16,24,40,.08);
+  --fill-strong: rgba(16,24,40,.18);
+
+  --hairline:  #EDF0F5;
+  --panel:     #FFFFFF;
+  --th-bg:     #F7F9FC;
+  --row-hover: rgba(37,99,235,.045);
+  --track:     rgba(16,24,40,.08);
+  --pane-bg:   #FFFFFF;
+  --bar-bg:    #FFFFFF;
+  --seg-bg:    #EDF0F5;
+
+  --tip-bg:   rgba(255,255,255,.98);
+  --tip-line: rgba(16,24,40,.10);
+
+  --app-bg:
+    radial-gradient(1000px 480px at 14% -14%, rgba(37,99,235,.06), transparent 62%),
+    var(--bg-1);
+  --titlebar-grad: #FFFFFF;
+  --sidebar-grad:  #FFFFFF;
+  --card-grad:     linear-gradient(165deg, #FFFFFF, #FCFDFE);
+  --kpi-grad:      linear-gradient(160deg, #FFFFFF, #FAFBFD);
+
+  --brand-shadow: 0 0 0 1px rgba(255,255,255,.16) inset, 0 4px 12px rgba(37,99,235,.22);
+
+  --scroll:   rgba(16,24,40,.14);
+  --scroll-h: rgba(16,24,40,.26);
+
+  --chart-grid:  rgba(16,24,40,.07);
+  --chart-axis:  #7A8496;
+  --chart-axisx: #98A2B3;
+  --chart-axisr: #9A6E18;
+  --chart-nav:   #2563EB;
+  --chart-lev:   #B07D1E;
+  --chart-dd:    #C4692A;
+  --chart-zero:  rgba(16,24,40,.18);
+  --chart-cross: rgba(16,24,40,.30);
+  --chart-dotbg: #FFFFFF;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   尺寸与动效 SIZE / MOTION
+   原型 hongquant-terminal.html 为书写方便直接写了 px，没有引用这些变量；
+   但 components.css 依赖其中的 --row-h / --control-h / --bar-h / --shadow-* /
+   --dur-* / --ease / --z-sticky，接入组件库时必须保留。
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  --row-h: 34px;          /* 表格行高 */
+  --control-h: 31px;      /* 按钮 / 输入框高度 */
+  --bar-h: 46px;          /* 标题栏高度 */
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.12);
+  --shadow-lg: 0 12px 30px rgba(0,0,0,.28);
+
+  --ease: cubic-bezier(.4,0,.2,1);
+  --dur-fast: 120ms;
+  --dur-base: 160ms;
+  --dur-slow: 280ms;
+
+  --z-sticky: 3;   /* 吸顶表头 */
+  --z-overlay: 40; /* 下拉、浮层 */
+  --z-tip: 99;     /* tooltip */
+}

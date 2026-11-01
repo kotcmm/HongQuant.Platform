@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HONG QUANT · Design Tokens</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--app-bg);
+  color:var(--text-1);
+  font-family:var(--sans);
+  font-size:13px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:6px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--scroll-h);background-clip:content-box}
+
+.wrap{max-width:1200px;margin:0 auto;padding:40px 28px 80px}
+
+/* 头部 */
+header{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.mark{
+  width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:0 0 auto;
+  background:linear-gradient(150deg,#5E9BFF,#2F63C9);
+  box-shadow:var(--brand-shadow);
+}
+.htxt{flex:1;min-width:240px}
+h1{font-size:19px;font-weight:600;letter-spacing:.01em;display:flex;align-items:center;gap:10px}
+h1 .ver{
+  font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.04em;
+  color:var(--accent);background:var(--accent-soft);
+  padding:2px 7px;border-radius:5px;
+}
+.sub{font-size:12px;color:var(--text-3);margin-top:6px;line-height:1.7}
+.sub code{font-family:var(--mono);font-size:11px;color:var(--text-2);background:var(--fill-2);padding:1px 4px;border-radius:3px}
+
+.btn{
+  display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;
+  border-radius:var(--r-sm);border:1px solid var(--line-2);background:var(--bg-2);
+  color:var(--text-2);font-size:12px;font-family:inherit;cursor:pointer;
+  transition:var(--dur-base) var(--ease);
+}
+.btn:hover{color:var(--text-1);background:var(--bg-4);border-color:var(--accent)}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent-soft),0 0 0 3px var(--accent)}
+
+/* 概览 */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0 28px}
+.stat{
+  padding:14px 16px;border-radius:var(--r-md);border:1px solid var(--line);
+  background:var(--card-grad);
+}
+.stat .k{font-size:10.5px;color:var(--text-3);letter-spacing:.05em}
+.stat .v{display:flex;align-items:baseline;gap:4px;font-family:var(--mono);font-size:21px;letter-spacing:-.02em;margin-top:6px}
+.stat .v small{font-size:11px;color:var(--text-3);letter-spacing:0;margin:0}
+
+/* 表格 */
+.card{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--panel)}
+table{width:100%;border-collapse:separate;border-spacing:0}
+thead th{
+  position:sticky;top:0;z-index:var(--z-sticky);
+  background:var(--th-bg);color:var(--text-3);
+  font-size:10.5px;font-weight:500;letter-spacing:.05em;
+  text-align:left;padding:10px 14px;border-bottom:1px solid var(--line-2);
+}
+tbody.grp > tr.grp-head td,
+tr.grp-head td{
+  background:var(--fill-0);color:var(--text-3);
+  font-size:10.5px;letter-spacing:.08em;font-weight:600;
+  padding:8px 14px;border-bottom:1px solid var(--hairline);
+}
+tbody td{
+  padding:9px 14px;border-bottom:1px solid var(--hairline);
+  vertical-align:middle;font-size:12px;
+}
+tbody tr:hover td{background:var(--row-hover)}
+.name{font-family:var(--mono);font-size:11.5px;color:var(--text-1);white-space:nowrap}
+.cell-v{display:flex;align-items:center;gap:8px;min-width:0}
+.sw{
+  width:15px;height:15px;border-radius:4px;flex:0 0 auto;
+  border:1px solid var(--line-2);background-clip:padding-box;
+}
+.cell-v code{
+  font-family:var(--mono);font-size:10.5px;color:var(--text-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;display:block;
+}
+.use{color:var(--text-2);font-size:11.5px}
+.badge{
+  display:inline-block;font-size:9.5px;font-family:var(--mono);color:var(--text-4);
+  border:1px solid var(--line);border-radius:3px;padding:0 4px;margin-left:6px;vertical-align:1px;
+}
+.col-1{width:200px}.col-2{width:230px}.col-3{width:230px}
+
+footer{margin-top:26px;font-size:11px;color:var(--text-4);line-height:1.9}
+footer b{color:var(--text-3);font-weight:500}
+
+@media (max-width:900px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .wrap{padding:24px 16px 60px}
+  .col-1,.col-2,.col-3{width:auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="mark">
+      <svg width="17" height="17" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="9" width="2.4" height="5" rx="1" fill="#fff" opacity=".55"/>
+        <rect x="6.8" y="6" width="2.4" height="8" rx="1" fill="#fff" opacity=".85"/>
+        <rect x="11.6" y="2" width="2.4" height="12" rx="1" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="htxt">
+      <h1>Design Tokens <span class="ver">v1.0</span></h1>
+      <div class="sub">
+        HONG QUANT Terminal 的设计变量表。深色为默认值定义在 <code>:root</code>，浅色由 <code>[data-theme="light"]</code> 覆盖，
+        两套共用同一批变量名，组件样式不需要写任何主题判断。下表数值由浏览器实时读取，与 <code>tokens.css</code> 保持一致。
+      </div>
+    </div>
+    <button class="btn" id="themeBtn">
+      <svg id="ico" width="13" height="13" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="3.1" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M8 1.6v1.5M8 12.9v1.5M14.4 8h-1.5M3.1 8H1.6M12.5 3.5l-1 1M4.5 11.5l-1 1M12.5 12.5l-1-1M4.5 4.5l-1-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span id="btnTxt">切换为深色预览</span>
+    </button>
+  </header>
+
+  <section class="stats">
+    <div class="stat"><div class="k">变量总数</div><div class="v" id="stTotal">—<small>个</small></div></div>
+    <div class="stat"><div class="k">主题</div><div class="v">2<small>套</small></div></div>
+    <div class="stat"><div class="k" id="stContrastLabel">正文对比度</div><div class="v" id="stContrast">—<small>:1</small></div></div>
+    <div class="stat"><div class="k">当前预览</div><div class="v" id="stTheme" style="font-size:15px;letter-spacing:0">浅色</div></div>
+  </section>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-1">变量</th>
+          <th class="col-2">深色</th>
+          <th class="col-3">浅色</th>
+          <th>用途</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <b>使用方式</b>：把 <code style="font-family:var(--mono)">tokens.css</code> 引入项目，在 <code style="font-family:var(--mono)">&lt;html&gt;</code> 上切 <code style="font-family:var(--mono)">data-theme="light|dark"</code> 即可切换主题。<br>
+    <b>注意</b>：<code style="font-family:var(--mono)">--space-*</code> 目前只在规范里定义，原型与组件库都还没引用；而 <code style="font-family:var(--mono)">--row-h</code>、<code style="font-family:var(--mono)">--control-h</code>、<code style="font-family:var(--mono)">--dur-*</code>、<code style="font-family:var(--mono)">--z-*</code> 已被 <code style="font-family:var(--mono)">components.css</code> 依赖，不能删。
+  </footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var root = document.documentElement;
+
+  var GROUPS = [
+    { title:'表面 SURFACE', items:[
+      { n:'--bg-0', u:'应用最底层，窗口外沿' },
+      { n:'--bg-1', u:'主内容区底色' },
+      { n:'--bg-2', u:'面板 / 输入框' },
+      { n:'--bg-3', u:'按钮、卡片内嵌控件' },
+      { n:'--bg-4', u:'hover / 选中态表面' }
+    ]},
+    { title:'描边与文字 LINE / TEXT', items:[
+      { n:'--line', u:'1px 发丝线，分区分隔' },
+      { n:'--line-2', u:'强一档，控件边框' },
+      { n:'--text-1', u:'正文、单元格数值' },
+      { n:'--text-2', u:'次级说明' },
+      { n:'--text-3', u:'表头、弱提示' },
+      { n:'--text-4', u:'占位符、分组标题' }
+    ]},
+    { title:'品牌与语义色 SEMANTIC', items:[
+      { n:'--accent', u:'主色，仅用于可交互与当前选中' },
+      { n:'--accent-2', u:'主色提亮，图标 / 链接文字' },
+      { n:'--accent-soft', u:'主色淡底，选中项背景' },
+      { n:'--up', u:'涨 / 正收益（红涨）' },
+      { n:'--down', u:'跌 / 负收益（绿跌）' },
+      { n:'--gold', u:'杠杆' },
+      { n:'--orange', u:'风险 / 回撤' },
+      { n:'--violet', u:'辅助数据色 1' },
+      { n:'--teal', u:'辅助数据色 2' },
+      { n:'--btn-primary-bg', u:'主按钮底色，与白字对比 ≥ 5:1' },
+      { n:'--btn-primary-bg-hover', u:'主按钮 hover 底色' }
+    ]},
+    { title:'中性填充 FILL', items:[
+      { n:'--fill-0', u:'几乎不可见的分区底' },
+      { n:'--fill-1', u:'胶囊、标签底' },
+      { n:'--fill-2', u:'hover 底' },
+      { n:'--fill-3', u:'滑块轨道、进度槽' },
+      { n:'--fill-strong', u:'复选框边框等需明确可见处' }
+    ]},
+    { title:'结构件 STRUCTURE', items:[
+      { n:'--hairline', u:'表格行分隔线，比 --line 更淡' },
+      { n:'--panel', u:'卡片背景' },
+      { n:'--th-bg', u:'表头吸顶背景，必须不透明' },
+      { n:'--row-hover', u:'表格行 hover' },
+      { n:'--track', u:'进度条槽' },
+      { n:'--pane-bg', u:'侧列 / 品种池底' },
+      { n:'--bar-bg', u:'底部标签条底' },
+      { n:'--seg-bg', u:'分段控件凹槽' },
+      { n:'--tip-bg', u:'tooltip 背景' },
+      { n:'--tip-line', u:'tooltip 描边' }
+    ]},
+    { title:'背景与渐变 BACKGROUND', items:[
+      { n:'--app-bg', u:'应用底：径向光晕 + 底色' },
+      { n:'--titlebar-grad', u:'标题栏顶部微高光' },
+      { n:'--sidebar-grad', u:'侧边栏渐变' },
+      { n:'--card-grad', u:'卡片渐变底' },
+      { n:'--kpi-grad', u:'KPI 卡渐变底' },
+      { n:'--brand-shadow', u:'品牌方块外发光' }
+    ]},
+    { title:'滚动条 SCROLLBAR', items:[
+      { n:'--scroll', u:'滑块常态' },
+      { n:'--scroll-h', u:'滑块 hover' }
+    ]},
+    { title:'图表 CHART（仅 SVG 使用）', items:[
+      { n:'--chart-grid', u:'网格线，虚线 0.5px，不画竖线' },
+      { n:'--chart-axis', u:'Y 轴刻度文字' },
+      { n:'--chart-axisx', u:'X 轴日期文字' },
+      { n:'--chart-axisr', u:'右轴（杠杆）刻度' },
+      { n:'--chart-nav', u:'净值曲线' },
+      { n:'--chart-lev', u:'杠杆阶梯线' },
+      { n:'--chart-dd', u:'回撤曲线' },
+      { n:'--chart-zero', u:'零基准线' },
+      { n:'--chart-cross', u:'hover 十字线' },
+      { n:'--chart-dotbg', u:'数据点描边底色，需与图表底一致' }
+    ]},
+    { title:'尺寸与字体 SIZE / FONT（不随主题变）', items:[
+      { n:'--r-sm', u:'按钮、输入框、标签圆角' },
+      { n:'--r-md', u:'卡片、参数块圆角' },
+      { n:'--r-lg', u:'大容器圆角（预留）' },
+      { n:'--mono', u:'等宽字体栈，所有数字' },
+      { n:'--sans', u:'正文字体栈' },
+      { n:'--row-h', u:'表格行高，components.css 依赖' },
+      { n:'--control-h', u:'按钮 / 输入框高度，components.css 依赖' },
+      { n:'--bar-h', u:'标题栏高度' },
+      { n:'--shadow-sm', u:'轻阴影' },
+      { n:'--shadow-md', u:'中阴影' },
+      { n:'--shadow-lg', u:'浮层阴影，tooltip 使用' },
+      { n:'--ease', u:'统一缓动曲线' },
+      { n:'--dur-fast', u:'快速过渡 120ms' },
+      { n:'--dur-base', u:'基础过渡 160ms' },
+      { n:'--dur-slow', u:'慢速过渡 280ms' },
+      { n:'--z-sticky', u:'吸顶表头层级' },
+      { n:'--z-overlay', u:'下拉 / 浮层层级' },
+      { n:'--z-tip', u:'tooltip 层级' },
+      { n:'--space-1', u:'4px 栅格（暂未引用）' },
+      { n:'--space-2', u:'8px 栅格（暂未引用）' },
+      { n:'--space-3', u:'12px 栅格（暂未引用）' },
+      { n:'--space-4', u:'16px 栅格（暂未引用）' },
+      { n:'--space-6', u:'24px 栅格（暂未引用）' },
+      { n:'--space-8', u:'32px 栅格（暂未引用）' },
+      { n:'--space-12', u:'48px 栅格（暂未引用）' }
+    ]}
+  ];
+
+  function snapshot(theme){
+    root.setAttribute('data-theme', theme);
+    var cs = getComputedStyle(root);
+    var out = {};
+    GROUPS.forEach(function(g){
+      g.items.forEach(function(it){
+        out[it.n] = cs.getPropertyValue(it.n).trim();
+      });
+    });
+    return out;
+  }
+
+  function short(v){
+    if (!v) return '—';
+    return v.length > 52 ? v.slice(0, 50) + '…' : v;
+  }
+
+  var initialTheme = root.getAttribute('data-theme') || 'light';
+  var dark = snapshot('dark');
+  var light = snapshot('light');
+  root.setAttribute('data-theme', initialTheme);
+
+  var total = 0;
+  var html = GROUPS.map(function(g){
+    var rows = g.items.map(function(it){
+      total++;
+      var d = dark[it.n] || '', l = light[it.n] || '';
+      var isColor = /^(#|rgb)/i.test(d);
+      var dCell = '<div class="cell-v">' + (isColor ? '<span class="sw" style="background:' + d + '"></span>' : '') +
+                  '<code title="' + d.replace(/"/g,'&quot;') + '">' + short(d) + '</code></div>';
+      var lCell = '<div class="cell-v">' + (isColor ? '<span class="sw" style="background:' + l + '"></span>' : '') +
+                  '<code title="' + l.replace(/"/g,'&quot;') + '">' + short(l) + '</code></div>';
+      return '<tr><td class="name">' + it.n + '</td><td>' + dCell + '</td><td>' + lCell + '</td><td class="use">' + it.u + '</td></tr>';
+    }).join('');
+    return '<tr class="grp-head"><td colspan="4">' + g.title + '</td></tr>' + rows;
+  }).join('');
+
+  document.getElementById('tbody').innerHTML = html;
+  document.getElementById('stTotal').innerHTML = total + '<small>个</small>';
+
+  // 主题切换
+  var btn = document.getElementById('themeBtn');
+  var btnTxt = document.getElementById('btnTxt');
+  var ico = document.getElementById('ico');
+  var ICON_SUN = '<circle cx="8" cy="8" r="3.1" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.6v1.5M8 12.9v1.5M14.4 8h-1.5M3.1 8H1.6M12.5 3.5l-1 1M4.5 11.5l-1 1M12.5 12.5l-1-1M4.5 4.5l-1-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>';
+  var ICON_MOON = '<path d="M13.2 9.6A5.6 5.6 0 116.4 2.8a4.6 4.6 0 006.8 6.8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>';
+
+  function paint(){
+    var isLight = root.getAttribute('data-theme') === 'light';
+    btnTxt.textContent = isLight ? '切换为深色预览' : '切换为浅色预览';
+    ico.innerHTML = isLight ? ICON_MOON : ICON_SUN;
+    document.getElementById('stTheme').textContent = isLight ? '浅色' : '深色';
+    var cur = isLight ? light : dark;
+    document.getElementById('stContrast').innerHTML = contrast(cur['--text-1'], cur['--bg-1']) + '<small>:1</small>';
+    document.getElementById('stContrastLabel').textContent = '正文对比度 · ' + (isLight ? '浅色' : '深色');
+  }
+  btn.addEventListener('click', function(){
+    root.setAttribute('data-theme', root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    paint();
+  });
+  paint();
+
+  /* 正文对比度实测：正文色 vs 主背景（hex / rgb / rgba 均可解析） */
+  function parseColor(c){
+    c = (c || '').trim();
+    if (c.charAt(0) === '#'){
+      var h = c.slice(1);
+      if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+      return [parseInt(h.slice(0,2),16) || 0, parseInt(h.slice(2,4),16) || 0, parseInt(h.slice(4,6),16) || 0];
+    }
+    var m = c.match(/[\d.]+/g);
+    return m ? [+m[0], +m[1], +m[2]] : [0,0,0];
+  }
+  function lum(c){
+    var v = parseColor(c).map(function(x){
+      var s = x / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  }
+  function contrast(fg, bg){
+    var a = lum(fg), b = lum(bg);
+    return ((Math.max(a,b) + 0.05) / (Math.min(a,b) + 0.05)).toFixed(1);
+  }
+})();
+</script>
+</body>
+</html>

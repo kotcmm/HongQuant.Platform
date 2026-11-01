@@ -1,0 +1,2255 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HONG QUANT · 研究终端 UI 重设计</title>
+<style>
+:root{
+  --bg-0:#07080A;
+  --bg-1:#0B0D11;
+  --bg-2:#101318;
+  --bg-3:#151920;
+  --bg-4:#1B2029;
+  --line:rgba(255,255,255,.065);
+  --line-2:rgba(255,255,255,.11);
+  --text-1:#E9EDF3;
+  --text-2:#9AA4B2;
+  --text-3:#616B7A;
+  --text-4:#454E5C;
+  --accent:#4C8DFF;
+  --accent-2:#7FB0FF;
+  --accent-soft:rgba(76,141,255,.12);
+  --up:#F2605A;
+  --down:#2FBF71;
+  --gold:#E3B455;
+  --orange:#E8914C;
+  --violet:#A98BFA;
+  --teal:#46C99A;
+  --btn-primary-bg:#2F63C9;
+  --btn-primary-bg-hover:#3A72DD;
+
+  /* 语义层：深浅主题共用同一批变量名 */
+  --fill-0:rgba(255,255,255,.02);
+  --fill-1:rgba(255,255,255,.035);
+  --fill-2:rgba(255,255,255,.06);
+  --fill-3:rgba(255,255,255,.09);
+  --fill-strong:rgba(255,255,255,.22);
+  --hairline:rgba(255,255,255,.038);
+  --panel:rgba(12,15,20,.6);
+  --th-bg:#0D1015;
+  --row-hover:rgba(76,141,255,.06);
+  --track:rgba(255,255,255,.09);
+  --pane-bg:rgba(0,0,0,.16);
+  --bar-bg:rgba(0,0,0,.22);
+  --seg-bg:rgba(0,0,0,.3);
+  --tip-bg:rgba(18,22,29,.97);
+  --tip-line:rgba(255,255,255,.13);
+  --titlebar-grad:linear-gradient(180deg,rgba(255,255,255,.028),transparent);
+  --sidebar-grad:linear-gradient(180deg,rgba(255,255,255,.014),transparent 40%);
+  --app-bg:
+    radial-gradient(1100px 520px at 16% -12%, rgba(76,141,255,.13), transparent 62%),
+    radial-gradient(900px 460px at 92% 108%, rgba(70,201,154,.045), transparent 60%),
+    var(--bg-1);
+  --card-grad:linear-gradient(165deg,var(--fill-1),rgba(255,255,255,.006));
+  --kpi-grad:linear-gradient(160deg,rgba(255,255,255,.04),rgba(255,255,255,.008));
+  --brand-shadow:0 0 0 1px rgba(255,255,255,.1) inset,0 4px 14px rgba(76,141,255,.3);
+  --scroll:rgba(255,255,255,.1);
+  --scroll-h:rgba(255,255,255,.2);
+  --chart-grid:rgba(255,255,255,.05);
+  --chart-axis:#616B7A;
+  --chart-axisx:#707A8A;
+  --chart-axisr:#8A7238;
+  --chart-nav:#4C8DFF;
+  --chart-lev:#B98A2E;
+  --chart-dd:#E8914C;
+  --chart-zero:rgba(255,255,255,.16);
+  --chart-cross:rgba(255,255,255,.28);
+  --chart-dotbg:#0B0D11;
+
+  --r-sm:6px; --r-md:9px; --r-lg:12px;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Consolas","Liberation Mono",monospace;
+  --sans:"Inter","PingFang SC","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+/* ── 浅色主题 ─────────────────────────────── */
+[data-theme="light"]{
+  --bg-0:#E9ECF2;
+  --bg-1:#F1F3F7;
+  --bg-2:#FFFFFF;
+  --bg-3:#FFFFFF;
+  --bg-4:#EEF1F6;
+  --line:rgba(16,24,40,.1);
+  --line-2:rgba(16,24,40,.16);
+  --text-1:#0F1728;
+  --text-2:#3D4A5C;
+  --text-3:#5D6A7D;
+  --text-4:#8B95A6;
+  --accent:#2563EB;
+  --accent-2:#1D4ED8;
+  --accent-soft:rgba(37,99,235,.09);
+  --up:#D92D20;
+  --down:#079455;
+  --gold:#A5761B;
+  --orange:#C4692A;
+  --violet:#7A5AF8;
+  --teal:#0E9384;
+  --btn-primary-bg:#2563EB;
+  --btn-primary-bg-hover:#1D4ED8;
+
+  --fill-0:rgba(16,24,40,.014);
+  --fill-1:rgba(16,24,40,.028);
+  --fill-2:rgba(16,24,40,.05);
+  --fill-3:rgba(16,24,40,.08);
+  --fill-strong:rgba(16,24,40,.18);
+  --hairline:#EDF0F5;
+  --panel:#FFFFFF;
+  --th-bg:#F7F9FC;
+  --row-hover:rgba(37,99,235,.045);
+  --track:rgba(16,24,40,.08);
+  --pane-bg:#FFFFFF;
+  --bar-bg:#FFFFFF;
+  --seg-bg:#EDF0F5;
+  --tip-bg:rgba(255,255,255,.98);
+  --tip-line:rgba(16,24,40,.1);
+  --titlebar-grad:#FFFFFF;
+  --sidebar-grad:#FFFFFF;
+  --app-bg:
+    radial-gradient(1000px 480px at 14% -14%, rgba(37,99,235,.06), transparent 62%),
+    var(--bg-1);
+  --card-grad:linear-gradient(165deg,#FFFFFF,#FCFDFE);
+  --kpi-grad:linear-gradient(160deg,#FFFFFF,#FAFBFD);
+  --brand-shadow:0 0 0 1px rgba(255,255,255,.16) inset,0 4px 12px rgba(37,99,235,.22);
+  --scroll:rgba(16,24,40,.14);
+  --scroll-h:rgba(16,24,40,.26);
+  --chart-grid:rgba(16,24,40,.07);
+  --chart-axis:#7A8496;
+  --chart-axisx:#98A2B3;
+  --chart-axisr:#9A6E18;
+  --chart-nav:#2563EB;
+  --chart-lev:#B07D1E;
+  --chart-dd:#C4692A;
+  --chart-zero:rgba(16,24,40,.18);
+  --chart-cross:rgba(16,24,40,.3);
+  --chart-dotbg:#FFFFFF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg-0);color:var(--text-1);font-family:var(--sans);
+  font-size:13px;line-height:1.45;overflow:hidden;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+button{font-family:inherit}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:6px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--scroll-h);background-clip:content-box}
+::-webkit-scrollbar-corner{background:transparent}
+
+/* ── 应用外壳 ─────────────────────────────── */
+.app{
+  height:100vh;display:flex;flex-direction:column;
+  background:var(--app-bg);
+}
+
+/* ── 标题栏 ───────────────────────────────── */
+.titlebar{
+  flex:0 0 auto;height:46px;display:flex;align-items:center;gap:14px;
+  padding:0 10px 0 14px;border-bottom:1px solid var(--line);
+  background:var(--titlebar-grad);
+}
+.brand{display:flex;align-items:center;gap:9px;user-select:none}
+.brand-mark{
+  width:27px;height:27px;border-radius:7px;display:grid;place-items:center;
+  background:linear-gradient(150deg,#5E9BFF,#2F63C9);
+  box-shadow:var(--brand-shadow);
+}
+.brand-text{display:flex;flex-direction:column;gap:1px}
+.brand-name{font-size:12px;font-weight:600;letter-spacing:.15em;color:var(--text-1)}
+.brand-sub{font-size:8.5px;letter-spacing:.19em;color:var(--text-4);font-weight:500}
+.titlebar-center{
+  flex:1;display:flex;justify-content:center;align-items:center;
+}
+.crumb{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-3)}
+.crumb b{color:var(--text-2);font-weight:500}
+.crumb .sep{color:var(--text-4)}
+.titlebar-right{display:flex;align-items:center;gap:14px}
+.status{
+  display:flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:20px;
+  font-size:11px;color:var(--text-2);background:var(--fill-1);border:1px solid var(--line);
+}
+/* 定投页没有“运行”这个动作：数据来自基础数据，改参数即时重算，所以这里用常驻状态而不是主按钮 */
+.status .src-now{font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--text-1);letter-spacing:.2px}
+.status.live .dot{animation:livePulse 2.6s ease-in-out infinite}
+.status.live.flash{border-color:rgba(76,141,255,.45);background:var(--accent-soft);color:var(--accent-2)}
+@keyframes livePulse{
+  0%,100%{opacity:1;box-shadow:0 0 6px rgba(70,201,154,.9)}
+  50%{opacity:.35;box-shadow:0 0 2px rgba(70,201,154,.35)}
+}
+@media (prefers-reduced-motion:reduce){.status.live .dot{animation:none}}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--teal);box-shadow:0 0 6px rgba(70,201,154,.9)}
+.win-ctrl{display:flex;gap:2px}
+.win-ctrl button{
+  width:30px;height:26px;display:grid;place-items:center;border:0;border-radius:5px;
+  background:none;color:var(--text-3);cursor:pointer;transition:.14s;
+}
+.win-ctrl button:hover{background:var(--fill-2);color:var(--text-1)}
+.win-ctrl button.close:hover{background:#D93B3B;color:#fff}
+.theme-btn{
+  width:28px;height:26px;display:grid;place-items:center;border:1px solid var(--line);
+  border-radius:6px;background:var(--fill-1);color:var(--text-3);cursor:pointer;transition:.15s;
+}
+.theme-btn:hover{color:var(--text-1);background:var(--fill-2);border-color:var(--line-2)}
+.theme-btn:focus-visible{outline:none;box-shadow:0 0 0 2px rgba(76,141,255,.5)}
+
+/* ── 主体：侧边栏 + 主区 ──────────────────── */
+.shell{flex:1;display:flex;min-height:0}
+.sidebar{
+  flex:0 0 214px;display:flex;flex-direction:column;gap:2px;
+  padding:14px 10px 10px;border-right:1px solid var(--line);
+  background:var(--sidebar-grad);
+}
+.nav-item{
+  position:relative;display:flex;align-items:center;gap:10px;height:34px;width:100%;
+  padding:0 10px;border:0;border-radius:7px;background:none;cursor:pointer;
+  color:var(--text-2);font-size:12.5px;text-align:left;transition:.15s;
+}
+.nav-item svg{flex:0 0 auto;opacity:.8}
+.nav-item:hover{background:var(--fill-2);color:var(--text-1)}
+.nav-item.active{
+  background:linear-gradient(90deg,rgba(76,141,255,.16),rgba(76,141,255,.015));
+  color:var(--text-1);font-weight:500;
+}
+.nav-item.active svg{opacity:1;color:var(--accent-2)}
+.nav-item.active::before{
+  content:"";position:absolute;left:0;top:9px;bottom:9px;width:2px;border-radius:2px;
+  background:var(--accent);box-shadow:0 0 9px rgba(76,141,255,.85);
+}
+.nav-badge{
+  margin-left:auto;font-family:var(--mono);font-size:9.5px;font-weight:500;
+  color:var(--text-3);background:var(--fill-2);
+  padding:1px 6px;border-radius:20px;letter-spacing:.02em;
+}
+.nav-item.active .nav-badge{background:rgba(76,141,255,.18);color:var(--accent-2)}
+.sidebar-foot{margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
+/* 设计规范不是产品模块，只作为参考页放在侧栏底部，不做成一级导航 */
+.sb-link{
+  display:flex;align-items:center;gap:7px;width:100%;height:24px;padding:0 10px;
+  border:0;border-radius:6px;background:none;cursor:pointer;
+  font-size:10.5px;color:var(--text-4);transition:.14s;
+}
+.sb-link:hover{color:var(--text-2);background:var(--fill-1)}
+.sb-link.is-on{color:var(--accent);background:var(--accent-soft)}
+.sb-meta{padding:8px 10px 2px;font-size:10px;color:var(--text-4);line-height:1.7}
+.sb-meta b{color:var(--text-3);font-weight:500;font-family:var(--mono)}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* ── 主区头部 ─────────────────────────────── */
+.main-head{
+  flex:0 0 auto;padding:16px 20px 13px;border-bottom:1px solid var(--line);
+  display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;
+}
+.head-title{display:flex;flex-direction:column;gap:4px;min-width:180px}
+.head-title h1{font-size:16px;font-weight:600;letter-spacing:.01em;display:flex;align-items:center;gap:9px}
+.head-title p{font-size:11.5px;color:var(--text-3)}
+.pill{
+  display:inline-flex;align-items:center;gap:5px;height:19px;padding:0 7px;border-radius:5px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.03em;
+  background:rgba(76,141,255,.14);color:var(--accent-2);border:1px solid rgba(76,141,255,.25);
+}
+.toolbar{margin-left:auto;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;height:31px;padding:0 11px;
+  border-radius:var(--r-sm);border:1px solid var(--line-2);background:var(--bg-3);
+  color:var(--text-2);font-size:12px;cursor:pointer;transition:.15s;white-space:nowrap;
+}
+.btn:hover{color:var(--text-1);border-color:var(--fill-strong);background:var(--bg-4)}
+.btn:active{transform:translateY(.5px)}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 2px rgba(76,141,255,.5)}
+.btn svg{opacity:.72}
+.btn:hover svg{opacity:1}
+.btn--primary{
+  background:var(--btn-primary-bg);border-color:var(--btn-primary-bg);color:#fff;
+  box-shadow:0 1px 0 rgba(255,255,255,.16) inset,0 4px 14px var(--accent-soft);
+}
+.btn--primary:hover{background:var(--btn-primary-bg-hover);color:#fff;border-color:var(--btn-primary-bg-hover)}
+.btn--primary svg{opacity:1}
+.btn--ghost{background:transparent;border-color:transparent}
+.btn--ghost:hover{background:var(--fill-2);border-color:var(--line)}
+.tool-sep{width:1px;height:18px;background:var(--line);margin:0 3px}
+
+/* ── 视图容器 ─────────────────────────────── */
+.view{flex:1;min-height:0;display:none;flex-direction:column;animation:fade .28s ease both}
+.view.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ── 视图 1：基础数据 ─────────────────────── */
+.split{flex:1;display:flex;min-height:0}
+.asset-pane{
+  flex:0 0 252px;display:flex;flex-direction:column;min-height:0;
+  border-right:1px solid var(--line);background:var(--pane-bg);
+}
+.pane-head{padding:11px 12px 9px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+.pane-head .t{font-size:11px;color:var(--text-3);letter-spacing:.05em;font-weight:500}
+.pane-head .count{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-4)}
+.search{
+  position:relative;margin:10px 12px;display:flex;align-items:center;
+}
+.search svg{position:absolute;left:9px;color:var(--text-4)}
+.search input{
+  width:100%;height:29px;padding:0 10px 0 29px;border-radius:var(--r-sm);
+  background:var(--bg-2);border:1px solid var(--line);color:var(--text-1);
+  font-size:11.5px;font-family:inherit;outline:none;transition:.15s;
+}
+.search input::placeholder{color:var(--text-4)}
+.search input:focus{border-color:rgba(76,141,255,.55);background:var(--bg-3);box-shadow:0 0 0 3px rgba(76,141,255,.1)}
+.asset-list{flex:1;overflow-y:auto;padding:2px 8px 10px}
+.asset{
+  display:flex;align-items:center;gap:9px;height:30px;padding:0 7px;border-radius:6px;
+  cursor:pointer;transition:.12s;
+}
+.asset:hover{background:var(--fill-2)}
+.asset input{position:absolute;opacity:0;pointer-events:none}
+.box{
+  flex:0 0 auto;width:14px;height:14px;border-radius:4px;border:1px solid var(--scroll-h);
+  background:var(--bg-3);display:grid;place-items:center;transition:.14s;
+}
+.asset input:checked + .box{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 3px rgba(76,141,255,.12)}
+.box svg{opacity:0;transform:scale(.6);transition:.14s}
+.asset input:checked + .box svg{opacity:1;transform:scale(1)}
+.asset-code{font-family:var(--mono);font-size:12px;color:var(--text-1);font-weight:500;min-width:26px}
+.asset-tail{font-size:10.5px;color:var(--text-4);letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.asset input:not(:checked) ~ .asset-code{color:var(--text-3)}
+.pane-foot{
+  padding:8px 12px;border-top:1px solid var(--line);
+  display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--text-4);
+}
+.link{color:var(--accent-2);cursor:pointer;background:none;border:0;font-size:10.5px;padding:0}
+.link:hover{text-decoration:underline}
+
+.table-pane{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0}
+.table-wrap{flex:1;overflow:auto;position:relative}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap}
+.tbl th{
+  position:sticky;top:0;z-index:3;text-align:right;padding:9px 14px;
+  background:var(--th-bg);color:var(--text-3);font-size:10.5px;font-weight:500;letter-spacing:.04em;
+  border-bottom:1px solid var(--line-2);
+}
+.tbl th::after{
+  content:"";position:absolute;right:0;top:9px;bottom:9px;width:1px;background:var(--hairline);
+}
+.tbl th:last-child::after{display:none}
+.tbl td{
+  height:34px;padding:0 14px;text-align:right;border-bottom:1px solid var(--hairline);
+  color:var(--text-1);font-variant-numeric:tabular-nums;
+}
+.tbl th:first-child,.tbl td:first-child{text-align:left;padding-left:16px}
+.tbl th:last-child,.tbl td:last-child{padding-right:18px}
+.tbl tbody tr{transition:background .12s}
+.tbl tbody tr:hover td{background:var(--row-hover)}
+.tbl tbody tr:hover td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
+.num{font-family:var(--mono);font-size:11.5px;letter-spacing:-.015em}
+.mono{font-family:var(--mono);letter-spacing:-.01em}
+.up{color:var(--up)}
+.down{color:var(--down)}
+.flat{color:var(--text-3)}
+/* 表格数值列：.tbl td 的 color 特异性(0,1,1)会盖掉 .up/.down(0,1,0)，
+   所以必须提升到 td 层级，否则涨跌色永远不生效 */
+.tbl td.up,.tbl td .up{color:var(--up)}
+.tbl td.down,.tbl td .down{color:var(--down)}
+.tbl td.flat,.tbl td .flat{color:var(--text-3)}
+.tbl td.risk,.tbl td .risk{color:var(--orange)}
+.tag{
+  display:inline-flex;align-items:center;height:17px;padding:0 6px;border-radius:4px;
+  font-family:var(--mono);font-size:9.5px;color:var(--text-3);
+  background:var(--fill-2);border:1px solid var(--fill-2);
+}
+td.barcell{position:relative;padding-bottom:0}
+td.barcell::after{
+  content:"";position:absolute;right:18px;bottom:7px;height:2px;border-radius:2px;
+  width:calc(var(--w, 0) * 0.62px);max-width:76px;
+  background:linear-gradient(90deg,rgba(232,145,76,.28),rgba(232,145,76,.85));
+}
+td.barcell.zero::after{opacity:.25}
+
+/* ── 表格底部 tab 条 ─────────────────────── */
+.tabbar{
+  flex:0 0 auto;display:flex;align-items:center;gap:0;height:36px;padding:0 12px;
+  border-top:1px solid var(--line);background:var(--bar-bg);
+}
+.tab{
+  position:relative;display:flex;align-items:center;gap:7px;height:36px;padding:0 13px;
+  font-size:11.5px;color:var(--text-3);cursor:pointer;border:0;background:none;transition:.15s;
+}
+.tab:hover{color:var(--text-2)}
+.tab.on{color:var(--text-1)}
+.tab.on::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:1.5px;background:var(--accent);border-radius:2px 2px 0 0;box-shadow:0 0 8px rgba(76,141,255,.8)}
+.tab .x{color:var(--text-4);font-size:12px;line-height:1;padding:1px 3px;border-radius:3px}
+.tab .x:hover{background:var(--scroll);color:var(--text-1)}
+.statusbar{
+  margin-left:auto;display:flex;align-items:center;gap:14px;
+  font-size:10.5px;color:var(--text-4);font-family:var(--mono);
+}
+.statusbar .k{color:var(--text-3)}
+
+/* ── 数据来源：全局切换器 + 基础数据多页签 ───── */
+.tabs{display:flex;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab .code{font-family:var(--mono);font-size:10.5px;color:var(--accent-2)}
+.tab .n{font-size:9.5px;color:var(--text-4);font-family:var(--mono)}
+.tab.on .n{color:var(--text-3)}
+
+.src-trigger{
+  display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 8px;flex:0 0 auto;
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--fill-1);
+  color:var(--text-2);font-size:11px;cursor:pointer;white-space:nowrap;transition:.15s;
+}
+.src-trigger:hover{background:var(--fill-2);color:var(--text-1);border-color:var(--line-2)}
+.src-trigger.is-open{border-color:var(--accent);color:var(--text-1);box-shadow:0 0 0 3px var(--accent-soft)}
+.src-trigger .k{color:var(--text-4);font-size:10px}
+.src-trigger .code{font-family:var(--mono);font-size:10.5px;color:var(--accent-2)}
+.src-trigger .caret{opacity:.45;transition:.15s}
+.src-trigger.is-open .caret{transform:rotate(180deg);opacity:.8}
+
+.src-menu{
+  position:fixed;z-index:90;width:258px;padding:5px;
+  background:var(--tip-bg);border:1px solid var(--tip-line);border-radius:var(--r-md);
+  box-shadow:0 18px 44px rgba(0,0,0,.42);backdrop-filter:blur(14px);
+}
+.src-menu[hidden]{display:none}
+.src-grp{font-size:9.5px;color:var(--text-4);letter-spacing:.08em;padding:6px 8px 3px;font-family:var(--mono)}
+.src-opt{
+  display:flex;align-items:center;gap:7px;width:100%;height:30px;padding:0 8px;border:0;
+  border-radius:5px;background:none;color:var(--text-2);font-size:11.5px;cursor:pointer;text-align:left;
+  transition:.12s;
+}
+.src-opt:hover{background:var(--fill-2);color:var(--text-1)}
+.src-opt.on{color:var(--text-1);background:var(--accent-soft)}
+.src-opt .chk{width:11px;flex:0 0 auto;color:var(--accent-2);opacity:0}
+.src-opt.on .chk{opacity:1}
+.src-opt .code{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--text-3)}
+.src-opt.on .code{color:var(--accent-2)}
+.src-note{margin-top:4px;padding:7px 8px 5px;border-top:1px solid var(--hairline);font-size:9.5px;color:var(--text-4);line-height:1.55}
+
+/* ── 视图 2：定投复利 ─────────────────────── */
+.scroll-area{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;padding:16px 20px 20px}
+.dca-card{flex:1;min-height:280px;display:flex;flex-direction:column}
+.dca-card .table-wrap{flex:1;min-height:0}
+.dca-foot{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  padding:9px 16px;border-top:1px solid var(--hairline);
+  font-size:10.5px;color:var(--text-4);letter-spacing:-.01em;
+}
+.dca-foot .k{color:var(--text-3);font-family:var(--mono)}
+.dca-foot .sep{color:var(--fill-strong)}
+/* 无样本时的占位行：坐标轴被 .tbl td 的右对齐与首列阴影影响，需单独覆盖 */
+.tbl tr.table-empty td{height:96px;text-align:center;color:var(--text-4);font-size:11.5px;font-family:var(--sans)}
+.tbl tr.table-empty td:first-child{text-align:center;padding-left:14px}
+.tbl tbody tr.table-empty:hover td:first-child{box-shadow:none}
+.param-grid{
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:11px;
+}
+.param{
+  padding:11px 12px 13px;border-radius:var(--r-md);border:1px solid var(--line);
+  background:var(--card-grad);
+  transition:.16s;
+}
+.param:hover{border-color:rgba(76,141,255,.3);background:linear-gradient(170deg,var(--accent-soft),var(--card-grad))}
+.param-top{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-bottom:11px}
+.param-label{font-size:10.5px;color:var(--text-3);letter-spacing:.03em}
+.param-value{font-family:var(--mono);font-size:14px;color:var(--text-1);letter-spacing:-.02em;display:inline-flex;align-items:baseline;gap:2px}
+.param-value em{font-style:normal;font-size:10.5px;color:var(--text-3);margin-left:1px;letter-spacing:0}
+/* 数值可直接编辑：平时看起来像文本，悬停才露出虚线下划线 */
+.pv{
+  width:3.3em;padding:0;border:0;border-bottom:1px dashed transparent;border-radius:0;
+  background:none;color:inherit;font:inherit;letter-spacing:inherit;text-align:right;outline:none;
+  transition:border-color .12s,color .12s;
+}
+.pv:hover{border-bottom-color:var(--fill-strong)}
+.pv:focus{border-bottom-color:var(--accent);color:var(--accent-2);background:var(--fill-0)}
+.pv::-webkit-outer-spin-button,.pv::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.pv-alt{font-style:normal;font-size:9.5px;color:var(--text-4);margin-left:3px;letter-spacing:0;white-space:nowrap}
+.param-quick{display:flex;gap:9px;margin-top:9px;height:13px;align-items:center}
+.param-quick button{
+  padding:0;border:0;background:none;cursor:pointer;
+  font-family:var(--mono);font-size:9.5px;color:var(--text-3);letter-spacing:-.01em;
+  border-bottom:1px solid transparent;transition:.12s;
+}
+.param-quick button:hover{color:var(--accent-2);border-bottom-color:var(--accent-2)}
+.param-note{
+  display:flex;align-items:center;height:13px;margin-top:9px;
+  font-size:9.5px;color:var(--text-4);letter-spacing:-.01em;white-space:nowrap;
+}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:3px;outline:none;
+  background:linear-gradient(90deg,var(--accent) 0%,var(--accent) var(--p,50%),var(--fill-3) var(--p,50%));
+  cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;
+  box-shadow:0 0 0 3px rgba(76,141,255,.22),0 1px 4px rgba(0,0,0,.35);transition:.12s;
+}
+input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px rgba(76,141,255,.26),0 1px 4px rgba(0,0,0,.35)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radius:50%;background:#fff}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-top:14px}
+.kpi{
+  position:relative;padding:13px 15px 14px;border-radius:var(--r-md);border:1px solid var(--line);
+  background:var(--kpi-grad);overflow:hidden;
+}
+.kpi::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  background:radial-gradient(120px 70px at 100% 0,var(--accent-soft),transparent 70%);
+  opacity:0;transition:.25s;pointer-events:none;
+}
+.kpi:hover::before{opacity:1}
+.kpi-label{font-size:10.5px;color:var(--text-3);letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+.kpi-value{font-family:var(--mono);font-size:23px;font-weight:500;letter-spacing:-.03em;margin-top:7px;line-height:1.1}
+/* 回撤属于风险指标，和表格里的回撤列同用橙色，不要被「跌=绿」误读成好事 */
+.kpi-value.risk{color:var(--orange)}
+.kpi-sub{font-size:10.5px;color:var(--text-4);margin-top:5px;display:flex;align-items:center;gap:5px}
+.spark{position:absolute;right:12px;bottom:11px;opacity:.5}
+.sec-head{display:flex;align-items:center;gap:10px;margin:20px 0 10px}
+.sec-head h2{font-size:12px;font-weight:500;color:var(--text-2);letter-spacing:.03em}
+.sec-head .line{flex:1;height:1px;background:var(--line)}
+.sec-head .hint{font-size:10.5px;color:var(--text-4);font-family:var(--mono)}
+
+/* ── 视图 4：图表分析 ─────────────────────── */
+.chart-head{
+  flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:0 20px;
+  height:44px;border-bottom:1px solid var(--line);
+}
+.seg{display:flex;gap:2px;padding:3px;border-radius:7px;background:var(--seg-bg);border:1px solid var(--line)}
+.seg button{
+  height:24px;padding:0 11px;border:0;border-radius:5px;background:none;
+  color:var(--text-3);font-size:11.5px;cursor:pointer;transition:.15s;
+}
+.seg button:hover{color:var(--text-1)}
+.seg button.on{background:var(--bg-4);color:var(--text-1);box-shadow:0 1px 3px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.06) inset}
+.chips{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.chip{
+  height:25px;padding:0 10px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--text-3);background:var(--fill-1);
+  border:1px solid var(--line);cursor:pointer;transition:.15s;
+}
+.chip:hover{color:var(--text-2);border-color:var(--line-2)}
+.chip .k{width:5px;height:5px;border-radius:50%;background:var(--text-4);transition:.15s}
+.chip.on{color:var(--text-1);background:rgba(76,141,255,.14);border-color:rgba(76,141,255,.4)}
+.chip.on .k{background:var(--accent);box-shadow:0 0 7px var(--accent)}
+.chip.is-off{opacity:.35;pointer-events:none}
+.param-grid[hidden]{display:none}
+.rs .v.risk{color:var(--orange)}
+.rs .v.up{color:var(--up)}
+.rs .v.down{color:var(--down)}
+.rs .v.flat{color:var(--text-3)}
+
+/* ── 周期结算：参数区右侧说明块 ────────── */
+#pgSettle > .param:first-child{grid-column:span 2}
+.param--spec{
+  grid-column:span 4;gap:0;justify-content:center;
+  background:var(--card-grad);
+}
+.spec-row{display:flex;gap:12px;align-items:baseline;padding:5px 2px;font-size:11px;line-height:1.5}
+.spec-row + .spec-row{border-top:1px dashed var(--hairline)}
+.spec-row .k{flex:0 0 62px;color:var(--text-4);font-size:10px;letter-spacing:.04em}
+.spec-row .v{color:var(--text-3)}
+.spec-row .v b{color:var(--text-1);font-family:var(--mono);font-weight:500}
+.sel-hint{color:var(--text-4)}
+.sel-hint.on{color:var(--accent)}
+
+/* 可点选的样本表 */
+.tbl--pick tbody tr{cursor:pointer}
+.tbl--pick tbody tr.row-sel td{background:var(--accent-soft)}
+.tbl--pick tbody tr.row-sel td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
+.tbl.hide-lev .col-lev{display:none}
+
+/* ── 图表分析：样本 → 风险收益 两级结构 ────────── */
+.chart-body{
+  flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;
+  padding:12px 20px 16px;
+}
+.chart-body .card{display:flex;flex-direction:column;min-height:0}
+.card--sample{flex:0 0 37%}
+.card--sample .chart-host{flex:1;min-height:0}
+.risk-wrap{flex:1;min-height:0;display:flex;flex-direction:column;gap:9px}
+.risk-stats{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:0 2px}
+.rs-k{font-size:9.5px;letter-spacing:.14em;color:var(--text-4);font-weight:600}
+.rs{display:flex;align-items:baseline;gap:6px}
+.rs .k{font-size:10.5px;color:var(--text-3)}
+.rs .v{font-family:var(--mono);font-size:12.5px;letter-spacing:-.01em;color:var(--text-1)}
+.rs .d{font-family:var(--mono);font-size:9.5px;color:var(--text-4)}
+.risk-row{flex:1;min-height:0;display:grid;grid-template-columns:1.55fr 1fr;gap:12px}
+.risk-row .card{min-height:0}
+.risk-row .chart-host{flex:1;min-height:0}
+.sample-pick{
+  display:flex;align-items:center;gap:8px;height:30px;padding:0 6px 0 10px;
+  border:1px solid var(--line);border-radius:6px;background:var(--fill-1);
+}
+.sample-pick span{font-size:10.5px;color:var(--text-4);white-space:nowrap}
+.sample-pick select{
+  border:0;background:none;outline:none;color:var(--text-1);
+  font-family:var(--mono);font-size:11.5px;cursor:pointer;max-width:250px;
+}
+.sample-pick select option{background:var(--bg-3);color:var(--text-1)}
+.sample-pick:focus-within{border-color:rgba(76,141,255,.5)}
+.chart-empty{height:100%;display:grid;place-items:center;color:var(--text-4);font-size:11.5px;text-align:center;padding:0 20px}
+.chart-grid{
+  flex:1;min-height:0;padding:14px 20px 18px;
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1.32fr 1fr;gap:12px;
+}
+.cw{grid-column:span 2}
+.card{
+  border-radius:var(--r-md);border:1px solid var(--line);background:var(--panel);
+  overflow:hidden;position:relative;display:flex;flex-direction:column;min-height:0;
+}
+.card-head{
+  flex:0 0 auto;display:flex;align-items:center;gap:9px;padding:11px 14px 9px;
+}
+.card-title{font-size:11.5px;color:var(--text-2);font-weight:500;letter-spacing:.02em}
+.card-sub{font-size:10px;color:var(--text-4);font-family:var(--mono)}
+.card-legend{margin-left:auto;display:flex;gap:12px;font-size:10.5px;color:var(--text-3)}
+.lg{display:inline-flex;align-items:center;gap:5px}
+.lg i{width:8px;height:2px;border-radius:2px;display:block}
+.lg i.sq{width:6px;height:6px;border-radius:1.5px}
+.chart-host{position:relative;flex:1;min-height:0;padding:0 4px 2px 4px;overflow:hidden}
+.chart-host svg{display:block;width:100%;height:100%}
+
+#tip{
+  position:fixed;z-index:99;pointer-events:none;opacity:0;transform:translate(-50%,-114%);
+  transition:opacity .12s;padding:8px 10px;border-radius:7px;
+  background:var(--tip-bg);border:1px solid var(--tip-line);
+  box-shadow:0 12px 30px rgba(0,0,0,.28),0 0 0 1px rgba(0,0,0,.06);
+  font-size:11px;white-space:nowrap;backdrop-filter:blur(8px);
+}
+#tip .tt-d{color:var(--text-3);font-family:var(--mono);font-size:10px;margin-bottom:5px;letter-spacing:.04em}
+#tip .tt-r{display:flex;align-items:center;gap:7px;justify-content:space-between;line-height:1.7}
+#tip .tt-r span:first-child{color:var(--text-3)}
+#tip .tt-r b{font-family:var(--mono);font-weight:500;color:var(--text-1)}
+
+/* ── 视图 5：设计规范 ─────────────────────── */
+.ds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 20px 24px;overflow-y:auto;align-content:start}
+.ds-card{
+  border:1px solid var(--line);border-radius:var(--r-md);padding:15px 16px;
+  background:var(--card-grad);
+}
+.ds-card.wide{grid-column:span 2}
+.ds-h{font-size:10.5px;letter-spacing:.13em;color:var(--text-4);font-weight:600;margin-bottom:13px}
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sw{border-radius:6px;overflow:hidden;border:1px solid var(--fill-2)}
+.sw .c{height:44px}
+.sw .m{padding:5px 7px;background:var(--seg-bg)}
+.sw .n{font-size:9.5px;color:var(--text-2);display:block;letter-spacing:.02em}
+.sw .h{font-family:var(--mono);font-size:9px;color:var(--text-4)}
+.type-row{display:flex;align-items:baseline;gap:14px;padding:7px 0;border-bottom:1px dashed var(--hairline)}
+.type-row:last-child{border:0}
+.type-row .sp{width:86px;font-family:var(--mono);font-size:9.5px;color:var(--text-4);flex:0 0 auto}
+.comp-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:6px 0}
+.space-row{display:flex;align-items:flex-end;gap:10px;padding-top:8px;min-height:58px}
+.space-row div{display:flex;flex-direction:column;align-items:center;gap:5px}
+.space-row .bar{background:linear-gradient(180deg,rgba(76,141,255,.6),rgba(76,141,255,.16));border-radius:2px;width:16px}
+.space-row .lb{font-family:var(--mono);font-size:9px;color:var(--text-4)}
+.note{font-size:10.5px;color:var(--text-4);line-height:1.8;margin-top:10px}
+.note b{color:var(--text-2);font-weight:500}
+
+/* ── 浅色主题层次补强 ─────────────────────── */
+[data-theme="light"] .table-pane{background:var(--bg-2)}
+[data-theme="light"] .card,
+[data-theme="light"] .kpi,
+[data-theme="light"] .param,
+[data-theme="light"] .ds-card{box-shadow:0 1px 2px rgba(16,24,40,.045)}
+[data-theme="light"] .btn--primary{box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 3px 10px rgba(37,99,235,.24)}
+[data-theme="light"] .brand-name{letter-spacing:.15em}
+[data-theme="light"] .nav-item.active{background:linear-gradient(90deg,rgba(37,99,235,.1),rgba(37,99,235,.01))}
+[data-theme="light"] .nav-item.active::before{box-shadow:0 0 6px rgba(37,99,235,.55)}
+[data-theme="light"] .tab.on::after{box-shadow:0 0 6px rgba(37,99,235,.5)}
+[data-theme="light"] .search input{background:var(--bg-1)}
+[data-theme="light"] .search input:focus{background:#fff}
+[data-theme="light"] .status{background:#fff}
+
+@media (max-width:1280px){
+  .param-grid{grid-template-columns:repeat(3,1fr)}
+  .param--spec,#pgSettle > .param:first-child{grid-column:1/-1}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .ds-grid{grid-template-columns:repeat(2,1fr)}
+  .ds-card.wide{grid-column:span 2}
+}
+@media (max-width:1024px){
+  .sidebar{flex-basis:64px;padding:14px 8px 10px}
+  .nav-item span,.nav-badge,.sb-meta,.sb-link span{display:none}
+  .nav-item{justify-content:center;padding:0}
+  .asset-pane{flex-basis:200px}
+  .chart-grid{grid-template-columns:1fr}
+  .cw{grid-column:span 1}
+}
+
+/* Native WPF host：保留原设计稿几何与字号；仅追加空数据状态、错误提示。 */
+.status.is-offline .dot {background:var(--text-4);box-shadow:none}
+#nativeError{position:fixed;right:22px;top:56px;max-width:420px;z-index:10000;
+  background:var(--tip-bg);border:1px solid var(--up);color:var(--text-1);
+  font-size:12px;line-height:1.6;border-radius:8px;padding:12px 16px;
+  box-shadow:0 12px 36px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .15s}
+#nativeError.visible{opacity:1;pointer-events:auto}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- 标题栏 -->
+  <header class="titlebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="9" width="2.4" height="5" rx="1" fill="#fff" opacity=".55"/>
+          <rect x="6.8" y="6" width="2.4" height="8" rx="1" fill="#fff" opacity=".85"/>
+          <rect x="11.6" y="2" width="2.4" height="12" rx="1" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">HONG QUANT</span>
+        <span class="brand-sub">RESEARCH TERMINAL</span>
+      </div>
+    </div>
+    <div class="titlebar-center">
+      <div class="crumb">研究工作台<span class="sep">/</span><b id="crumbModule">基础数据</b><span class="sep">/</span><span id="crumbSource">GD20</span></div>
+    </div>
+    <div class="titlebar-right">
+      <button class="theme-btn" id="themeToggle" title="切换深浅主题" aria-label="切换深浅主题">
+        <svg id="themeIcon" width="13" height="13" viewBox="0 0 16 16" fill="none">
+          <path d="M13.2 9.6A5.6 5.6 0 116.4 2.8a4.6 4.6 0 006.8 6.8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="src-trigger" data-src-trigger aria-haspopup="listbox" aria-expanded="false" title="切换数据来源 · 全局唯一入口，基础数据与定投复利 / 周期结算 / 图表分析 同步">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="4.2" rx="5.2" ry="2" stroke="currentColor" stroke-width="1.2"/><path d="M2.8 4.2v7.6c0 1.1 2.3 2 5.2 2s5.2-.9 5.2-2V4.2" stroke="currentColor" stroke-width="1.2"/><path d="M2.8 8c0 1.1 2.3 2 5.2 2s5.2-.9 5.2-2" stroke="currentColor" stroke-width="1.2"/></svg>
+        <span class="k">来源</span><span class="code">GD20</span>
+        <svg class="caret" width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.6 3l2.4 2.4L6.4 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="status"><i class="dot"></i>数据源已连接</div>
+      <div class="win-ctrl">
+        <button title="最小化"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+        <button title="最大化"><svg width="10" height="10" viewBox="0 0 10 10"><rect x="2.2" y="2.2" width="5.6" height="5.6" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/></svg></button>
+        <button class="close" title="关闭"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2.6 2.6l4.8 4.8M7.4 2.6L2.6 7.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <button class="nav-item active" data-view="data">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="2.5" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M2 6h12M6.5 6v7.5" stroke="currentColor" stroke-width="1.2"/></svg>
+        <span>基础数据</span><span class="nav-badge">24</span>
+      </button>
+      <button class="nav-item" data-view="compound">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2.5 11.5l3.2-4 2.6 2.4 4.5-5.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.4 4.3h2.4v2.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>定投复利</span><span class="nav-badge" id="navBadgeCompound">24</span>
+      </button>
+      <button class="nav-item" data-view="settle">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M13.2 7.2a5.2 5.2 0 00-9-3.1L2.6 5.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.4 2.8v3h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.8 8.8a5.2 5.2 0 009 3.1l1.6-1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.6 13.2v-3h-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>周期结算</span><span class="nav-badge" id="navBadgeSettle">13</span>
+      </button>
+      <button class="nav-item" data-view="chart">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2.5 13.2V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6 13V6M9.6 13V8.6M13.2 13V4.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span>图表分析</span>
+      </button>
+
+      <div class="sidebar-foot">
+        <button class="sb-link" data-view="ds" title="配色、字阶与组件规范">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.6" stroke="currentColor" stroke-width="1.2"/><path d="M8 2.4v11.2M2.4 8h11.2" stroke="currentColor" stroke-width="1" opacity=".5"/></svg>
+          <span>设计规范</span>
+        </button>
+        <div class="sb-meta">引擎 <b>v3.2.1</b> · 本地<br>最后同步 <b>13:48</b></div>
+      </div>
+    </aside>
+
+    <!-- 主区 -->
+    <main class="main">
+
+      <!-- 视图 1：基础数据 -->
+      <section class="view active" data-panel="data">
+        <div class="main-head">
+          <div class="head-title">
+            <h1>基础数据 <span class="pill" id="headPill">GD20</span></h1>
+            <p id="dataSub">回测权益明细 · 24 个品种 · 数据区间 2020-02-10 → 2026-06-05</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn btn--primary">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.2 8a5.2 5.2 0 11-1.6-3.75" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M13.2 2.4v2.8h-2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              更新数据
+            </button>
+            <span class="tool-sep"></span>
+            <button class="btn">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M11.2 2.6l2.2 2.2-7.6 7.6-2.9.7.7-2.9z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+              编辑模板
+            </button>
+            <button class="btn">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2.4v7.2M5.4 7.2L8 9.8l2.6-2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.8 11v1.6a1.4 1.4 0 001.4 1.4h7.6a1.4 1.4 0 001.4-1.4V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              导出数据
+            </button>
+            <button class="btn">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M6.2 10.4a2.6 2.6 0 01-.2-3.8l2-2a2.6 2.6 0 013.7 3.7l-1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9.8 5.6a2.6 2.6 0 01.2 3.8l-2 2a2.6 2.6 0 01-3.7-3.7l1-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              同步组合
+            </button>
+            <button class="btn btn--ghost">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2.4 5.2A1.8 1.8 0 014.2 3.4h2l1.2 1.6h4.4a1.8 1.8 0 011.8 1.8v5a1.8 1.8 0 01-1.8 1.8H4.2a1.8 1.8 0 01-1.8-1.8z" stroke="currentColor" stroke-width="1.2"/></svg>
+              数据路径
+            </button>
+          </div>
+        </div>
+
+        <div class="split">
+          <!-- 品种池 -->
+          <div class="asset-pane">
+            <div class="pane-head">
+              <span class="t">品种</span>
+              <span class="count">已选 <b id="selCount" style="color:var(--accent-2)">12</b>/24</span>
+            </div>
+            <div class="search">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="7.2" cy="7.2" r="4.4" stroke="currentColor" stroke-width="1.3"/><path d="M10.6 10.6L13.4 13.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <input id="assetSearch" placeholder="搜索品种代码">
+            </div>
+            <div class="asset-list" id="assetList"></div>
+            <div class="pane-foot">
+              <button class="link" id="selectAll">全选</button>
+              <span style="color:var(--text-4)">·</span>
+              <button class="link" id="clearAll">清空</button>
+              <span style="margin-left:auto" class="mono">CSV</span>
+            </div>
+          </div>
+
+          <!-- 权益明细表 -->
+          <div class="table-pane">
+            <div class="table-wrap">
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>品种</th><th>交易日</th><th>权益</th><th>净利润</th><th>收益率</th>
+                    <th>累计收益率</th><th>实时回撤</th><th>最大回撤</th><th>回撤程度</th>
+                  </tr>
+                </thead>
+                <tbody id="equityBody"></tbody>
+              </table>
+            </div>
+            <div class="tabbar">
+              <div class="tabs" id="dataTabs"></div>
+              <div class="statusbar">
+                <span><span class="k">行数</span> <b id="sbRows">30</b></span>
+                <span><span class="k">列</span> <b id="sbCols">9</b></span>
+                <span><span class="k">更新</span> 2026-11-01 13:48</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 视图 2：定投复利 -->
+      <section class="view" data-panel="compound">
+        <div class="main-head">
+          <div class="head-title">
+            <h1>定投复利</h1>
+            <p id="compoundSub">读取基础数据 GD20 · 24 组样本 · 参数变化即时重算</p>
+          </div>
+          <div class="toolbar">
+            <div class="status live" id="compoundLive" title="这一页的数据来自顶栏选定的数据源，切页不改变"><i class="dot"></i><span class="src-now">GD20</span> · 已同步</div>
+            <span class="tool-sep"></span>
+            <button class="btn">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2.4v7.2M5.4 7.2L8 9.8l2.6-2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.8 11v1.6a1.4 1.4 0 001.4 1.4h7.6a1.4 1.4 0 001.4-1.4V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              导出数据
+            </button>
+            <button class="btn" data-goto="chart">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2.5 13.2V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6 13V6M9.6 13V8.6M13.2 13V4.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+              图表分析
+            </button>
+          </div>
+        </div>
+
+        <div class="scroll-area">
+          <div class="param-grid" id="pgCompound">
+            <div class="param">
+              <div class="param-top">
+                <span class="param-label">目标收益</span>
+                <span class="param-value"><input class="pv" data-key="ret" value="100" inputmode="decimal" aria-label="目标收益百分比" title="可直接输入，超出滑杆范围会自动放宽上限"><em>%</em></span>
+              </div>
+              <input type="range" min="10" max="1000" step="5" value="100" data-key="ret">
+              <div class="param-quick">
+                <button data-set="ret:100">100</button>
+                <button data-set="ret:200">200</button>
+                <button data-set="ret:400">400</button>
+                <button data-set="ret:800">800</button>
+              </div>
+            </div>
+            <div class="param">
+              <div class="param-top">
+                <span class="param-label">目标时间</span>
+                <span class="param-value"><input class="pv" data-key="months" value="36" inputmode="numeric" aria-label="目标时间月数" title="可直接输入月数，超出滑杆范围会自动放宽上限"><em>月</em><i class="pv-alt" data-alt="months"></i></span>
+              </div>
+              <input type="range" min="1" max="360" step="1" value="36" data-key="months">
+              <div class="param-quick">
+                <button data-set="months:12">1 年</button>
+                <button data-set="months:36">3 年</button>
+                <button data-set="months:60">5 年</button>
+                <button data-set="months:120">10 年</button>
+              </div>
+            </div>
+            <div class="param">
+              <div class="param-top">
+                <span class="param-label">初始杠杆</span>
+                <span class="param-value"><input class="pv" data-key="lev0" value="1" inputmode="decimal" aria-label="初始杠杆" title="可直接输入"><em>×</em></span>
+              </div>
+              <input type="range" min="0.5" max="10" step="0.5" value="1" data-key="lev0">
+              <div class="param-note" id="pnLev0"></div>
+            </div>
+            <div class="param">
+              <div class="param-top">
+                <span class="param-label">杠杆增量</span>
+                <span class="param-value"><input class="pv" data-key="levStep" value="1" inputmode="decimal" aria-label="杠杆增量" title="可直接输入"><em>×</em></span>
+              </div>
+              <input type="range" min="0.5" max="5" step="0.5" value="1" data-key="levStep">
+              <div class="param-note" id="pnLevStep"></div>
+            </div>
+            <div class="param">
+              <div class="param-top">
+                <span class="param-label">杠杆上限</span>
+                <span class="param-value"><input class="pv" data-key="levMax" value="6" inputmode="decimal" aria-label="杠杆上限" title="可直接输入"><em>×</em></span>
+              </div>
+              <input type="range" min="2" max="20" step="1" value="6" data-key="levMax">
+              <div class="param-note" id="pnLevMax"></div>
+            </div>
+            <div class="param">
+              <div class="param-top">
+                <span class="param-label">时间间隔</span>
+                <span class="param-value"><input class="pv" data-key="interval" value="3" inputmode="numeric" aria-label="加仓间隔月数" title="可直接输入"><em>月</em></span>
+              </div>
+              <input type="range" min="1" max="60" step="1" value="3" data-key="interval">
+              <div class="param-note" id="pnInterval"></div>
+            </div>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi">
+              <div class="kpi-label">平均累计收益</div>
+              <div class="kpi-value up" id="kAvgRet">106.15<span style="font-size:14px">%</span></div>
+              <div class="kpi-sub" id="kAvgRetSub">24 组样本 · 全部达成目标</div>
+              <svg class="spark" width="62" height="26" viewBox="0 0 62 26" fill="none"><path d="M1 21l9-5 8 3 9-9 8 5 9-8 8 4 9-6" style="stroke:var(--accent)" stroke-width="1.4" stroke-linecap="round" opacity=".8"/></svg>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">最大回撤峰值</div>
+              <div class="kpi-value risk" id="kMaxDD">-8.38<span style="font-size:14px">%</span></div>
+              <div class="kpi-sub" id="kMaxDDSub">发生于 2021-09-01</div>
+              <svg class="spark" width="62" height="26" viewBox="0 0 62 26" fill="none"><path d="M1 8l9 3 8-2 9 7 8-3 9 9 8-2 9 4" style="stroke:var(--down)" stroke-width="1.4" stroke-linecap="round" opacity=".8"/></svg>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">平均交易天数</div>
+              <div class="kpi-value" id="kAvgDays">522<span style="font-size:14px">天</span></div>
+              <div class="kpi-sub" id="kAvgDaysSub">最短 336 · 最长 919</div>
+              <svg class="spark" width="62" height="26" viewBox="0 0 62 26" fill="none"><path d="M1 18l9 2 8-4 9 4 8-3 9 3 8-4 9 2" style="stroke:var(--violet)" stroke-width="1.4" stroke-linecap="round" opacity=".8"/></svg>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">有效样本</div>
+              <div class="kpi-value" id="kSamples">24<span style="font-size:14px">/24</span></div>
+              <div class="kpi-sub" id="kSamplesSub">胜率 100% · 杠杆上限 6×</div>
+              <svg class="spark" width="62" height="26" viewBox="0 0 62 26" fill="none"><path d="M1 22h8l9-4 8 0 9-5 8 1 9-6 8 1" style="stroke:var(--gold)" stroke-width="1.4" stroke-linecap="round" opacity=".8"/></svg>
+            </div>
+          </div>
+
+          <div class="sec-head">
+            <h2>样本明细</h2>
+            <span class="line"></span>
+            <span class="hint" id="dcaCount">24 组 · 按开始日期升序</span>
+          </div>
+
+          <div class="card dca-card" style="overflow:hidden">
+            <div class="table-wrap">
+              <table class="tbl tbl--pick" id="dcaTable">
+                <thead>
+                  <tr>
+                    <th>开始日期</th><th>结束日期</th><th>累计收益</th><th>最大回撤</th><th>回撤日期</th>
+                    <th>最大收益</th><th>收益日期</th><th>交易天数</th><th class="col-lev">累计杠杆</th>
+                  </tr>
+                </thead>
+                <tbody id="dcaBody"></tbody>
+              </table>
+            </div>
+            <div class="dca-foot">
+              <span class="k">筛选规则</span>
+              <span id="ruleText">累计收益 ≥ 目标收益 · 交易天数 ≤ 目标时间 · 累计杠杆 ≤ 杠杆上限</span>
+              <span class="sep">·</span>
+              数据来自「基础数据 · <b id="footSrc" style="color:var(--accent-2)">GD20</b>」，改参数即时重算
+              <span class="sep">·</span>
+              <span id="selHint" class="sel-hint">单击选中该期，图表分析同步；双击直接跳到图表</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 视图 3：周期结算 -->
+      <section class="view" data-panel="settle">
+        <div class="main-head">
+          <div class="head-title">
+            <h1>周期结算</h1>
+            <p id="settleSub">读取基础数据 GD20 · 每 12 月到期结算 · 13 期</p>
+          </div>
+          <div class="toolbar">
+            <div class="status live" id="settleLive" title="这一页的数据来自顶栏选定的数据源，切页不改变"><i class="dot"></i><span class="src-now">GD20</span> · 已同步</div>
+            <span class="tool-sep"></span>
+            <button class="btn">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2.4v7.2M5.4 7.2L8 9.8l2.6-2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.8 11v1.6a1.4 1.4 0 001.4 1.4h7.6a1.4 1.4 0 001.4-1.4V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              导出数据
+            </button>
+            <button class="btn" data-goto="chart">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2.5 13.2V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6 13V6M9.6 13V8.6M13.2 13V4.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+              图表分析
+            </button>
+          </div>
+        </div>
+
+        <div class="scroll-area">
+          <div class="param-grid" id="pgSettle">
+            <div class="param">
+              <div class="param-top">
+                <span class="param-label">结算周期</span>
+                <span class="param-value"><input class="pv" data-key="period" value="12" inputmode="numeric" aria-label="结算周期月数" title="可直接输入月数"><em>月</em><i class="pv-alt" data-alt="period"></i></span>
+              </div>
+              <input type="range" min="1" max="60" step="1" value="12" data-key="period">
+              <div class="param-quick">
+                <button data-set="period:3">3 月</button>
+                <button data-set="period:6">6 月</button>
+                <button data-set="period:12">12 月</button>
+                <button data-set="period:24">24 月</button>
+              </div>
+            </div>
+            <div class="param param--spec">
+              <div class="spec-row"><span class="k">结算方式</span><span class="v">每 <b id="specPeriod">12</b> 个月到期结算，本金与收益滚动进入下一期</span></div>
+              <div class="spec-row"><span class="k">杠杆</span><span class="v">不加杠杆，每期收益即标的区间收益</span></div>
+              <div class="spec-row"><span class="k">期数</span><span class="v" id="specCount">13 期 · 结算周期 12 月档</span></div>
+              <div class="spec-row"><span class="k">与定投复利</span><span class="v">两者互不影响：定投复利按目标收益反推加仓节奏，带杠杆与加仓间隔；周期结算只按期滚动</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 视图 4：图表分析（样本 → 风险收益 两级结构） -->
+      <section class="view" data-panel="chart">
+        <div class="main-head">
+          <div class="head-title">
+            <h1>图表分析 <span class="pill" id="chartModeTag">定投复利</span></h1>
+            <p id="chartSub">24 组样本 · 当前选中 2020-03-02 → 2021-11-02</p>
+          </div>
+          <div class="toolbar">
+            <div class="status live" id="chartLive" title="这一页的数据来自顶栏选定的数据源，切页不改变"><i class="dot"></i><span class="src-now">GD20</span> · 已同步</div>
+            <label class="sample-pick" title="切换后下方风险收益图同步更新">
+              <span>当前样本</span>
+              <select id="samplePick"></select>
+            </label>
+            <button class="btn">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2.4v7.2M5.4 7.2L8 9.8l2.6-2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.8 11v1.6a1.4 1.4 0 001.4 1.4h7.6a1.4 1.4 0 001.4-1.4V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              导出图表
+            </button>
+          </div>
+        </div>
+
+        <div class="chart-body">
+          <div class="card card--sample">
+            <div class="card-head">
+              <span class="card-title">样本数据</span>
+              <span class="card-sub" id="sampleSub">全部 24 组 · 点柱体可切换下方样本</span>
+              <div class="chips" id="chartChips">
+                <button class="chip on" data-ind="ret"><i class="k"></i>累计收益</button>
+                <button class="chip" data-ind="dd"><i class="k"></i>最大回撤</button>
+                <button class="chip" data-ind="best"><i class="k"></i>最大收益</button>
+                <button class="chip" data-ind="days"><i class="k"></i>交易天数</button>
+                <button class="chip" data-ind="lev"><i class="k"></i>累计杠杆</button>
+              </div>
+            </div>
+            <div class="chart-host" id="chartSample"></div>
+          </div>
+
+          <div class="risk-wrap">
+            <div class="risk-stats">
+              <span class="rs-k">风险收益 · 单期</span>
+              <div class="rs"><span class="k">累计收益</span><span class="v up" id="rsRet">+106.15%</span></div>
+              <div class="rs"><span class="k">最大回撤</span><span class="v down" id="rsDD">-0.84%</span><span class="d" id="rsDDDate">20200305</span></div>
+              <div class="rs"><span class="k">最大收益</span><span class="v" id="rsBest">+106.15%</span><span class="d" id="rsBestDate">20211102</span></div>
+              <div class="rs"><span class="k">交易天数</span><span class="v" id="rsDays">422 天</span></div>
+              <div class="rs"><span class="k">累计杠杆</span><span class="v" id="rsLev" style="color:var(--gold)">6×</span></div>
+            </div>
+            <div class="risk-row">
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">累计净值</span>
+                  <span class="card-sub" id="navSub">20200302 — 20211102</span>
+                  <div class="card-legend">
+                    <span class="lg"><i style="background:var(--accent)"></i>净值</span>
+                    <span class="lg" id="navLevLegend"><i class="sq" style="background:var(--gold)"></i>累计杠杆</span>
+                  </div>
+                </div>
+                <div class="chart-host" id="chartNav"></div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <span class="card-title">最大回撤</span>
+                  <span class="card-sub" id="ddSub">峰值 -0.84%</span>
+                  <div class="card-legend"><span class="lg"><i style="background:var(--orange)"></i>回撤</span></div>
+                </div>
+                <div class="chart-host" id="chartDD"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 视图 5：设计规范 -->
+      <section class="view" data-panel="ds">
+        <div class="main-head">
+          <div class="head-title">
+            <h1>设计规范</h1>
+            <p>HONG QUANT Terminal · Design Tokens v1.0</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn btn--ghost">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2.4" y="2.4" width="11.2" height="11.2" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M8 5.6v4.8M5.6 8h4.8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              导出 Tokens
+            </button>
+          </div>
+        </div>
+        <div class="ds-grid">
+          <div class="ds-card wide">
+            <div class="ds-h">色板 / PALETTE</div>
+            <div class="swatches" style="grid-template-columns:repeat(5,1fr)">
+              <div class="sw"><div class="c" style="background:var(--bg-1)"></div><div class="m"><span class="n">BG Base</span><span class="h">--bg-1</span></div></div>
+              <div class="sw"><div class="c" style="background:var(--bg-2)"></div><div class="m"><span class="n">Surface</span><span class="h">--bg-2</span></div></div>
+              <div class="sw"><div class="c" style="background:var(--bg-4)"></div><div class="m"><span class="n">Elevated</span><span class="h">--bg-4</span></div></div>
+              <div class="sw"><div class="c" style="background:var(--accent)"></div><div class="m"><span class="n">Accent</span><span class="h">--accent</span></div></div>
+              <div class="sw"><div class="c" style="background:var(--up)"></div><div class="m"><span class="n">Up / 涨</span><span class="h">--up</span></div></div>
+              <div class="sw"><div class="c" style="background:var(--down)"></div><div class="m"><span class="n">Down / 跌</span><span class="h">--down</span></div></div>
+              <div class="sw"><div class="c" style="background:var(--gold)"></div><div class="m"><span class="n">Leverage</span><span class="h">--gold</span></div></div>
+              <div class="sw"><div class="c" style="background:var(--orange)"></div><div class="m"><span class="n">Risk</span><span class="h">--orange</span></div></div>
+              <div class="sw"><div class="c" style="background:var(--violet)"></div><div class="m"><span class="n">Aux 1</span><span class="h">--violet</span></div></div>
+              <div class="sw"><div class="c" style="background:var(--teal)"></div><div class="m"><span class="n">Aux 2</span><span class="h">--teal</span></div></div>
+            </div>
+            <div class="note">主色只出现在<b>可交互</b>与<b>当前选中</b>两处，绝不用作装饰填充。涨跌遵循中国习惯：<b>红涨绿跌</b>，但饱和度压到 60% 左右避免刺眼；高密度数据下连续红色会造成视觉疲劳。色块随当前主题实时变化，同一变量名在深/浅两套 token 下取不同值。</div>
+          </div>
+
+          <div class="ds-card">
+            <div class="ds-h">文字层级 / TYPE SCALE</div>
+            <div class="type-row"><span class="sp">16 / 600</span><span style="font-size:16px;font-weight:600">模块标题 Heading</span></div>
+            <div class="type-row"><span class="sp">13 / 500</span><span style="font-size:13px;font-weight:500">正文 Body</span></div>
+            <div class="type-row"><span class="sp">12 / 400</span><span style="font-size:12px;color:var(--text-2)">表格单元格 Cell</span></div>
+            <div class="type-row"><span class="sp">10.5 / 500</span><span style="font-size:10.5px;color:var(--text-3);letter-spacing:.04em">表头 / 标签 Label</span></div>
+            <div class="type-row"><span class="sp">23 / 500 mono</span><span class="mono" style="font-size:23px;letter-spacing:-.03em">106.15</span></div>
+            <div class="note">数字统一 <b>tabular-nums</b> + 等宽字体，保证纵向小数点对齐——这是金融界面可读性的第一原则。</div>
+          </div>
+
+          <div class="ds-card">
+            <div class="ds-h">间距 / SPACING</div>
+            <div class="space-row">
+              <div><div class="bar" style="height:4px"></div><span class="lb">4</span></div>
+              <div><div class="bar" style="height:8px"></div><span class="lb">8</span></div>
+              <div><div class="bar" style="height:12px"></div><span class="lb">12</span></div>
+              <div><div class="bar" style="height:16px"></div><span class="lb">16</span></div>
+              <div><div class="bar" style="height:24px"></div><span class="lb">24</span></div>
+              <div><div class="bar" style="height:32px"></div><span class="lb">32</span></div>
+              <div><div class="bar" style="height:48px"></div><span class="lb">48</span></div>
+            </div>
+            <div class="note">4px 基准栅格。行高 34px（表格）、控件高 31px（按钮）、栏高 46px（标题栏），三者共用同一套倍数，纵向才对得齐。</div>
+          </div>
+
+          <div class="ds-card">
+            <div class="ds-h">组件 / COMPONENTS</div>
+            <div class="comp-row">
+              <button class="btn btn--primary" style="height:28px">主操作</button>
+              <button class="btn" style="height:28px">次操作</button>
+              <button class="btn btn--ghost" style="height:28px">幽灵</button>
+            </div>
+            <div class="comp-row">
+              <span class="pill">GD20</span>
+              <span class="tag">ag_GD20</span>
+              <span class="chip on" style="height:22px"><i class="k"></i>选中</span>
+              <span class="chip" style="height:22px"><i class="k"></i>未选</span>
+            </div>
+            <div class="comp-row">
+              <span style="width:44px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(232,145,76,.3),rgba(232,145,76,.9));display:inline-block"></span><span class="mval" style="display:inline;min-width:0;margin-left:0">62.24%</span>
+              <span class="up num">+0.68%</span>
+              <span class="down num">-0.98%</span>
+            </div>
+            <div class="comp-row" style="margin-top:2px">
+              <div style="flex:1;height:28px;border-radius:6px;border:1px solid rgba(76,141,255,.5);background:var(--bg-3);display:flex;align-items:center;padding:0 10px;font-size:11px;color:var(--text-3);box-shadow:0 0 0 3px rgba(76,141,255,.1)">聚焦态输入框</div>
+            </div>
+            <div class="note">按钮只有三种层级，不新增第四种。<b>主操作全局唯一</b>，目前只有「基础数据 · 更新数据」这一处；定投复利读基础数据即时重算，不设主操作，用常驻状态条代替。</div>
+          </div>
+
+          <div class="ds-card">
+            <div class="ds-h">可访问性 / A11Y</div>
+            <div class="note" style="margin-top:0">
+              正文对比度 <b>≥ 15:1</b>（AAA）<br>
+              次级文字 <b>≥ 6:1</b>（AA）<br>
+              强调色 <b>≥ 5:1</b>（AA）<br>
+              深浅两套 token 均已逐项核算，切换主题不会掉出 AA。<br>
+              点击目标 ≥ 28×28px，键盘 Tab 全链路可达，焦点环统一 2px。
+            </div>
+          </div>
+
+          <div class="ds-card" style="grid-column:span 3">
+            <div class="ds-h">图表规范 / CHART SPEC</div>
+            <div style="display:flex;gap:30px;align-items:flex-start">
+              <div style="flex:0 0 340px">
+                <div class="type-row"><span class="sp">网格</span><span style="font-size:11.5px;color:var(--text-2)">0.5px 虚线 · 不画竖线</span></div>
+                <div class="type-row"><span class="sp">折线</span><span style="font-size:11.5px;color:var(--text-2)">1.6px · 面积渐变至透明</span></div>
+                <div class="type-row"><span class="sp">柱</span><span style="font-size:11.5px;color:var(--text-2)">步长 × 0.55 · 圆角 1px</span></div>
+                <div class="type-row"><span class="sp">色数</span><span style="font-size:11.5px;color:var(--text-2)">单图 ≤ 3 个数据色</span></div>
+                <div class="type-row"><span class="sp">禁用</span><span style="font-size:11.5px;color:var(--text-2)">彩虹色系 · 3D 阴影 · 渐变底</span></div>
+              </div>
+              <div style="flex:1;min-width:0">
+                <svg viewBox="0 0 440 104" preserveAspectRatio="none" style="width:100%;height:104px;display:block">
+                  <defs>
+                    <linearGradient id="dsBar" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" style="stop-color:var(--chart-nav)" stop-opacity=".92"/>
+                      <stop offset="100%" style="stop-color:var(--chart-nav)" stop-opacity=".26"/>
+                    </linearGradient>
+                  </defs>
+                  <line x1="0" y1="26" x2="440" y2="26" stroke="currentColor" stroke-opacity=".1" stroke-dasharray="3 4"/>
+                  <line x1="0" y1="52" x2="440" y2="52" stroke="currentColor" stroke-opacity=".1" stroke-dasharray="3 4"/>
+                  <line x1="0" y1="78" x2="440" y2="78" stroke="currentColor" stroke-opacity=".1" stroke-dasharray="3 4"/>
+                  <rect x="4"  y="56" width="9" height="44" rx="1" fill="url(#dsBar)"/>
+                  <rect x="37" y="40" width="9" height="60" rx="1" fill="url(#dsBar)"/>
+                  <rect x="70" y="48" width="9" height="52" rx="1" fill="url(#dsBar)"/>
+                  <rect x="103" y="30" width="9" height="70" rx="1" fill="url(#dsBar)"/>
+                  <rect x="136" y="44" width="9" height="56" rx="1" fill="url(#dsBar)"/>
+                  <rect x="169" y="20" width="9" height="80" rx="1" fill="url(#dsBar)"/>
+                  <rect x="202" y="36" width="9" height="64" rx="1" fill="url(#dsBar)"/>
+                  <rect x="235" y="52" width="9" height="48" rx="1" fill="url(#dsBar)"/>
+                  <rect x="268" y="34" width="9" height="66" rx="1" fill="url(#dsBar)"/>
+                  <rect x="301" y="62" width="9" height="38" rx="1" fill="url(#dsBar)"/>
+                  <rect x="334" y="46" width="9" height="54" rx="1" fill="url(#dsBar)"/>
+                  <rect x="367" y="70" width="9" height="30" rx="1" fill="url(#dsBar)"/>
+                  <rect x="400" y="58" width="9" height="42" rx="1" fill="url(#dsBar)"/>
+                  <path d="M8 50 L41 36 L74 44 L107 26 L140 40 L173 16 L206 32 L239 48 L272 30 L305 58 L338 42 L371 66 L404 54" fill="none" style="stroke:var(--gold)" stroke-width="1.4" opacity=".85"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div id="tip"></div>
+
+<script>
+(function(){
+  'use strict';
+  var $ = function(s,r){ return (r||document).querySelector(s); };
+  var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+
+  /* ───────── 数据 ───────── */
+  var ASSETS = [];
+
+  var EQUITY = [];
+
+  var DCA = [];
+
+  /* ───────── 工具 ───────── */
+  var fmtInt = function(v){ return Math.round(v).toLocaleString('en-US'); };
+
+  /* ───────── 图表数据 ───────── */
+  // 周期结算样本：结算周期 12 个月，取自原始回测结果
+  var SETTLE = [];
+
+  /* ───────── 数据来源：组合 / 单个品种 ───────── */
+  // 定投复利、周期结算、图表分析三页的样本，全部取自这里选中的数据来源。
+  // 所有来源都由 WPF 原始数据服务提供；禁止从一个真实来源按比例派生其他品种。
+  var SOURCES = [{id:'combo', name:'未导入数据', code:'—', grp:'组合', note:'请先导入真实 CSV 文件'}];
+  var SOURCE = 'combo';
+  function srcMeta(id){
+    for (var i = 0; i < SOURCES.length; i++){ if (SOURCES[i].id === id) return SOURCES[i]; }
+    return SOURCES[0];
+  }
+
+  var NATIVE = !!(window.chrome && window.chrome.webview);
+  var NATIVE_DATA = { equity:[], compound:[], settle:[] };
+  var NATIVE_CURVES = { compound:[], settle:[] };
+  var NATIVE_TOTAL = { compound:0, settle:0 };
+  var NATIVE_SELECTED = [];
+  var NATIVE_INCOMING = -1;
+  var NATIVE_OUTGOING = 0;
+  var applyingNative = false;
+  var updateTimer = null;
+  function emitNative(action, extra){
+    if (!NATIVE) return;
+    window.chrome.webview.postMessage(Object.assign({action:action,requestId:++NATIVE_OUTGOING},extra||{}));
+  }
+  function sourceEquity(){ return NATIVE_DATA.equity; }
+  function sourceDca(){ return NATIVE_DATA.compound; }
+  function sourceSettle(){ return NATIVE_DATA.settle; }
+
+  var IND = {
+    ret:  { name:'累计收益', color:'var(--accent)', unit:'%' },
+    dd:   { name:'最大回撤', color:'var(--orange)', unit:'%' },
+    best: { name:'最大收益', color:'var(--teal)',   unit:'%' },
+    days: { name:'交易天数', color:'var(--violet)', unit:'天' },
+    lev:  { name:'累计杠杆', color:'var(--gold)',   unit:'×', compoundOnly:true }
+  };
+  function indValue(r, k){
+    return k === 'ret' ? r[2] : k === 'dd' ? r[3] : k === 'best' ? r[5] : k === 'days' ? r[7] : (r[8] || 0);
+  }
+  function ymd(str){
+    return new Date(+str.slice(0,4), +str.slice(4,6) - 1, +str.slice(6,8));
+  }
+  function dateDiff(a, b){ return Math.round((ymd(b) - ymd(a)) / 864e5); }
+  function fmtYMD(str){ return str.slice(0,4) + '-' + str.slice(4,6) + '-' + str.slice(6,8); }
+  function fmtDate(d){
+    var y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
+    return '' + y + m + dd;
+  }
+
+  /* ───────── 渲染：品种池 ───────── */
+  function escapeText(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  var assetList = $('#assetList');
+  function renderAssets(filter){
+    var q = (filter || '').trim().toLowerCase();
+    assetList.innerHTML = ASSETS.map(function(a, idx){
+      var code = a[0], cn = a[1];
+      var label = (code + ' ' + (a[2] || '')).toLowerCase();
+      if (q && label.indexOf(q) < 0 && cn.indexOf(q) < 0) return '';
+      var checked = NATIVE_SELECTED.indexOf(idx) >= 0 ? ' checked' : '';
+      return '<label class="asset">' +
+        '<input type="checkbox" data-idx="' + idx + '"' + checked + '>' +
+        '<span class="box"><svg width="9" height="9" viewBox="0 0 10 10"><path d="M1.8 5.2l2.2 2.2L8.4 2.8" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+        '<span class="asset-code">' + escapeText(code) + '</span>' +
+        '<span class="asset-tail">' + escapeText(a[2] || '') + '</span>' +
+      '</label>';
+    }).join('');
+    updateSelCount();
+  }
+  function updateSelCount(){
+    var n = NATIVE_SELECTED.length;
+    var el = $('#selCount');
+    if (el) el.textContent = n;
+  }
+  $('#assetSearch').addEventListener('input', function(e){ renderAssets(e.target.value); });
+  function sendSelection(){
+    var selected=new Set(NATIVE_SELECTED);
+    assetList.querySelectorAll('input[data-idx]').forEach(function(c){
+      var index=+c.dataset.idx;
+      if(c.checked)selected.add(index); else selected.delete(index);
+    });
+    NATIVE_SELECTED=Array.from(selected).sort(function(a,b){return a-b;});
+    updateSelCount();
+    emitNative('select-assets',{indexes:NATIVE_SELECTED});
+  }
+  assetList.addEventListener('change', function(){ updateSelCount();sendSelection(); });
+  $('#selectAll').addEventListener('click', function(){
+    document.querySelectorAll('#assetList input').forEach(function(c){ c.checked=true; });updateSelCount();sendSelection();
+  });
+  $('#clearAll').addEventListener('click', function(){
+    document.querySelectorAll('#assetList input').forEach(function(c){ c.checked=false; });updateSelCount();sendSelection();
+  });
+
+  /* ───────── 渲染：表格 ───────── */
+  function cls(v){ return v > 0 ? 'up' : v < 0 ? 'down' : 'flat'; }
+  function pct(v, d){
+    d = d === undefined ? 2 : d;
+    var s = Math.abs(v).toFixed(d) + '%';
+    return v > 0 ? '+' + s : v < 0 ? '-' + s : '0.00%';
+  }
+
+  /* 基础数据表跟着数据来源重建：切换页签 / 菜单都走这里 */
+  function renderEquityTable(){
+    var def = srcMeta(SOURCE), rows = sourceEquity(SOURCE);
+    $('#equityBody').innerHTML = rows.map(function(r){
+      var net = parseFloat(r[2]);
+      // 风险类列（实时回撤/最大回撤）用橙色，与涨跌的红绿分开，避免两种语义混在一起
+      function riskCls(v){ return v === 0 ? 'flat' : 'risk'; }
+      return '<tr>' +
+        '<td><span class="tag">' + def.code + '</span></td>' +
+        '<td class="mono" style="color:var(--text-2)">' + r[0] + '</td>' +
+        '<td class="num">' + fmtInt(r[1]) + '</td>' +
+        '<td class="num ' + cls(net) + '">' + (net > 0 ? '+' : '') + fmtInt(net) + '</td>' +
+        '<td class="num ' + cls(r[3]) + '">' + pct(r[3]) + '</td>' +
+        '<td class="num ' + cls(r[4]) + '">' + pct(r[4]) + '</td>' +
+        '<td class="num ' + riskCls(r[5]) + '">' + pct(r[5]) + '</td>' +
+        '<td class="num ' + riskCls(r[6]) + '">' + pct(r[6]) + '</td>' +
+        '<td class="barcell' + (r[7] > 0 ? '' : ' zero') + '" style="--w:' + r[7].toFixed(1) + '">' + r[7].toFixed(2) + '%</td>' +
+      '</tr>';
+    }).join('');
+    $('#sbRows').textContent = rows.length;
+    $('#sbCols').textContent = 9;
+  }
+
+  /* ───────── 数据来源：底部页签 / 浮层菜单 / 三页同步 ───────── */
+  var dataTabs = $('#dataTabs');
+  function renderSourceTabs(){
+    dataTabs.innerHTML = SOURCES.map(function(s){
+      return '<button class="tab' + (s.id === SOURCE ? ' on' : '') + '" data-tab-src="' + s.id + '" title="' + escapeText(s.note || '') + '">' +
+        '<span>' + escapeText(s.grp === '组合' ? '组合' : s.name) + '</span>' +
+        '<span class="code">' + escapeText(s.code) + '</span>' +
+      '</button>';
+    }).join('');
+  }
+  dataTabs.addEventListener('click', function(e){
+    var t = e.target.closest('[data-tab-src]');
+    if (t) setSource(t.dataset.tabSrc);
+  });
+
+  var srcMenuEl = document.createElement('div');
+  srcMenuEl.className = 'src-menu';
+  srcMenuEl.hidden = true;
+  document.body.appendChild(srcMenuEl);
+  var srcAnchor = null;
+
+  function renderSrcMenu(){
+    function opt(s){
+      return '<button class="src-opt' + (s.id === SOURCE ? ' on' : '') + '" role="option" aria-selected="' + (s.id === SOURCE) + '" data-pick="' + s.id + '">' +
+        '<svg class="chk" width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2.2 6.2l2.6 2.6 5-5.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '<span>' + escapeText(s.name) + '</span><span class="code">' + escapeText(s.code) + '</span></button>';
+    }
+    srcMenuEl.setAttribute('role', 'listbox');
+    srcMenuEl.innerHTML =
+      '<div class="src-grp">组合</div>' +
+      SOURCES.filter(function(s){ return s.grp === '组合'; }).map(opt).join('') +
+      '<div class="src-grp">单个品种</div>' +
+      SOURCES.filter(function(s){ return s.grp === '单品'; }).map(opt).join('') +
+      '<div class="src-note">来源为已导入的真实策略数据和实际计算生成的组合，不包含模拟数据。</div>';
+  }
+  function openSrcMenu(anchor){
+    renderSrcMenu();
+    srcMenuEl.hidden = false;
+    var r = anchor.getBoundingClientRect();
+    srcMenuEl.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 268)) + 'px';
+    var top = r.bottom + 6;
+    if (top + srcMenuEl.offsetHeight > window.innerHeight - 8){
+      top = Math.max(8, r.top - srcMenuEl.offsetHeight - 6);
+    }
+    srcMenuEl.style.top = top + 'px';
+    srcAnchor = anchor;
+    anchor.classList.add('is-open');
+    anchor.setAttribute('aria-expanded', 'true');
+  }
+  function closeSrcMenu(){
+    srcMenuEl.hidden = true;
+    $$('[data-src-trigger]').forEach(function(b){
+      b.classList.remove('is-open');
+      b.setAttribute('aria-expanded', 'false');
+    });
+    srcAnchor = null;
+  }
+  $$('[data-src-trigger]').forEach(function(b){
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      var reopen = srcAnchor !== b;
+      closeSrcMenu();
+      if (reopen) openSrcMenu(b);
+    });
+  });
+  srcMenuEl.addEventListener('click', function(e){
+    var opt = e.target.closest('[data-pick]');
+    if (opt) setSource(opt.dataset.pick);
+  });
+  document.addEventListener('click', function(){ if (!srcMenuEl.hidden) closeSrcMenu(); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && !srcMenuEl.hidden){
+      var back = srcAnchor;
+      closeSrcMenu();
+      if (back) back.focus();
+    }
+  });
+
+  function setSource(id){
+    var def = SOURCES.find(function(s){return s.id===id;});
+    if (!def) return;
+    var changed = id !== SOURCE;
+    SOURCE = id;
+    if (changed){
+      STATE.sel = 0;
+      if (!applyingNative) {
+        NATIVE_DATA.equity = [];
+        NATIVE_DATA.compound = [];
+        NATIVE_DATA.settle = [];
+        NATIVE_CURVES.compound = [];
+        NATIVE_CURVES.settle = [];
+        NATIVE_TOTAL.compound = 0;
+        NATIVE_TOTAL.settle = 0;
+      }
+    }
+    renderSourceTabs();
+    renderEquityTable();
+    var eqWrap = $('#equityBody').closest('.table-wrap');
+    if (eqWrap) eqWrap.scrollTop = 0;
+    $$('[data-src-trigger] .code').forEach(function(el){ el.textContent = def.code; });
+    $$('.src-now').forEach(function(el){ el.textContent = def.code; });
+    var footSrc = $('#footSrc');
+    if (footSrc){
+      footSrc.textContent = def.code;
+      footSrc.title = def.note || def.name;
+    }
+    $('#crumbSource').textContent = def.code;
+    $('#headPill').textContent = def.code;
+    $('#dataSub').textContent = '回测权益明细 · ' + ASSETS.length + ' 个品种 · 数据区间 ' + (window.__hqDates || '—');
+    recompute(false);
+    closeSrcMenu();
+    hideTip();
+    if (!applyingNative) emitNative('select-source',{id:id});
+  }
+
+  function dcaRows(rows, withLev){
+    return rows.map(function(r, i){
+      return '<tr data-idx="' + i + '">' +
+        '<td class="mono" style="color:var(--text-2)">' + r[0] + '</td>' +
+        '<td class="mono" style="color:var(--text-2)">' + r[1] + '</td>' +
+        '<td class="num ' + cls(r[2]) + '">' + pct(r[2]) + '</td>' +
+        '<td class="num ' + (r[3] === 0 ? 'flat' : 'risk') + '">' + pct(r[3]) + '</td>' +
+        '<td class="mono" style="color:var(--text-3)">' + r[4] + '</td>' +
+        '<td class="num ' + cls(r[5]) + '">' + pct(r[5]) + '</td>' +
+        '<td class="mono" style="color:var(--text-3)">' + r[6] + '</td>' +
+        '<td class="num" style="color:var(--text-2)">' + r[7] + '</td>' +
+        (withLev ? '<td class="num col-lev" style="color:var(--gold)">' + r[8] + '×</td>' : '') +
+      '</tr>';
+    }).join('');
+  }
+  function emptyRow(msg, cols){
+    return '<tr class="table-empty"><td colspan="' + (cols || 9) + '">' + msg + '</td></tr>';
+  }
+
+  /* ───────── 图表引擎 ───────── */
+  var tip = $('#tip');
+  function showTip(html, x, y){
+    tip.innerHTML = html;
+    tip.style.opacity = '1';
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  }
+  function hideTip(){ tip.style.opacity = '0'; }
+
+  function niceTicks(min, max, count){
+    var span = max - min;
+    var step = Math.pow(10, Math.floor(Math.log10(span / count)));
+    var err = span / count / step;
+    if (err >= 7.5) step *= 10; else if (err >= 3.5) step *= 5; else if (err >= 1.5) step *= 2;
+    var out = [], t = Math.ceil(min / step) * step;
+    while (t <= max + step * 0.001){ out.push(+t.toFixed(6)); t += step; }
+    return out;
+  }
+
+  function navPath(pts){
+    return pts.map(function(p, i){ return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+  }
+
+  /* ───────── 图表渲染：样本总览 → 单期风险收益 ───────── */
+  var CHART_IND = 'ret';
+  var SAMPLE_ZOOM = null;
+
+  function indText(k, v){
+    return k === 'days' ? Math.round(v) + ' 天' : k === 'lev' ? v.toFixed(1) + '×' : v.toFixed(2) + '%';
+  }
+
+  function renderSampleChart(host){
+    var rows = STATE.rows, key = CHART_IND;
+    if (!rows.length){ host.innerHTML = '<div class="chart-empty">当前参数下没有样本</div>'; return; }
+    var cfg = IND[key];
+    var W = Math.max(360, host.clientWidth - 8), H = Math.max(130, host.clientHeight - 2);
+    var pad = { l: 48, r: 14, t: 18, b: 42 };
+    var iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+    var vals = rows.map(function(r){ return indValue(r, key); });
+    var vmin = Math.min.apply(null, vals), vmax = Math.max.apply(null, vals);
+    var lo, hi;
+    SAMPLE_ZOOM = null;
+    // 收益类样本常挤在 100 上下，用 0 做基线会全部一样高，这里放大纵轴并标注起点
+    if ((key === 'ret' || key === 'best') && vmin > 20 && (vmax - vmin) < Math.max(3, vmax * 0.35)){
+      lo = vmin - (vmax - vmin) * 0.5;
+      hi = vmax + (vmax - vmin) * 0.35;
+      SAMPLE_ZOOM = lo;
+    } else {
+      lo = Math.min(vmin, 0); hi = Math.max(vmax, 0);
+      var sp2 = Math.max(hi - lo, key === 'days' ? 40 : key === 'lev' ? 2 : 3);
+      lo = lo - (lo < 0 ? sp2 * 0.1 : 0);
+      hi = hi + sp2 * 0.18;
+    }
+    var n = rows.length;
+    var x = function(i){ return pad.l + iw * (i + 0.5) / n; };
+    var y = function(v){ return pad.t + (hi - v) / (hi - lo) * ih; };
+    var bw = Math.max(4, Math.min(30, iw / n * 0.56));
+
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">';
+    niceTicks(lo, hi, 4).forEach(function(t){
+      svg += '<line x1="' + pad.l + '" y1="' + y(t).toFixed(1) + '" x2="' + (W - pad.r) + '" y2="' + y(t).toFixed(1) + '" stroke="var(--fill-2)" stroke-width="0.7" stroke-dasharray="3 4"/>';
+      svg += '<text x="' + (pad.l - 9) + '" y="' + (y(t) + 3.5).toFixed(1) + '" style="fill:var(--chart-axis)" font-size="9.5" font-family="ui-monospace,monospace" text-anchor="end">' + (key === 'days' ? Math.round(t) : t.toFixed(key === 'lev' ? 0 : 1)) + '</text>';
+    });
+    if (lo < 0 && hi > 0){
+      svg += '<line x1="' + pad.l + '" y1="' + y(0).toFixed(1) + '" x2="' + (W - pad.r) + '" y2="' + y(0).toFixed(1) + '" style="stroke:var(--chart-zero)" stroke-width="1"/>';
+    }
+
+    var baseVal = SAMPLE_ZOOM === null ? 0 : lo;
+    vals.forEach(function(v, i){
+      var top = Math.min(y(v), y(baseVal)), h = Math.max(1.5, Math.abs(y(v) - y(baseVal)));
+      var on = i === STATE.sel;
+      svg += '<rect class="bar" data-i="' + i + '" x="' + (x(i) - bw / 2).toFixed(1) + '" y="' + top.toFixed(1) +
+             '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="1.5" ' +
+             'style="fill:' + cfg.color + '" opacity="' + (on ? 1 : 0.34) + '"/>';
+      if (on){
+        svg += '<rect x="' + (x(i) - bw / 2).toFixed(1) + '" y="' + (pad.t + ih + 1).toFixed(1) + '" width="' + bw.toFixed(1) +
+               '" height="2" rx="1" style="fill:var(--accent)"/>';
+        var ty = v >= 0 ? top - 6 : top + h + 11;
+        svg += '<text x="' + x(i).toFixed(1) + '" y="' + ty.toFixed(1) + '" style="fill:var(--text-1)" font-size="9.5" font-family="ui-monospace,monospace" text-anchor="middle">' +
+               (key === 'days' ? Math.round(v) : v.toFixed(key === 'lev' ? 0 : 1)) + '</text>';
+      }
+    });
+
+    var step = Math.max(1, Math.ceil(n / 9));
+    for (var i = 0; i < n; i += step){
+      var lx = x(i), ly = pad.t + ih + 16;
+      svg += '<text x="' + lx.toFixed(1) + '" y="' + ly + '" style="fill:var(--chart-axisx)" font-size="9.5" font-family="ui-monospace,monospace" text-anchor="end" transform="rotate(-32 ' + lx.toFixed(1) + ' ' + ly + ')">' + rows[i][0].slice(4) + '</text>';
+    }
+    svg += '<rect id="sHit" x="' + pad.l + '" y="' + pad.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/>';
+    svg += '</svg>';
+    host.innerHTML = svg;
+
+    var svgEl = host.querySelector('svg');
+    host.querySelector('#sHit').addEventListener('click', function(e){
+      var rect = svgEl.getBoundingClientRect(), scale = W / rect.width;
+      var mx = (e.clientX - rect.left) * scale;
+      var idx = Math.floor((mx - pad.l) / (iw / n));
+      if (idx >= 0 && idx < n) selectSample(idx);
+    });
+    host.querySelector('#sHit').addEventListener('mousemove', function(e){
+      var rect = svgEl.getBoundingClientRect(), scale = W / rect.width;
+      var mx = (e.clientX - rect.left) * scale;
+      var idx = Math.floor((mx - pad.l) / (iw / n));
+      if (idx < 0 || idx >= n) return;
+      var r = rows[idx];
+      showTip('<div class="tt-d">' + fmtYMD(r[0]) + ' → ' + fmtYMD(r[1]) + '</div>' +
+              '<div class="tt-r"><span>' + cfg.name + '</span><b style="color:' + cfg.color + '">' + indText(key, vals[idx]) + '</b></div>' +
+              '<div class="tt-r"><span>交易天数</span><b>' + r[7] + '</b></div>', e.clientX, e.clientY - 6);
+    });
+    host.querySelector('#sHit').addEventListener('mouseleave', hideTip);
+  }
+
+  function renderEquityChart(host, row){
+    if (!row){ host.innerHTML = '<div class="chart-empty">没有选中样本</div>'; return; }
+    var actual = (NATIVE_CURVES[MODE] || [])[STATE.sel] || [];
+    if (actual.length < 2){host.innerHTML='<div class="chart-empty">当前样本没有逐日净值数据</div>';return;}
+    if (actual.length > 360) {
+      var jump=Math.ceil(actual.length/360);
+      actual=actual.filter(function(_,i){return i%jump===0 || i===actual.length-1;});
+    }
+    var n = actual.length;
+    var curve = actual.map(function(x){return x[1];});
+    var hasLev = MODE === 'compound' && actual.some(function(x){return typeof x[3]==='number';});
+    var lev = hasLev ? actual.map(function(x){return x[3] || 0;}) : null;
+    var W = Math.max(320, host.clientWidth - 8), H = Math.max(130, host.clientHeight - 2);
+    var pad = { l: 48, r: lev ? 40 : 16, t: 16, b: 46 };
+    var iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+    var lo = Math.min.apply(null, curve), hi = Math.max.apply(null, curve);
+    var py = Math.max(0.012, (hi - lo) * 0.2);
+    lo -= py; hi += py;
+    var x = function(i){ return pad.l + iw * i / (n - 1); };
+    var y = function(v){ return pad.t + (hi - v) / (hi - lo) * ih; };
+    var dates = actual.map(function(x){return x[0];});
+
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">';
+    svg += '<defs><linearGradient id="navGrad" x1="0" y1="0" x2="0" y2="1">' +
+           '<stop offset="0%" style="stop-color:var(--chart-nav)" stop-opacity=".26"/>' +
+           '<stop offset="70%" style="stop-color:var(--chart-nav)" stop-opacity=".05"/>' +
+           '<stop offset="100%" style="stop-color:var(--chart-nav)" stop-opacity="0"/></linearGradient></defs>';
+
+    if (lev){
+      var mxLev = Math.max.apply(null, lev) || 1;
+      var yL = function(v){ return pad.t + ih - v / mxLev * ih * 0.92; };
+      var dL = 'M' + x(0).toFixed(1) + ' ' + yL(lev[0]).toFixed(1);
+      for (var k2 = 1; k2 < n; k2++){
+        dL += ' L' + x(k2).toFixed(1) + ' ' + yL(lev[k2 - 1]).toFixed(1) + ' L' + x(k2).toFixed(1) + ' ' + yL(lev[k2]).toFixed(1);
+      }
+      svg += '<path d="' + dL + '" fill="none" style="stroke:var(--chart-lev)" stroke-width="1.1" opacity=".34"/>';
+      [0, Math.round(mxLev)].forEach(function(t){
+        if (t !== mxLev && t !== 0) return;
+        svg += '<text x="' + (W - pad.r + 9) + '" y="' + (yL(t) + 3.5).toFixed(1) + '" style="fill:var(--chart-axisr)" font-size="9.5" font-family="ui-monospace,monospace">' + t + '</text>';
+      });
+    }
+
+    niceTicks(lo, hi, 4).forEach(function(t){
+      svg += '<line x1="' + pad.l + '" y1="' + y(t).toFixed(1) + '" x2="' + (W - pad.r) + '" y2="' + y(t).toFixed(1) + '" stroke="var(--fill-2)" stroke-width="0.7" stroke-dasharray="3 4"/>';
+      svg += '<text x="' + (pad.l - 9) + '" y="' + (y(t) + 3.5).toFixed(1) + '" style="fill:var(--chart-axis)" font-size="9.5" font-family="ui-monospace,monospace" text-anchor="end">' + t.toFixed(2) + '</text>';
+    });
+
+    var pts = curve.map(function(v, i){ return [x(i), y(v)]; });
+    var d = navPath(pts);
+    var base = pad.t + ih;
+    svg += '<path d="' + d + ' L' + x(n - 1).toFixed(1) + ' ' + base + ' L' + x(0).toFixed(1) + ' ' + base + ' Z" fill="url(#navGrad)"/>';
+    svg += '<path d="' + d + '" fill="none" style="stroke:var(--chart-nav)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>';
+    svg += '<circle cx="' + x(n - 1).toFixed(1) + '" cy="' + y(curve[n - 1]).toFixed(1) + '" r="3" style="fill:var(--chart-nav);stroke:var(--chart-dotbg)" stroke-width="2"/>';
+
+    for (var i = 0; i < n; i += Math.max(1, Math.ceil(n / 6))){
+      var lx = x(i), ly = base + 15;
+      svg += '<text x="' + lx.toFixed(1) + '" y="' + ly + '" style="fill:var(--chart-axisx)" font-size="9.5" font-family="ui-monospace,monospace" text-anchor="end" transform="rotate(-32 ' + lx.toFixed(1) + ' ' + ly + ')">' + dates[i] + '</text>';
+    }
+
+    svg += '<g id="crossG" opacity="0" style="pointer-events:none">' +
+           '<line id="crossL" x1="0" y1="' + pad.t + '" x2="0" y2="' + base + '" style="stroke:var(--chart-cross)" stroke-width="1" stroke-dasharray="2 3"/>' +
+           '<circle id="crossC" r="3.5" style="fill:var(--chart-dotbg);stroke:var(--chart-nav)" stroke-width="2"/></g>';
+    svg += '<rect id="navHit" x="' + pad.l + '" y="' + pad.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/>';
+    svg += '</svg>';
+    host.innerHTML = svg;
+
+    var svgEl = host.querySelector('svg');
+    var hit = host.querySelector('#navHit'), cg = host.querySelector('#crossG');
+    hit.addEventListener('mousemove', function(e){
+      var rect = svgEl.getBoundingClientRect(), scale = W / rect.width;
+      var idx = Math.round(((e.clientX - rect.left) * scale - pad.l) / (iw / (n - 1)));
+      idx = Math.max(0, Math.min(n - 1, idx));
+      cg.setAttribute('opacity', '1');
+      host.querySelector('#crossL').setAttribute('x1', x(idx));
+      host.querySelector('#crossL').setAttribute('x2', x(idx));
+      host.querySelector('#crossC').setAttribute('cx', x(idx));
+      host.querySelector('#crossC').setAttribute('cy', y(curve[idx]));
+      var gain = (curve[idx] - 1) * 100;
+      showTip('<div class="tt-d">' + dates[idx] + '</div>' +
+              '<div class="tt-r"><span>净值</span><b>' + curve[idx].toFixed(3) + '</b></div>' +
+              '<div class="tt-r"><span>累计收益</span><b style="color:' + (gain >= 0 ? 'var(--up)' : 'var(--down)') + '">' + (gain >= 0 ? '+' : '') + gain.toFixed(2) + '%</b></div>' +
+              (lev ? '<div class="tt-r"><span>杠杆</span><b style="color:var(--gold)">' + lev[idx].toFixed(1) + '×</b></div>' : ''),
+              e.clientX, e.clientY - 6);
+    });
+    hit.addEventListener('mouseleave', function(){ cg.setAttribute('opacity', '0'); hideTip(); });
+  }
+
+  function renderDrawdownChart(host, row){
+    if (!row){ host.innerHTML = '<div class="chart-empty">没有选中样本</div>'; return; }
+    var actual = (NATIVE_CURVES[MODE] || [])[STATE.sel] || [];
+    if (actual.length < 2){host.innerHTML='<div class="chart-empty">当前样本没有逐日回撤数据</div>';return;}
+    if (actual.length > 360) {
+      var jump=Math.ceil(actual.length/360);
+      actual=actual.filter(function(_,i){return i%jump===0 || i===actual.length-1;});
+    }
+    var n=actual.length;
+    var dd=actual.map(function(x){return x[2] || 0;});
+    var W = Math.max(280, host.clientWidth - 8), H = Math.max(130, host.clientHeight - 2);
+    var pad = { l: 44, r: 14, t: 16, b: 46 };
+    var iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+    var lo = Math.min.apply(null, dd), hi = 0;
+    var sp = Math.max(Math.abs(lo), 0.005);
+    lo -= sp * 0.15;
+    var x = function(i){ return pad.l + iw * i / (n - 1); };
+    var y = function(v){ return pad.t + (hi - v) / (hi - lo) * ih; };
+    var dates = actual.map(function(x){return x[0];});
+
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">';
+    svg += '<defs><linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">' +
+           '<stop offset="0%" style="stop-color:var(--chart-dd)" stop-opacity=".04"/>' +
+           '<stop offset="100%" style="stop-color:var(--chart-dd)" stop-opacity=".24"/></linearGradient></defs>';
+    niceTicks(lo, hi, 4).forEach(function(t){
+      svg += '<line x1="' + pad.l + '" y1="' + y(t).toFixed(1) + '" x2="' + (W - pad.r) + '" y2="' + y(t).toFixed(1) + '" stroke="var(--fill-2)" stroke-width="0.7" stroke-dasharray="3 4"/>';
+      svg += '<text x="' + (pad.l - 9) + '" y="' + (y(t) + 3.5).toFixed(1) + '" style="fill:var(--chart-axis)" font-size="9.5" font-family="ui-monospace,monospace" text-anchor="end">' + (t * 100).toFixed(1) + '%</text>';
+    });
+    svg += '<line x1="' + pad.l + '" y1="' + y(0).toFixed(1) + '" x2="' + (W - pad.r) + '" y2="' + y(0).toFixed(1) + '" style="stroke:var(--chart-zero)" stroke-width="1"/>';
+
+    var pts = dd.map(function(v, i){ return [x(i), y(v)]; });
+    var d = navPath(pts);
+    svg += '<path d="' + d + ' L' + x(n - 1).toFixed(1) + ' ' + y(0) + ' L' + x(0).toFixed(1) + ' ' + y(0) + ' Z" fill="url(#ddGrad)"/>';
+    svg += '<path d="' + d + '" fill="none" style="stroke:var(--chart-dd)" stroke-width="1.5" stroke-linejoin="round"/>';
+
+    for (var i = 0; i < n; i += Math.max(1, Math.ceil(n / 5))){
+      var lx = x(i), ly = pad.t + ih + 15;
+      svg += '<text x="' + lx.toFixed(1) + '" y="' + ly + '" style="fill:var(--chart-axisx)" font-size="9.5" font-family="ui-monospace,monospace" text-anchor="end" transform="rotate(-32 ' + lx.toFixed(1) + ' ' + ly + ')">' + dates[i] + '</text>';
+    }
+    svg += '<rect id="ddHit" x="' + pad.l + '" y="' + pad.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/>';
+    svg += '<circle id="ddDot" r="3.5" opacity="0" style="fill:var(--chart-dotbg);stroke:var(--chart-dd)" stroke-width="2"/>';
+    svg += '</svg>';
+    host.innerHTML = svg;
+
+    var svgEl = host.querySelector('svg'), hit = host.querySelector('#ddHit'), dot = host.querySelector('#ddDot');
+    hit.addEventListener('mousemove', function(e){
+      var rect = svgEl.getBoundingClientRect(), scale = W / rect.width;
+      var idx = Math.round(((e.clientX - rect.left) * scale - pad.l) / (iw / (n - 1)));
+      idx = Math.max(0, Math.min(n - 1, idx));
+      dot.setAttribute('opacity', '1');
+      dot.setAttribute('cx', x(idx));
+      dot.setAttribute('cy', y(dd[idx]));
+      showTip('<div class="tt-d">' + dates[idx] + '</div><div class="tt-r"><span>回撤</span><b style="color:var(--orange)">' + (dd[idx] * 100).toFixed(2) + '%</b></div>', e.clientX, e.clientY - 6);
+    });
+    hit.addEventListener('mouseleave', function(){ dot.setAttribute('opacity', '0'); hideTip(); });
+  }
+
+  function paintRiskStats(row){
+    var tag = MODE === 'settle' ? '周期结算' : '定投复利';
+    $('#chartModeTag').textContent = tag;
+    var levWrap = $('#rsLev');
+    if (levWrap){
+      var box = levWrap.parentNode;
+      box.style.display = (row && row[8]) ? '' : 'none';
+    }
+    var legend = $('#navLevLegend');
+    if (legend) legend.style.display = (row && row[8]) ? '' : 'none';
+    if (!row){
+      ['#rsRet','#rsBest'].forEach(function(id){ $(id).textContent = '—'; $(id).className = 'v'; });
+      $('#rsDD').textContent = '—'; $('#rsDD').className = 'v';
+      $('#rsDays').textContent = '—';
+      $('#rsDDDate').textContent = '';
+      $('#rsBestDate').textContent = '';
+      if (levWrap) levWrap.textContent = '—';
+      return;
+    }
+    $('#rsRet').textContent = pct(row[2]);
+    $('#rsRet').className = 'v ' + cls(row[2]);
+    $('#rsDD').textContent = pct(row[3]);
+    $('#rsDD').className = 'v ' + (row[3] === 0 ? 'flat' : 'risk');
+    $('#rsDDDate').textContent = row[3] === 0 ? '' : fmtYMD(row[4]);
+    $('#rsBest').textContent = pct(row[5]);
+    $('#rsBest').className = 'v ' + cls(row[5]);
+    $('#rsBestDate').textContent = fmtYMD(row[6]);
+    $('#rsDays').textContent = row[7] + ' 天';
+    if (levWrap) levWrap.textContent = (row[8] || '—') + (row[8] ? '×' : '');
+  }
+
+  function paintChartHeads(row){
+    $('#sampleSub').textContent = STATE.rows.length
+      ? '全部 ' + STATE.rows.length + ' 组 · 点柱体可切换下方样本' +
+        (SAMPLE_ZOOM !== null ? ' · 纵轴自 ' + SAMPLE_ZOOM.toFixed(0) + ' 起' : '')
+      : '暂无样本';
+    $('#chartSub').textContent = row
+      ? srcMeta(SOURCE).code + ' · ' + STATE.rows.length + ' 组样本 · 当前选中 ' + fmtYMD(row[0]) + ' → ' + fmtYMD(row[1])
+      : srcMeta(SOURCE).code + ' · 当前参数下没有样本';
+    $('#navSub').textContent = row ? (row[0] + ' — ' + row[1]) : '—';
+    $('#ddSub').textContent = row ? '峰值 ' + pct(row[3]) : '—';
+  }
+
+  function renderCharts(){
+    var row = currentRow();
+    var hs = $('#chartSample');
+    // SVG 只在可见时重画；文字部分无论可见与否都同步（避免切回来时残留旧标题）
+    if (hs && hs.clientWidth){
+      renderSampleChart(hs);
+      renderEquityChart($('#chartNav'), row);
+      renderDrawdownChart($('#chartDD'), row);
+    }
+    paintRiskStats(row);
+    paintChartHeads(row);
+  }
+
+  /* ───────── 交互 ───────── */
+  // 定投复利 / 周期结算 现在是两个平级页面，共用同一组 KPI 与样本表节点，
+  // 切页时把共享节点搬进当前页的 scroll-area，避免维护两份 DOM 导致状态分叉
+  var SHARED_SEL = ['.kpi-row', '.sec-head', '.card.dca-card'];
+  function placeShared(mode){
+    var host = $('.view[data-panel="' + mode + '"] .scroll-area');
+    if (!host) return;
+    SHARED_SEL.forEach(function(sel){
+      var el = $('.scroll-area ' + sel);
+      if (el && el.parentNode !== host) host.appendChild(el);
+    });
+  }
+
+  function switchView(name){
+    $$('.view').forEach(function(v){ v.classList.toggle('active', v.dataset.panel === name); });
+    $$('.nav-item[data-view]').forEach(function(b){ b.classList.toggle('active', b.dataset.view === name); });
+    $$('.sb-link[data-view]').forEach(function(b){ b.classList.toggle('is-on', b.dataset.view === name); });
+    var map = { data:'基础数据', compound:'定投复利', settle:'周期结算', chart:'图表分析', ds:'设计规范' };
+    $('#crumbModule').textContent = map[name] || '基础数据';
+    if (name === 'compound' || name === 'settle') setMode(name);
+    if (name === 'chart') setTimeout(renderCharts, 30);
+    var sa = $('.view[data-panel="' + name + '"] .scroll-area');
+    if (sa) sa.scrollTop = 0;
+    hideTip();
+  }
+  $$('.nav-item[data-view]').forEach(function(b){
+    b.addEventListener('click', function(){ switchView(b.dataset.view); });
+  });
+  $$('.sb-link[data-view]').forEach(function(b){
+    b.addEventListener('click', function(){ switchView(b.dataset.view); });
+  });
+  $$('[data-goto]').forEach(function(b){
+    b.addEventListener('click', function(){ switchView(b.dataset.goto); });
+  });
+
+  /* ───────── 参数：可拖拽 + 可直接输入，超出滑杆范围自动放宽上限 ───────── */
+  // 定投页没有“运行”这一步：数据在基础数据里已经生成，这里只是按参数筛样本并重算
+  var PARAMS = { ret:100, months:36, lev0:1, levStep:1, levMax:6, interval:3, period:12 };
+  var STEP   = { ret:5, months:1, lev0:0.5, levStep:0.5, levMax:1, interval:1, period:1 };
+  var MONTH_DAYS = 30.44;
+  var MODE = 'compound';
+  var STATE = { rows: [], sel: 0 };
+  var ranges = {};
+  $$('.param input[type=range]').forEach(function(r){ ranges[r.dataset.key] = r; });
+
+  function fmtNum(v){ return (v % 1 === 0) ? String(v) : v.toFixed(1); }
+
+  function paintRange(key, v){
+    var r = ranges[key];
+    if (!r) return;
+    var step = STEP[key] || 1;
+    // 输入值超出滑杆上限时按步长向后扩一格，否则 thumb 会贴死在右端、拖回来时会跳值
+    if (v > +r.max) r.max = Math.ceil(v / step) * step;
+    if (v < +r.min) r.min = Math.floor(v / step) * step;
+    r.value = Math.min(+r.max, Math.max(+r.min, v));
+    var p = (v - +r.min) / (+r.max - +r.min) * 100;
+    r.style.setProperty('--p', Math.max(0, Math.min(100, p)) + '%');
+  }
+
+  function setParam(key, v, opts){
+    opts = opts || {};
+    v = Number(v);
+    if (!isFinite(v) || !ranges[key]) return;
+    if (v < +ranges[key].min) v = +ranges[key].min;
+    PARAMS[key] = v;
+    paintRange(key, v);
+    var pv = $('.pv[data-key="' + key + '"]');
+    if (pv){
+      if (document.activeElement !== pv) pv.value = fmtNum(v);
+      var shown = document.activeElement === pv ? pv.value : fmtNum(v);
+      pv.style.width = (Math.max(0.72, String(shown).length * 0.62 + 0.06)).toFixed(2) + 'em';
+    }
+    if (key === 'months' || key === 'period'){
+      var alt = $('[data-alt="' + key + '"]');
+      if (alt) alt.textContent = v >= 12 ? '≈ ' + (v / 12).toFixed(v % 12 === 0 ? 0 : 1) + ' 年' : '';
+    }
+    if (!opts.silent) {
+      clearTimeout(updateTimer);
+      updateTimer = setTimeout(function(){ emitNative('parameters',{values:PARAMS}); }, 110);
+    }
+  }
+
+  function currentRow(){ return STATE.rows[STATE.sel] || null; }
+
+  function paintPicker(){
+    var pick = $('#samplePick');
+    if (!pick) return;
+    if (!STATE.rows.length){
+      pick.innerHTML = '<option>无样本</option>';
+      pick.disabled = true;
+      return;
+    }
+    pick.disabled = false;
+    pick.innerHTML = STATE.rows.map(function(r, i){
+      return '<option value="' + i + '">' + fmtYMD(r[0]) + ' → ' + fmtYMD(r[1]) + '  ' + pct(r[2]) + '</option>';
+    }).join('');
+    pick.value = String(STATE.sel);
+  }
+
+  /* 定投复利的达标筛选，只有这一处定义，badge / 标题 / 表格共用 */
+  function compoundFilter(){
+    var limitDays = Math.round(PARAMS.months * MONTH_DAYS);
+    return sourceDca(SOURCE);
+  }
+  function countCompound(){ return compoundFilter().length; }
+
+  /* 实时重算：从基础数据里按当前参数筛样本，表格 / KPI / 图表同步刷新 */
+  var liveTimer = null;
+  function recompute(flash){
+    var all = MODE === 'settle' ? sourceSettle(SOURCE) : sourceDca(SOURCE);
+    var src = srcMeta(SOURCE);
+    var withLev = MODE === 'compound';
+    var kept, msg;
+
+    if (MODE === 'settle'){
+      kept = all.slice();
+      msg = '尚未导入数据或当前结算周期没有可用样本';
+    } else {
+      kept = compoundFilter();
+      msg = '当前参数下没有达标样本 —— 目标收益 ' + fmtNum(PARAMS.ret) + '% · 目标时间 ' + fmtNum(PARAMS.months) + ' 个月';
+    }
+
+    STATE.rows = kept;
+    if (STATE.sel > kept.length - 1) STATE.sel = 0;
+
+    $('#dcaBody').innerHTML = kept.length
+      ? dcaRows(kept, withLev)
+      : emptyRow(msg, withLev ? 9 : 8);
+    $$('#dcaBody tr[data-idx]').forEach(function(tr){
+      tr.classList.toggle('row-sel', +tr.dataset.idx === STATE.sel);
+    });
+
+    var avgRet = 0, minDD = 0, ddDate = '—', avgDays = 0, minDays = 0, maxDays = 0;
+    if (kept.length){
+      kept.forEach(function(r){
+        avgRet += r[2];
+        if (r[3] < minDD){ minDD = r[3]; ddDate = r[4]; }
+        avgDays += r[7];
+        if (!minDays || r[7] < minDays) minDays = r[7];
+        if (r[7] > maxDays) maxDays = r[7];
+      });
+      avgRet /= kept.length;
+      avgDays = Math.round(avgDays / kept.length);
+    }
+
+    var kRet = $('#kAvgRet');
+    kRet.innerHTML = (kept.length ? '+' + avgRet.toFixed(2) : '—') + '<span style="font-size:14px">%</span>';
+    kRet.className = 'kpi-value ' + (kept.length ? (avgRet >= 0 ? 'up' : 'down') : 'flat');
+    $('#kAvgRetSub').textContent = kept.length
+      ? '达标 ' + kept.length + ' 组 · ' +
+        (MODE === 'settle' ? fmtNum(PARAMS.period) + ' 月结算' : '目标 ' + fmtNum(PARAMS.ret) + '%')
+      : '无达标样本';
+
+    var kDD = $('#kMaxDD');
+    kDD.innerHTML = (kept.length ? (minDD > 0 ? '+' : '') + minDD.toFixed(2) : '—') + '<span style="font-size:14px">%</span>';
+    kDD.className = 'kpi-value ' + (kept.length ? (minDD < 0 ? 'risk' : 'flat') : 'flat');
+    $('#kMaxDDSub').textContent = kept.length ? ('发生于 ' + ddDate) : '—';
+
+    var kDays = $('#kAvgDays');
+    kDays.innerHTML = (kept.length ? avgDays : '—') + '<span style="font-size:14px">天</span>';
+    $('#kAvgDaysSub').textContent = kept.length ? ('最短 ' + minDays + ' · 最长 ' + maxDays) : '—';
+
+    var sampleTotal = NATIVE_TOTAL[MODE] || all.length;
+    var winRate = sampleTotal ? Math.round(kept.length / sampleTotal * 100) : 0;
+    $('#kSamples').innerHTML = kept.length + '<span style="font-size:14px">/' + sampleTotal + '</span>';
+    $('#kSamplesSub').textContent = kept.length
+      ? '胜率 ' + winRate + '% · ' + (MODE === 'settle' ? fmtNum(PARAMS.period) + ' 月结算' : '杠杆 ' + fmtNum(PARAMS.lev0) + '→' + fmtNum(PARAMS.levMax) + '×')
+      : '—';
+
+    $('#pnLev0').textContent = '首月建仓 ' + fmtNum(PARAMS.lev0) + '×';
+    $('#pnLevStep').textContent = '每次递增 +' + fmtNum(PARAMS.levStep) + '×';
+    $('#pnLevMax').textContent = '累计封顶 ' + fmtNum(PARAMS.levMax) + '×';
+    $('#pnInterval').textContent = '每 ' + fmtNum(PARAMS.interval) + ' 月加仓';
+    $('#specPeriod').textContent = fmtNum(PARAMS.period);
+    $('#specCount').textContent = sourceSettle(SOURCE).length + ' 期 · 结算周期 ' + fmtNum(PARAMS.period) + ' 月';
+
+    $('#dcaCount').textContent = kept.length + ' / ' + all.length + (MODE === 'settle' ? ' 期' : ' 组') + ' · 按开始日期升序';
+
+    // 两个页面都在文档里，各自标题按自己的口径写，不跟着当前模式漂移
+    $('#compoundSub').textContent = '数据来源 ' + src.code + ' · 达标 ' + countCompound() + '/' + sourceDca(SOURCE).length +
+      ' · 目标 ' + fmtNum(PARAMS.ret) + '% / ' + fmtNum(PARAMS.months) + ' 月 · 杠杆 ' +
+      fmtNum(PARAMS.lev0) + '→' + fmtNum(PARAMS.levMax) + '×';
+    $('#settleSub').textContent = '数据来源 ' + src.code + ' · 每 ' + fmtNum(PARAMS.period) + ' 月结算 · ' + sourceSettle(SOURCE).length + ' 期';
+
+    var rule = $('#ruleText');
+    if (rule) rule.textContent = MODE === 'settle'
+      ? '每 ' + fmtNum(PARAMS.period) + ' 个月滚动切分 · 到期结算 · 不加杠杆'
+      : '累计收益 ≥ 目标收益 · 交易天数 ≤ 目标时间 · 累计杠杆 ≤ 杠杆上限';
+
+    var bc = $('#navBadgeCompound');
+    if (bc) bc.textContent = countCompound();
+    var bs = $('#navBadgeSettle');
+    if (bs) bs.textContent = sourceSettle(SOURCE).length;
+
+    paintPicker();
+    renderCharts();
+
+    if (flash){
+      var live = MODE === 'settle' ? $('#settleLive') : $('#compoundLive');
+      if (live){
+        live.classList.add('flash');
+        clearTimeout(liveTimer);
+        liveTimer = setTimeout(function(){ live.classList.remove('flash'); }, 420);
+      }
+    }
+  }
+
+  function selectSample(i, jump){
+    if (!STATE.rows.length) return;
+    STATE.sel = Math.max(0, Math.min(STATE.rows.length - 1, i));
+    $$('#dcaBody tr[data-idx]').forEach(function(tr){
+      tr.classList.toggle('row-sel', +tr.dataset.idx === STATE.sel);
+    });
+    var pick = $('#samplePick');
+    if (pick) pick.value = String(STATE.sel);
+    var row = STATE.rows[STATE.sel];
+    var hint = $('#selHint');
+    if (hint && row){
+      hint.textContent = '已选中 ' + fmtYMD(row[0]) + ' → ' + fmtYMD(row[1]) + ' · 图表分析已同步';
+      hint.classList.add('on');
+    }
+    renderCharts();
+    if (jump) switchView('chart');
+  }
+
+  Object.keys(ranges).forEach(function(k){
+    ranges[k].addEventListener('input', function(){ setParam(k, +ranges[k].value); });
+  });
+
+  $$('.pv').forEach(function(pv){
+    function normalize(){
+      var v = parseFloat(pv.value);
+      setParam(pv.dataset.key, isFinite(v) ? v : PARAMS[pv.dataset.key]);
+      pv.value = fmtNum(PARAMS[pv.dataset.key]);
+    }
+    pv.addEventListener('input', function(){
+      var v = parseFloat(pv.value);
+      if (!isFinite(v)) return;
+      setParam(pv.dataset.key, v);
+    });
+    pv.addEventListener('change', normalize);
+    pv.addEventListener('blur', normalize);
+    pv.addEventListener('keydown', function(e){
+      if (e.key === 'Enter'){ pv.blur(); return; }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown'){
+        e.preventDefault();
+        var d = (e.shiftKey ? 10 : 1) * (STEP[pv.dataset.key] || 1);
+        setParam(pv.dataset.key, PARAMS[pv.dataset.key] + (e.key === 'ArrowUp' ? d : -d));
+        pv.value = fmtNum(PARAMS[pv.dataset.key]);
+      }
+    });
+  });
+
+  $$('.param-quick button').forEach(function(b){
+    b.addEventListener('click', function(){
+      var parts = b.dataset.set.split(':');
+      setParam(parts[0], +parts[1]);
+    });
+  });
+
+  /* 模式：定投复利 / 周期结算 各自一页，由侧栏驱动 */
+  function setMode(m){
+    if (MODE !== m) STATE.sel = 0;
+    MODE = m;
+    placeShared(m === 'settle' ? 'settle' : 'compound');
+    $('#dcaTable').classList.toggle('hide-lev', m === 'settle');
+    var levChip = $('.chip[data-ind="lev"]');
+    if (levChip){
+      levChip.classList.toggle('is-off', m === 'settle');
+      if (m === 'settle' && CHART_IND === 'lev'){
+        CHART_IND = 'ret';
+        $$('.chip[data-ind]').forEach(function(c){ c.classList.toggle('on', c.dataset.ind === 'ret'); });
+      }
+    }
+    $('#chartModeTag').textContent = m === 'settle' ? '周期结算' : '定投复利';
+    var secH = $('.sec-head h2');
+    if (secH) secH.textContent = m === 'settle' ? '结算明细' : '样本明细';
+    var hint = $('#selHint');
+    if (hint){ hint.textContent = '单击选中该期，图表分析同步；双击直接跳到图表'; hint.classList.remove('on'); }
+    recompute(false);
+  }
+
+  /* 样本切换：表格行、柱体、下拉三处任一都能改选中 */
+  $('#dcaBody').addEventListener('click', function(e){
+    var tr = e.target.closest ? e.target.closest('tr[data-idx]') : null;
+    if (tr) selectSample(+tr.dataset.idx);
+  });
+  $('#dcaBody').addEventListener('dblclick', function(e){
+    var tr = e.target.closest ? e.target.closest('tr[data-idx]') : null;
+    if (tr) selectSample(+tr.dataset.idx, true);
+  });
+  $('#samplePick').addEventListener('change', function(){ selectSample(+this.value); });
+
+  /* 样本数据图：切换指标 */
+  $$('.chip[data-ind]').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      if (chip.classList.contains('is-off')) return;
+      $$('.chip[data-ind]').forEach(function(c){ c.classList.remove('on'); });
+      chip.classList.add('on');
+      CHART_IND = chip.dataset.ind;
+      renderCharts();
+    });
+  });
+
+  setMode('compound');
+  Object.keys(PARAMS).forEach(function(k){ setParam(k, PARAMS[k], { silent:true }); });
+
+  // 主题切换：所有颜色走 CSS 变量，切换后 SVG 与表格自动跟随
+  var root = document.documentElement;
+  var ICON_MOON = '<path d="M13.2 9.6A5.6 5.6 0 116.4 2.8a4.6 4.6 0 006.8 6.8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>';
+  var ICON_SUN = '<circle cx="8" cy="8" r="3.1" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.6v1.5M8 12.9v1.5M14.4 8h-1.5M3.1 8H1.6M12.5 3.5l-1 1M4.5 11.5l-1 1M12.5 12.5l-1-1M4.5 4.5l-1-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>';
+  function paintThemeIcon(){
+    var light = root.getAttribute('data-theme') === 'light';
+    var el = $('#themeIcon');
+    if (el) el.innerHTML = light ? ICON_MOON : ICON_SUN;
+    var btn = $('#themeToggle');
+    if (btn) btn.title = light ? '切换到深色主题' : '切换到浅色主题';
+  }
+  function setTheme(t){
+    root.setAttribute('data-theme', t);
+    try { localStorage.setItem('hq-theme', t); } catch (e) {}
+    paintThemeIcon();
+  }
+  var toggle = $('#themeToggle');
+  if (toggle){
+    toggle.addEventListener('click', function(){
+      setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    });
+  }
+  try {
+    var savedTheme = localStorage.getItem('hq-theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') setTheme(savedTheme); else paintThemeIcon();
+  } catch (e) { paintThemeIcon(); }
+
+  // 初始化
+  renderAssets('');
+  setSource('combo');
+  var initial = (location.hash || '').replace('#', '');
+  if (['data', 'compound', 'settle', 'chart', 'ds'].indexOf(initial) > -1) switchView(initial);
+  setTimeout(renderCharts, 60);
+
+  var rt;
+  window.addEventListener('resize', function(){
+    clearTimeout(rt);
+    rt = setTimeout(function(){
+      if ($('.view[data-panel="chart"]').classList.contains('active')) renderCharts();
+    }, 160);
+  });
+
+  /* WPF WebView2 bridge：真实业务数据通过 JSON 快照进入原样 UI。 */
+  function nativeApply(data){
+    if (!data || data.requestId < NATIVE_INCOMING) return;
+    NATIVE_INCOMING = data.requestId || 0;
+    applyingNative = true;
+    ASSETS = data.assets || [];
+    NATIVE_SELECTED = data.selected || [];
+    SOURCES = data.sources && data.sources.length ? data.sources :
+      [{id:'combo', name:'未导入数据',code:'—',grp:'组合',note:'请先导入真实 CSV'}];
+    NATIVE_DATA.equity = data.equity || [];
+    NATIVE_DATA.compound = data.compound ? data.compound.rows : [];
+    NATIVE_DATA.settle = data.settle ? data.settle.rows : [];
+    NATIVE_CURVES.compound = data.compound ? data.compound.curves : [];
+    NATIVE_CURVES.settle = data.settle ? data.settle.curves : [];
+    NATIVE_TOTAL.compound = data.compound ? data.compound.all : 0;
+    NATIVE_TOTAL.settle = data.settle ? data.settle.all : 0;
+    SOURCE = SOURCES.some(function(x){return x.id===data.sourceId;}) ? data.sourceId : SOURCES[0].id;
+    window.__hqDates = data.dateStart && data.dateEnd ? data.dateStart + ' → ' + data.dateEnd : '尚未导入数据';
+    renderAssets($('#assetSearch').value);
+    setSource(SOURCE);
+    var navBadge = $('.nav-item[data-view="data"] .nav-badge');
+    if(navBadge) navBadge.textContent = ASSETS.length;
+    var status = $('.titlebar-right .status');
+    if(status){
+      status.innerHTML = '<i class="dot"></i>' + escapeText(data.status || '未导入数据');
+      status.classList.toggle('is-offline',!data.equity || !data.equity.length);
+    }
+    var foot = $('.sb-meta');
+    if(foot) foot.innerHTML = '引擎 <b>.NET 8 · 本地</b><br>数据源 <b>' + escapeText(data.activeSourceName || '未选择') + '</b>';
+    var footPath = $('.view[data-panel="data"] .toolbar button:last-child');
+    if(footPath) footPath.title = data.folderPath || '尚未指定数据路径';
+    var lastUpdated = $('.statusbar span:last-child');
+    if(lastUpdated) lastUpdated.textContent = data.equity && data.equity.length
+      ? '更新 ' + new Date().toLocaleString('zh-CN',{hour12:false}) : '尚无数据';
+    applyingNative = false;
+  }
+  function nativeShowError(message){
+    var layer=document.getElementById('nativeError');
+    if(!layer){
+      layer=document.createElement('div');layer.id='nativeError';
+      layer.setAttribute('role','alert');document.body.appendChild(layer);
+    }
+    layer.textContent=String(message || '操作失败');layer.classList.add('visible');
+    clearTimeout(layer._timer);
+    layer._timer=setTimeout(function(){layer.classList.remove('visible');},6000);
+  }
+  window.__hqNative={applyState:nativeApply,showError:nativeShowError};
+  var dataButtons=document.querySelectorAll('.view[data-panel="data"] .toolbar button');
+  var dataActions=['refresh','edit-templates','export-data','sync-combination','choose-path'];
+  dataButtons.forEach(function(button,i){
+    if(dataActions[i])button.addEventListener('click',function(){emitNative(dataActions[i]);});
+  });
+  ['compound','settle'].forEach(function(mode){
+    var button=$('.view[data-panel="'+mode+'"] .toolbar button:not([data-goto])');
+    if(button)button.addEventListener('click',function(){emitNative('export-stats',{mode:mode});});
+  });
+  var chartExport=$('.view[data-panel="chart"] .toolbar button');
+  if(chartExport)chartExport.addEventListener('click',function(){emitNative('export-chart');});
+  var controls=document.querySelectorAll('.win-ctrl button');
+  ['window-minimize','window-toggle','window-close'].forEach(function(action,i){
+    if(controls[i])controls[i].addEventListener('click',function(){emitNative(action);});
+  });
+  $('.titlebar').addEventListener('mousedown',function(e){
+    if(e.button!==0 || e.target.closest('button,input,select,.status,.src-menu'))return;
+    if(e.detail===2){emitNative('window-toggle');return;}
+    emitNative('window-drag');
+  });
+  var tokenExport=$('.view[data-panel="ds"] .toolbar button');
+  if(tokenExport)tokenExport.addEventListener('click',function(){
+    nativeShowError('设计 Tokens 已随应用资源提供，无需重复导出。');
+  });
+  if(NATIVE) emitNative('ready');
+
+})();
+</script>
+</body>
+</html>

@@ -1,40 +1,46 @@
-# HONG QUANT 研究终端 · WPF 界面改造
+# HONG QUANT Terminal · 四个主界面高保真实现
 
-## 参考设计
+## 选择的实现方式
 
-改造遵循本次交付的五份 UI 设计稿：`hongquant-terminal.html`、`tokens.css`、`components.css`、`design-tokens.html`、`components.html`。这些文件是 **HTML/CSS 视觉规范**，应用仍然保持 **.NET 8 WPF 原生实现**；没有引入 WebView 或模拟数据。
+本分支以用户提供的 `hongquant-terminal.html` 为最终 UI 规范，直接在 WPF `MainWindow` 的 Microsoft Edge WebView2 中渲染完整 HTML/CSS/SVG。这样标题栏、侧边导航、参数卡、滑块、KPI、表格、图表的**布局与 CSS 都来自设计源文件**，避免上一版 WPF 控件重绘的字号、间距、选中效果不一致问题。
 
-## 页面映射
+**不是改为网页后端项目**：应用入口、数据导入、本地存储、量化业务服务、Excel 导出仍是原有 .NET 8 / WPF / C#。WebView2 只是界面呈现层；浏览器端通过 `window.chrome.webview.postMessage` 触发明确列举的 C# 操作，C# 回传真实数据快照。
 
-| 终端导航 | 对应原业务 | 说明 |
+## 四个页面
+
+| 主导航 | 设计稿实现 | C# 数据/功能 |
 |---|---|---|
-| 基础数据 | `OriginalMain` + `ShowDataView` | 保留目录导入、策略/品种过滤、模板、勾选组合、数据导出、图表入口及底部组合标签 |
-| 定投复利 | `YiTouMain` + `Multiple5Config` | 通过 `InitialAlgorithmName` 选中原 `Multiple5` 算法，参数更新仍触发原统计服务 |
-| 周期结算 | `YiTouMain` + `CycleConfig` | 通过 `InitialAlgorithmName` 选中原 `Cycle` 算法 |
-| 图表分析 | 原 `ShowChartView` / `CycleIncomeBarChartView` | 沿用已存在的「查看图表」「图表分析」入口，不增加无数据的新页面 |
-| 其他旧页面 | `Views/Hong`、`Views/RealTime` | 保留原页面和命令，统一替换硬编码浅色背景及旧按钮样式；原本在主窗口注释掉的模块不擅自恢复上线 |
+| 基础数据 | 品种池、搜索、选中计数、9 列权益表、来源页签、5 项工具按钮 | `IOriginalService` 的 `FileIndexs`、`CombinationFileIndexs` 与 `IDataFile.Items`；可导入 CSV、生成组合、导出 xlsx、编辑模板、选择目录 |
+| 定投复利 | 六组参数滑块、四张 KPI 卡、样本明细表 | `CycleIncomeService.StatisticsData` + `Multiple5ConfigIncome`；参数影响**原有真实算法** |
+| 周期结算 | 结算周期滑块、结算规则、共享 KPI 与明细 | `CycleIncomeService.StatisticsData` + `CycleConfigIncome`，任意支持的月数重新计算 |
+| 图表分析 | 样本柱图、指标筛选、净值折线与回撤折线、悬停十字线 | 实际的 `BaseIncomeStatistics.IncomeInfoResults` 逐日序列；不再用插值/随机数生成示意曲线 |
 
-## 主题资源
+以上四个页面保持原稿结构。浏览器侧不储存虚假的权益、收益或样本数，不把示例数值用作实际结果。**没有导入数据时显示空数据状态**，不会展示演示截图里的 GD20 回测数字。
 
-- `HongQuant.Platform/Resources/TerminalLight.xaml` / `TerminalDark.xaml`：与 CSS tokens 对应的两套 WPF `SolidColorBrush`。
-- `HongQuant.Platform/Resources/TerminalControls.xaml`：按钮、输入、筛选、列表、表格、导航、下拉及统计卡等公共视觉规则。
-- `MainWindow.xaml`：46px 顶栏、192px 左导航、内容区和 28px 状态栏；右上角切换深浅主题。
-- 样式使用 `DynamicResource Hq.*`，避免在各业务页面重复写色值。
-- 原 MaterialDesign / MahApps 仍保留依赖，以兼容现有 DialogHost、消息框与旧组件；界面颜色由终端主题覆盖。
+## 窗口行为
 
-## 数据与状态
+- 主窗口使用无系统标题栏的 WPF Window，内部顶部标题栏来自原版 HTML。
+- 点击最小化、最大化、关闭按钮，WebView2 消息转发给 WPF。
+- 鼠标左键按住标题栏非交互区域，发送 `WM_NCLBUTTONDOWN / HTCAPTION` 给 Windows。窗口最大化时先恢复，随后进入系统拖动模式，可继续贴靠窗口。
+- WPF `WindowChrome` 保留窗口边缘调整尺寸的能力。
 
-定投复利和周期结算拥有独立的 `YiTouMainViewModel` 和 `CycleIncomeService` 实例，避免两个页面同时存在时互相覆盖统计列表。原始数据服务 `IOriginalService` 保持共享，因此在基础数据导入的组合仍可供两个算法页读取。
+## 数据安全与来源
 
-## 需要在 Windows 环境验证
+- 实际权益明细从已导入的 CSV 计算；不会用原型中的 GD20 固定数组、虚构单品收益倍数或随机折线。
+- 切换数据源时，四个页面共用当前选择。
+- 刷新会优先使用指定目录下的既有批量导出程序和 Export 目录；不存在可读取文件时让用户选择真实 CSV。
+- 导入新文件会清除旧内存组合，必要时根据既有 `TemplateSync` 设置自动重新生成模板组合，避免不同批次数据混用。
+- 加载本地 `https://hongquant.local` 虚拟主机页面，不加载外部网页。WebView2 运行时由微软维护。
 
-本次通过远程 GitHub 文件接口修改源代码，当前环境未提供 Windows/.NET SDK，**未执行 `dotnet build` 或 GUI 自动化**。切勿把本提交当作运行验证通过。
+## 环境要求与验收
 
-1. `dotnet restore HongQuant.Platform.sln`，再运行 `dotnet build HongQuant.Platform.sln -c Release`。
-2. 启动软件，检查侧栏切换三个模块、顶栏窗口最小化/最大化/关闭、浅色/深色切换。
-3. 基础数据：指定目录、更新数据、输入策略/品种过滤、品种勾选、组合计算、模板保存及导出。
-4. 分别在定投复利和周期结算切换组合并修改参数，确保结果不会互相覆盖。
-5. 图表窗口、模板配置窗口、旧的独立设置窗口，以及表格横向滚动/右键菜单/组合标签关闭。
-6. 检查深浅主题下的 DataGrid、ComboBox、DialogHost 及 LiveCharts 是否存在背景或对比度不一致。
+- Windows 10/11、.NET 8、Edge WebView2 Runtime（使用 NuGet `Microsoft.Web.WebView2`）。
+- 在 Windows 工作目录运行 `dotnet restore HongQuant.Platform.sln` 和 `dotnet build HongQuant.Platform.sln -c Release`。
+- 依次测试：最大化状态拖动标题栏恢复窗口；双击标题栏；最小化/最大化/关闭；边缘拖放改变窗口大小。
+- 用真实 CSV 数据测试：品种搜索/全选/清空、数据源菜单/底部来源页签、数据更新、组合计算、编辑模板、Excel 导出。
+- 用同一组真实数据比较旧算法结果：目标收益、目标时间、杠杆和结算月数改变后两种算法的结果；图表与被选中行对应；回撤与净值折线取自真实日期。
+- 比较设计稿原 HTML 和软件在 **相同屏幕分辨率、Windows 显示缩放比例以及 WebView2 100% 缩放** 下的外观；允许不同字体栅格化造成的亚像素差异。
 
-所有改造留在 `feat/terminal-ui-redesign`；不合并默认分支 `master`。
+**验证状态：** 本次可以对嵌入 HTML 的脚本做 JS 语法检查、对 GitHub 源码做静态检查；当前环境没有 Windows/.NET SDK，因此**尚未完成 WPF 编译、Windows 拖动交互、渲染截图像素对比与真实数据联调**。禁止将以上测试项记为已通过。
+
+参考素材原样存放在 `docs/terminal-ui-reference/`，应用用的页面为 `HongQuant.Platform/Resources/TerminalUi/hongquant-terminal.html`。所有改动留在 `feat/terminal-ui-redesign`，不得合并到 `master`。

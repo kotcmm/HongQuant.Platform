@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HONG QUANT · Components</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--app-bg);color:var(--text-1);
+  font-family:var(--sans);font-size:13px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:6px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--scroll-h);background-clip:content-box}
+
+/* ── 文档骨架 ── */
+.doc{display:grid;grid-template-columns:196px minmax(0,1fr);gap:0;max-width:1240px;margin:0 auto}
+
+/* 左侧目录 */
+.aside{
+  position:sticky;top:0;height:100vh;padding:34px 14px 30px 24px;
+  border-right:1px solid var(--line);overflow-y:auto;
+}
+.aside-mark{display:flex;align-items:center;gap:9px;margin-bottom:22px}
+.aside-mark .sq{
+  width:26px;height:26px;border-radius:7px;display:grid;place-items:center;
+  background:linear-gradient(150deg,#5E9BFF,#2F63C9);box-shadow:var(--brand-shadow);
+}
+.aside-mark .tx{font-size:10.5px;font-weight:600;letter-spacing:.12em;color:var(--text-2);line-height:1.4}
+.aside-mark .tx small{display:block;font-size:8.5px;letter-spacing:.16em;color:var(--text-4);font-weight:500}
+.toc{display:flex;flex-direction:column;gap:1px}
+.toc a{
+  display:flex;align-items:center;gap:8px;height:29px;padding:0 9px;border-radius:6px;
+  color:var(--text-3);font-size:11.5px;text-decoration:none;
+  transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+}
+.toc a:hover{background:var(--fill-2);color:var(--text-1)}
+.toc a b{font-family:var(--mono);font-size:9.5px;font-weight:400;color:var(--text-4);min-width:16px}
+.toc a.on{background:var(--accent-soft);color:var(--text-1)}
+.toc a.on b{color:var(--accent)}
+
+/* 右侧内容 */
+.main{padding:34px 30px 100px;min-width:0}
+.page-head{padding-bottom:22px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.page-head h1{font-size:20px;font-weight:600;display:flex;align-items:center;gap:10px}
+.page-head h1 .ver{
+  font-family:var(--mono);font-size:10px;font-weight:500;color:var(--accent);
+  background:var(--accent-soft);padding:2px 7px;border-radius:5px;letter-spacing:.04em;
+}
+.page-head p{font-size:12px;color:var(--text-3);margin-top:8px;line-height:1.75;max-width:720px}
+.page-head code,.sec-desc code,.hint code{
+  font-family:var(--mono);font-size:11px;color:var(--text-2);
+  background:var(--fill-2);padding:1px 4px;border-radius:3px;
+}
+
+/* 组件小节 */
+.sec{padding:30px 0 6px;border-bottom:1px solid var(--line);scroll-margin-top:20px}
+.sec:last-child{border-bottom:0}
+.sec-head{display:flex;align-items:center;gap:10px}
+.sec-head h2{font-size:14px;font-weight:600}
+.sec-idx{font-family:var(--mono);font-size:10px;color:var(--text-4);letter-spacing:.06em}
+.sec-head .copy{
+  margin-left:auto;height:24px;padding:0 9px;border-radius:5px;
+  border:1px solid var(--line);background:transparent;color:var(--text-3);
+  font-family:inherit;font-size:10.5px;cursor:pointer;
+  transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease);
+}
+.sec-head .copy:hover{background:var(--fill-2);color:var(--text-1);border-color:var(--line-2)}
+.sec-desc{font-size:11.5px;color:var(--text-3);margin:7px 0 14px;line-height:1.8;max-width:760px}
+
+/* 示例区 */
+.demo{
+  padding:20px;border-radius:var(--r-md);
+  border:1px solid var(--line);background:var(--bg-2);
+  display:flex;flex-direction:column;gap:16px;
+}
+.demo--plain{background:transparent;border:0;padding:0 0 4px}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.row-note{
+  font-family:var(--mono);font-size:9.5px;color:var(--text-4);
+  letter-spacing:.04em;margin-bottom:-6px;
+}
+.col{display:flex;flex-direction:column;gap:9px;max-width:280px}
+
+/* 代码块 */
+.code{
+  margin-top:12px;padding:14px 16px;border-radius:var(--r-sm);
+  border:1px solid var(--line);background:var(--fill-0);
+  font-family:var(--mono);font-size:11px;line-height:1.85;color:var(--text-2);
+  overflow-x:auto;white-space:pre;
+}
+.code code{font-family:inherit}
+
+/* 表格示例的外框 */
+.table-demo{border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden}
+.table-demo .table-wrap{max-height:238px}
+
+/* 网格 */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+
+@media (max-width:1040px){
+  .doc{grid-template-columns:1fr}
+  .aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:22px 20px}
+  .toc{flex-direction:row;flex-wrap:wrap;gap:4px}
+  .main{padding:24px 20px 80px}
+  .grid-4,.grid-3,.grid-2{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <!-- 目录 -->
+  <aside class="aside">
+    <div class="aside-mark">
+      <div class="sq">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="9" width="2.4" height="5" rx="1" fill="#fff" opacity=".55"/>
+          <rect x="6.8" y="6" width="2.4" height="8" rx="1" fill="#fff" opacity=".85"/>
+          <rect x="11.6" y="2" width="2.4" height="12" rx="1" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="tx">HONG QUANT<small>COMPONENTS</small></div>
+    </div>
+    <nav class="toc" id="toc">
+      <a href="#btn"><b>01</b>按钮</a>
+      <a href="#input"><b>02</b>输入框</a>
+      <a href="#check"><b>03</b>复选框</a>
+      <a href="#seg"><b>04</b>分段控件</a>
+      <a href="#chip"><b>05</b>筛选片</a>
+      <a href="#tag"><b>06</b>标签</a>
+      <a href="#table"><b>07</b>表格</a>
+      <a href="#card"><b>08</b>卡片</a>
+      <a href="#kpi"><b>09</b>KPI 卡</a>
+      <a href="#param"><b>10</b>参数与滑块</a>
+      <a href="#tabs"><b>11</b>标签页</a>
+      <a href="#nav"><b>12</b>导航项</a>
+      <a href="#tooltip"><b>13</b>浮层提示</a>
+      <a href="#empty"><b>14</b>空态与骨架</a>
+    </nav>
+  </aside>
+
+  <!-- 内容 -->
+  <main class="main">
+
+    <div class="page-head">
+      <h1>Components <span class="ver">v1.0</span></h1>
+      <p>
+        14 个基础组件的完整状态定义。样式全部取自 <code>tokens.css</code>，本文件不含任何具体色值，
+        切换 <code>data-theme</code> 后组件自动跟随。修饰符用 <code>--</code>，状态用 <code>is-</code>，
+        组件本身不带外边距，间距交给使用方的布局决定。
+      </p>
+    </div>
+
+    <!-- 01 按钮 -->
+    <section class="sec" id="btn">
+      <div class="sec-head"><h2>按钮 Button</h2><span class="sec-idx">01</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">三种层级加一种危险操作。<code>btn--primary</code> 在同一个界面里只能出现一次，用来标记当前最主要的动作（例如「更新数据」）。改动即时生效的界面不必再设主按钮，用状态条表达即可。</p>
+      <div class="demo">
+        <div class="row-note">层级</div>
+        <div class="row">
+          <button class="btn btn--primary">更新数据</button>
+          <button class="btn">编辑模板</button>
+          <button class="btn btn--ghost">数据路径</button>
+          <button class="btn btn--danger">清空数据</button>
+        </div>
+        <div class="row-note">状态</div>
+        <div class="row">
+          <button class="btn">默认</button>
+          <button class="btn" disabled>禁用</button>
+          <button class="btn is-loading">加载中</button>
+          <button class="btn btn--sm">小尺寸</button>
+          <button class="btn btn--icon" title="设置">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.2"/><path d="M8 1.8v1.4M8 12.8v1.4M14.2 8h-1.4M3.2 8H1.8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+          <span class="field-hint" style="margin:0 0 0 4px">hover / focus 需交互触发</span>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 02 输入框 -->
+    <section class="sec" id="input">
+      <div class="sec-head"><h2>输入框 Input</h2><span class="sec-idx">02</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">聚焦时边框转主色并叠 3px 淡光晕。带图标的输入用 <code>field</code> 包一层，错误态用 <code>is-error</code>。</p>
+      <div class="demo">
+        <div class="col">
+          <input class="input" placeholder="默认状态">
+          <div class="field">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="7.2" cy="7.2" r="4.4" stroke="currentColor" stroke-width="1.3"/><path d="M10.6 10.6L13.4 13.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <input class="input" placeholder="搜索品种代码">
+          </div>
+          <div>
+            <input class="input is-error" value="GD20-XX">
+            <div class="field-hint is-error">策略代码不存在</div>
+          </div>
+          <input class="input" value="已禁用" disabled>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 03 复选框 -->
+    <section class="sec" id="check">
+      <div class="sec-head"><h2>复选框 Checkbox</h2><span class="sec-idx">03</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">原生 checkbox 隐藏，用 <code>.box</code> 自绘。勾选后加 3px 淡光晕，点击热区整行 30px。</p>
+      <div class="demo">
+        <div class="col" style="max-width:240px">
+          <label class="check"><input type="checkbox" checked><span class="box"><svg width="9" height="9" viewBox="0 0 10 10"><path d="M1.8 5.2l2.2 2.2L8.4 2.8" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-label">ag</span></label>
+          <label class="check"><input type="checkbox" checked><span class="box"><svg width="9" height="9" viewBox="0 0 10 10"><path d="M1.8 5.2l2.2 2.2L8.4 2.8" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-label">CF</span></label>
+          <label class="check"><input type="checkbox"><span class="box"><svg width="9" height="9" viewBox="0 0 10 10"><path d="M1.8 5.2l2.2 2.2L8.4 2.8" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-label">未选中</span></label>
+          <label class="check"><input type="checkbox" disabled><span class="box"><svg width="9" height="9" viewBox="0 0 10 10"><path d="M1.8 5.2l2.2 2.2L8.4 2.8" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-label">禁用</span></label>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 04 分段控件 -->
+    <section class="sec" id="seg">
+      <div class="sec-head"><h2>分段控件 Segmented</h2><span class="sec-idx">04</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">用于平级的二到四个视图切换，凹槽底 + 选中块内阴影，比标签页更轻。</p>
+      <div class="demo">
+        <div class="row">
+          <div class="seg">
+            <button class="is-active">风险收益</button>
+            <button>样本数据</button>
+          </div>
+          <div class="seg">
+            <button class="is-active">日线</button>
+            <button>周线</button>
+            <button>月线</button>
+          </div>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 05 筛选片 -->
+    <section class="sec" id="chip">
+      <div class="sec-head"><h2>筛选片 Chip</h2><span class="sec-idx">05</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">指标筛选、维度切换。选中时圆点发光并转主色，作为唯一的"已激活"信号。</p>
+      <div class="demo">
+        <div class="row">
+          <button class="chip is-active"><i class="dot"></i>累计收益</button>
+          <button class="chip"><i class="dot"></i>最大回撤</button>
+          <button class="chip"><i class="dot"></i>最大收益</button>
+          <button class="chip"><i class="dot"></i>交易天数</button>
+          <button class="chip"><i class="dot"></i>累计杠杆</button>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 06 标签 -->
+    <section class="sec" id="tag">
+      <div class="sec-head"><h2>标签 Tag / Pill / Badge</h2><span class="sec-idx">06</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">Tag 是等宽小标签（文件名、代码），Pill 是带主色的策略标识，Badge 是计数。三者字号都低于 11px，只做信息补充，不承担强调。</p>
+      <div class="demo">
+        <div class="row">
+          <span class="tag">ag_GD20</span>
+          <span class="tag">24 品种</span>
+          <span class="tag tag--up">+0.68%</span>
+          <span class="tag tag--down">-0.98%</span>
+          <span class="pill">GD20</span>
+          <span class="badge">24</span>
+          <span class="badge badge--accent">5</span>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 07 表格 -->
+    <section class="sec" id="table">
+      <div class="sec-head"><h2>表格 Table</h2><span class="sec-idx">07</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">
+        表头吸顶且背景必须不透明。数值列右对齐 + 等宽 + <code>tabular-nums</code>，保证小数点纵向对齐。
+        正负值用 <code>is-up</code> / <code>is-down</code>（红涨绿跌）。比率类指标可用 <code>cell-bar</code> 在单元格底部画一条进度线，用 <code>--v</code> 传 0–100。
+      </p>
+      <div class="demo demo--plain">
+        <div class="table-demo">
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>品种</th><th>交易日</th><th>权益</th><th>收益率</th><th>累计收益率</th><th>回撤程度</th></tr></thead>
+              <tbody>
+                <tr><td><span class="tag">GD20</span></td><td class="mono">2020-02-13</td><td class="num">3,001,960</td><td class="num is-down">-0.41%</td><td class="num is-up">+0.07%</td><td class="cell-bar" style="--v:100">100.00%</td></tr>
+                <tr><td><span class="tag">GD20</span></td><td class="mono">2020-02-14</td><td class="num">3,016,840</td><td class="num is-up">+0.50%</td><td class="num is-up">+0.56%</td><td class="cell-bar is-zero" style="--v:0">0.00%</td></tr>
+                <tr><td><span class="tag">GD20</span></td><td class="mono">2020-02-18</td><td class="num">2,998,494</td><td class="num is-up">+0.37%</td><td class="num is-down">-0.05%</td><td class="cell-bar" style="--v:62">62.24%</td></tr>
+                <tr><td><span class="tag">GD20</span></td><td class="mono">2020-02-21</td><td class="num">5,018,924</td><td class="num is-up">+0.06%</td><td class="num is-up">+0.59%</td><td class="cell-bar" style="--v:4">3.60%</td></tr>
+                <tr class="table-empty"><td colspan="6">没有匹配的数据</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="tabs" style="border-top:0">
+          <button class="tab is-active">单个品种 <span class="mono" style="color:var(--accent-2)">GD20 (20)</span><span class="tab-close">×</span></button>
+          <div style="margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--text-4)">行数 30 · 列 9</div>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 08 卡片 -->
+    <section class="sec" id="card">
+      <div class="sec-head"><h2>卡片 Card</h2><span class="sec-idx">08</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">容器本身只负责边框、圆角和背景，内部高度交给 flex。标题行固定，内容区可滚动。</p>
+      <div class="demo demo--plain">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title">累计净值</span>
+              <span class="card-sub">20200729 — 20220223</span>
+              <div class="card-tools">
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text-3)">
+                  <i style="width:8px;height:2px;border-radius:2px;background:var(--chart-nav);display:block"></i>净值
+                </span>
+              </div>
+            </div>
+            <div class="card-body" style="height:96px;display:flex;align-items:center;justify-content:center;color:var(--text-4);font-size:11px">
+              图表区域
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title">最大回撤</span>
+              <span class="card-sub">峰值 -41.2%</span>
+            </div>
+            <div class="card-body" style="height:96px;display:flex;align-items:center;justify-content:center;color:var(--text-4);font-size:11px">
+              图表区域
+            </div>
+          </div>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 09 KPI -->
+    <section class="sec" id="kpi">
+      <div class="sec-head"><h2>KPI 卡</h2><span class="sec-idx">09</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">单个关键指标。数值用等宽 23px，单位降一级到 13px 并用 <code>small</code> 包裹；hover 时右上角浮出淡光晕。</p>
+      <div class="demo demo--plain">
+        <div class="grid-4">
+          <div class="kpi">
+            <div class="kpi-label">平均累计收益</div>
+            <div class="kpi-value is-up">106.15<small>%</small></div>
+            <div class="kpi-sub">24 组样本 · 全部达成目标</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">最大回撤峰值</div>
+            <div class="kpi-value is-down">-8.38<small>%</small></div>
+            <div class="kpi-sub">发生于 2021-09-01</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">平均交易天数</div>
+            <div class="kpi-value">522<small>天</small></div>
+            <div class="kpi-sub">最短 336 · 最长 919</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">有效样本</div>
+            <div class="kpi-value">24<small>/24</small></div>
+            <div class="kpi-sub">胜率 100% · 杠杆上限 6×</div>
+          </div>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 10 参数与滑块 -->
+    <section class="sec" id="param">
+      <div class="sec-head"><h2>参数卡与滑块 Param / Range</h2><span class="sec-idx">10</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">
+        滑杆的已填充部分用 CSS 变量 <code>--p</code> 控制（0–100%），拖动时由脚本更新该变量即可，不需要重建 DOM。
+      </p>
+      <div class="demo demo--plain">
+        <div class="grid-4">
+          <div class="param">
+            <div class="param-top"><span class="param-label">目标收益</span><span class="param-value">100<small>%</small></span></div>
+            <input type="range" class="range" min="20" max="300" step="5" value="100" style="--p:28.6%">
+          </div>
+          <div class="param">
+            <div class="param-top"><span class="param-label">目标时间</span><span class="param-value">36<small>月</small></span></div>
+            <input type="range" class="range" min="6" max="72" step="1" value="36" style="--p:45.5%">
+          </div>
+          <div class="param">
+            <div class="param-top"><span class="param-label">杠杆上限</span><span class="param-value">6<small>×</small></span></div>
+            <input type="range" class="range" min="2" max="10" step="1" value="6" style="--p:50%">
+          </div>
+          <div class="param">
+            <div class="param-top"><span class="param-label">时间间隔</span><span class="param-value">3<small>月</small></span></div>
+            <input type="range" class="range" min="1" max="12" step="1" value="3" style="--p:18.2%">
+          </div>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 11 标签页 -->
+    <section class="sec" id="tabs">
+      <div class="sec-head"><h2>标签页 Tabs</h2><span class="sec-idx">11</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">用于底部多品种并行视图。选中态是 1.5px 主色下划线加轻微外发光，不加背景块。</p>
+      <div class="demo demo--plain">
+        <div class="tabs" style="border-top:1px solid var(--line)">
+          <button class="tab is-active">单个品种 <span class="mono" style="color:var(--accent-2)">GD20 (20)</span><span class="tab-close">×</span></button>
+          <button class="tab">组合视图<span class="tab-close">×</span></button>
+          <button class="tab">+ 新建</button>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 12 导航项 -->
+    <section class="sec" id="nav">
+      <div class="sec-head"><h2>导航项 Nav item</h2><span class="sec-idx">12</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">左侧模块导航。选中态由左侧 2px 竖条 + 横向渐隐底构成，不使用整块实色，避免和表格选中行混淆。一级导航只放产品模块；设计规范、设置这类参考与工具页放侧栏底部，用小号文字链接，不占一级菜单。</p>
+      <div class="demo demo--plain">
+        <div style="max-width:210px;padding:8px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--bg-2)">
+          <button class="nav-item is-active">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="2.5" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M2 6h12M6.5 6v7.5" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span>基础数据</span><span class="badge badge--accent" style="margin-left:auto">24</span>
+          </button>
+          <button class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2.5 11.5l3.2-4 2.6 2.4 4.5-5.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>定投复利</span><span class="badge" style="margin-left:auto">24</span>
+          </button>
+          <button class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2.5 13.2V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6 13V6M9.6 13V8.6M13.2 13V4.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            <span>图表分析</span>
+          </button>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 13 浮层提示 -->
+    <section class="sec" id="tooltip">
+      <div class="sec-head"><h2>浮层提示 Tooltip</h2><span class="sec-idx">13</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">图表 hover 时的数值气泡。日期单独一行小字，数值用等宽粗体，右侧可挂彩色数值。</p>
+      <div class="demo">
+        <div class="row">
+          <div class="tooltip">
+            <div class="tooltip-date">2021.08.05</div>
+            <div class="tooltip-row"><span>净值</span><b>1.643</b></div>
+            <div class="tooltip-row"><span>累计杠杆</span><b style="color:var(--gold)">6×</b></div>
+          </div>
+          <div class="tooltip">
+            <div class="tooltip-date">2021.12.01</div>
+            <div class="tooltip-row"><span>最大回撤</span><b style="color:var(--orange)">-4.41%</b></div>
+          </div>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+    <!-- 14 空态与骨架 -->
+    <section class="sec" id="empty">
+      <div class="sec-head"><h2>空态与骨架 Empty / Skeleton</h2><span class="sec-idx">14</span>
+        <button class="copy" data-copy>复制代码</button></div>
+      <p class="sec-desc">空态必须给出下一步动作的提示，不只是一句"暂无数据"。骨架用于首屏加载，已处理 <code>prefers-reduced-motion</code>。</p>
+      <div class="demo demo--plain">
+        <div class="grid-2">
+          <div class="card">
+            <div class="empty">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><rect x="3" y="4.5" width="18" height="15" rx="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 9.5h18M8.5 9.5v10" stroke="currentColor" stroke-width="1.4"/></svg>
+              <div class="empty-title">还没有导入数据</div>
+              <div class="empty-desc">把 GD20 的历史 CSV 放到数据路径下，或点右上角「更新数据」拉取。</div>
+              <button class="btn btn--sm">选择文件</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">加载中</span></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+              <span class="skeleton skeleton--text" style="width:62%"></span>
+              <span class="skeleton skeleton--text" style="width:84%"></span>
+              <span class="skeleton skeleton--text" style="width:48%"></span>
+              <span class="skeleton skeleton--block" style="margin-top:4px"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <pre class="code"><code></code></pre>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var CODE = {
+    btn: [
+      '<!-- 主操作全局唯一 -->',
+      '<button class="btn btn--primary">更新数据</button>',
+      '<button class="btn">编辑模板</button>',
+      '<button class="btn btn--ghost">数据路径</button>',
+      '<button class="btn btn--danger">清空数据</button>',
+      '',
+      '<button class="btn" disabled>禁用</button>',
+      '<button class="btn is-loading">加载中</button>',
+      '<button class="btn btn--sm">小尺寸</button>',
+      '<button class="btn btn--icon">…</button>'
+    ],
+    input: [
+      '<input class="input" placeholder="默认状态">',
+      '',
+      '<div class="field">',
+      '  <svg>…</svg>',
+      '  <input class="input" placeholder="搜索品种代码">',
+      '</div>',
+      '',
+      '<input class="input is-error" value="GD20-XX">',
+      '<div class="field-hint is-error">策略代码不存在</div>',
+      '',
+      '<input class="input" value="已禁用" disabled>'
+    ],
+    check: [
+      '<label class="check">',
+      '  <input type="checkbox" checked>',
+      '  <span class="box"><svg>…</svg></span>',
+      '  <span class="check-label">ag</span>',
+      '</label>'
+    ],
+    seg: [
+      '<div class="seg">',
+      '  <button class="is-active">风险收益</button>',
+      '  <button>样本数据</button>',
+      '</div>'
+    ],
+    chip: [
+      '<button class="chip is-active"><i class="dot"></i>累计收益</button>',
+      '<button class="chip"><i class="dot"></i>最大回撤</button>'
+    ],
+    tag: [
+      '<span class="tag">ag_GD20</span>',
+      '<span class="tag tag--up">+0.68%</span>',
+      '<span class="tag tag--down">-0.98%</span>',
+      '<span class="pill">GD20</span>',
+      '<span class="badge">24</span>'
+    ],
+    table: [
+      '<div class="table-wrap">',
+      '  <table class="table">',
+      '    <thead>',
+      '      <tr><th>交易日</th><th>收益率</th><th>回撤程度</th></tr>',
+      '    </thead>',
+      '    <tbody>',
+      '      <tr>',
+      '        <td class="mono">2020-02-13</td>',
+      '        <td class="num is-down">-0.41%</td>',
+      '        <td class="cell-bar" style="--v:100">100.00%</td>',
+      '      </tr>',
+      '    </tbody>',
+      '  </table>',
+      '</div>'
+    ],
+    card: [
+      '<div class="card">',
+      '  <div class="card-head">',
+      '    <span class="card-title">累计净值</span>',
+      '    <span class="card-sub">20200729 — 20220223</span>',
+      '  </div>',
+      '  <div class="card-body">…</div>',
+      '</div>'
+    ],
+    kpi: [
+      '<div class="kpi">',
+      '  <div class="kpi-label">平均累计收益</div>',
+      '  <div class="kpi-value is-up">106.15<small>%</small></div>',
+      '  <div class="kpi-sub">24 组样本 · 全部达成目标</div>',
+      '</div>'
+    ],
+    param: [
+      '<div class="param">',
+      '  <div class="param-top">',
+      '    <span class="param-label">目标收益</span>',
+      '    <span class="param-value">100<small>%</small></span>',
+      '  </div>',
+      '  <!-- --p 由脚本按 (值-最小)/(最大-最小) 实时更新 -->',
+      '  <input type="range" class="range" min="20" max="300" value="100" style="--p:28.6%">',
+      '</div>'
+    ],
+    tabs: [
+      '<div class="tabs">',
+      '  <button class="tab is-active">单个品种<span class="tab-close">×</span></button>',
+      '  <button class="tab">组合视图<span class="tab-close">×</span></button>',
+      '</div>'
+    ],
+    nav: [
+      '<button class="nav-item is-active">',
+      '  <svg>…</svg>',
+      '  <span>基础数据</span>',
+      '  <span class="badge badge--accent">24</span>',
+      '</button>'
+    ],
+    tooltip: [
+      '<div class="tooltip">',
+      '  <div class="tooltip-date">2021.08.05</div>',
+      '  <div class="tooltip-row"><span>净值</span><b>1.643</b></div>',
+      '  <div class="tooltip-row"><span>累计杠杆</span><b>6×</b></div>',
+      '</div>'
+    ],
+    empty: [
+      '<div class="empty">',
+      '  <svg>…</svg>',
+      '  <div class="empty-title">还没有导入数据</div>',
+      '  <div class="empty-desc">把 CSV 放到数据路径下，或点「更新数据」拉取。</div>',
+      '  <button class="btn btn--sm">选择文件</button>',
+      '</div>',
+      '',
+      '<span class="skeleton skeleton--text" style="width:62%"></span>',
+      '<span class="skeleton skeleton--block"></span>'
+    ]
+  };
+
+  Object.keys(CODE).forEach(function(id){
+    var sec = document.getElementById(id);
+    if (!sec) return;
+    var code = sec.querySelector('.code code');
+    if (code) code.textContent = CODE[id].join('\n');
+  });
+
+  // 复制
+  document.querySelectorAll('[data-copy]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.closest('.sec').querySelector('.code code');
+      var ta = document.createElement('textarea');
+      ta.value = code.textContent;
+      ta.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch(e) { ok = false; }
+      document.body.removeChild(ta);
+      var old = btn.textContent;
+      btn.textContent = ok ? '已复制' : '复制失败';
+      setTimeout(function(){ btn.textContent = old; }, 1400);
+    });
+  });
+
+  // 目录高亮
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function onScroll(){
+    var y = window.scrollY + 120;
+    var idx = 0;
+    secs.forEach(function(s, i){ if (s && s.offsetTop <= y) idx = i; });
+    links.forEach(function(a, i){ a.classList.toggle('on', i === idx); });
+  }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+})();
+</script>
+</body>
+</html>

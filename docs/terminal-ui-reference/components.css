@@ -1,0 +1,358 @@
+/* ══════════════════════════════════════════════════════════════
+   HONG QUANT Terminal · Components  v1.0
+   依赖：tokens.css（必须先引入）
+   约定：
+     · 所有颜色只从 tokens 取，本文件不出现任何具体色值
+     · 修饰符用 --，状态用 is-（is-loading / is-active / is-error）
+     · 组件不自带 margin，间距由使用方的布局决定
+   ══════════════════════════════════════════════════════════════ */
+
+/* ══════════ 1. 按钮 Button ══════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  height:var(--control-h);padding:0 11px;
+  border:1px solid var(--line-2);border-radius:var(--r-sm);
+  background:var(--bg-3);color:var(--text-2);
+  font-family:inherit;font-size:12px;line-height:1;
+  white-space:nowrap;cursor:pointer;
+  transition:background var(--dur-base) var(--ease),
+             border-color var(--dur-base) var(--ease),
+             color var(--dur-fast) var(--ease);
+}
+.btn svg{flex:0 0 auto;opacity:.72;transition:opacity var(--dur-fast) var(--ease)}
+.btn:hover{color:var(--text-1);background:var(--bg-4);border-color:var(--fill-strong)}
+.btn:hover svg{opacity:1}
+.btn:active{transform:translateY(.5px)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.btn--primary{
+  background:var(--btn-primary-bg);
+  border-color:var(--btn-primary-bg);
+  color:#fff;
+  box-shadow:0 1px 0 rgba(255,255,255,.16) inset,0 4px 14px var(--accent-soft);
+}
+.btn--primary:hover{background:var(--btn-primary-bg-hover);border-color:var(--btn-primary-bg-hover);color:#fff}
+
+.btn--ghost{background:transparent;border-color:transparent}
+.btn--ghost:hover{background:var(--fill-2);border-color:var(--line)}
+
+.btn--danger{color:var(--up);border-color:var(--line-2);background:var(--bg-2)}
+.btn--danger:hover{background:var(--fill-2);border-color:var(--up);color:var(--up)}
+
+.btn--sm{height:28px;padding:0 9px;font-size:11.5px}
+.btn--icon{width:var(--control-h);padding:0}
+
+.btn:disabled,.btn.is-disabled{
+  opacity:.45;cursor:not-allowed;pointer-events:none;
+  box-shadow:none;transform:none;
+}
+.btn.is-loading{position:relative;color:transparent;pointer-events:none}
+.btn.is-loading svg{opacity:0}
+.btn.is-loading::after{
+  content:"";position:absolute;width:12px;height:12px;border-radius:50%;
+  border:1.5px solid var(--fill-strong);border-top-color:var(--accent);
+  animation:hq-spin .7s linear infinite;
+}
+@keyframes hq-spin{to{transform:rotate(360deg)}}
+
+/* ══════════ 2. 输入框 Input ══════════ */
+.input{
+  width:100%;height:var(--control-h);padding:0 10px;
+  border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--bg-2);color:var(--text-1);
+  font-family:inherit;font-size:12px;
+  transition:border-color var(--dur-base) var(--ease),box-shadow var(--dur-base) var(--ease);
+}
+.input::placeholder{color:var(--text-4)}
+.input:hover{border-color:var(--line-2)}
+.input:focus{
+  outline:none;border-color:var(--accent);background:var(--bg-3);
+  box-shadow:0 0 0 3px var(--accent-soft);
+}
+.input.is-error{border-color:var(--up)}
+.input.is-error:focus{box-shadow:0 0 0 3px var(--fill-2)}
+.input:disabled{opacity:.5;cursor:not-allowed;background:var(--fill-0)}
+
+/* 带图标的输入 / 搜索 */
+.field{position:relative;display:block}
+.field > svg{
+  position:absolute;left:9px;top:50%;transform:translateY(-50%);
+  color:var(--text-4);pointer-events:none;
+}
+.field > .input{padding-left:29px}
+.field-hint{font-size:10.5px;color:var(--text-4);margin-top:5px}
+.field-hint.is-error{color:var(--up)}
+
+/* ══════════ 3. 复选框 Checkbox ══════════ */
+.check{
+  display:flex;align-items:center;gap:9px;height:30px;padding:0 6px;
+  border-radius:var(--r-sm);cursor:pointer;
+  transition:background var(--dur-fast) var(--ease);
+}
+.check:hover{background:var(--fill-2)}
+.check input{position:absolute;opacity:0;pointer-events:none}
+.check .box{
+  flex:0 0 auto;width:14px;height:14px;border-radius:4px;
+  border:1px solid var(--fill-strong);background:var(--bg-3);
+  display:grid;place-items:center;
+  transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+}
+.check .box svg{opacity:0;transform:scale(.6);transition:opacity var(--dur-fast) var(--ease),transform var(--dur-fast) var(--ease)}
+.check input:checked + .box{
+  background:var(--accent);border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-soft);
+}
+.check input:checked + .box svg{opacity:1;transform:scale(1)}
+.check input:focus-visible + .box{outline:2px solid var(--accent);outline-offset:2px}
+.check input:disabled ~ *{opacity:.45}
+.check-label{font-size:12px;color:var(--text-1)}
+
+/* ══════════ 4. 分段控件 Segmented ══════════ */
+.seg{
+  display:inline-flex;gap:2px;padding:3px;
+  border-radius:7px;border:1px solid var(--line);background:var(--seg-bg);
+}
+.seg button{
+  height:24px;padding:0 11px;border:0;border-radius:5px;background:none;
+  color:var(--text-3);font-family:inherit;font-size:11.5px;cursor:pointer;
+  transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+}
+.seg button:hover{color:var(--text-1)}
+.seg button.is-active{
+  background:var(--bg-4);color:var(--text-1);
+  box-shadow:0 1px 3px rgba(0,0,0,.18),0 0 0 1px var(--fill-2) inset;
+}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* ══════════ 5. Chip 筛选片 ══════════ */
+.chip{
+  display:inline-flex;align-items:center;gap:6px;height:25px;padding:0 10px;
+  border-radius:20px;border:1px solid var(--line);background:var(--fill-1);
+  color:var(--text-3);font-family:inherit;font-size:11px;cursor:pointer;
+  transition:color var(--dur-fast) var(--ease),background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease);
+}
+.chip:hover{color:var(--text-2);border-color:var(--line-2)}
+.chip .dot{width:5px;height:5px;border-radius:50%;background:var(--text-4);transition:background var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease)}
+.chip.is-active{color:var(--text-1);background:var(--accent-soft);border-color:var(--accent)}
+.chip.is-active .dot{background:var(--accent);box-shadow:0 0 7px var(--accent)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* ══════════ 6. 标签 Tag / Pill / Badge ══════════ */
+.tag{
+  display:inline-flex;align-items:center;height:17px;padding:0 6px;
+  border-radius:4px;border:1px solid var(--line);background:var(--fill-1);
+  font-family:var(--mono);font-size:9.5px;color:var(--text-3);letter-spacing:.02em;
+}
+.pill{
+  display:inline-flex;align-items:center;gap:5px;height:19px;padding:0 7px;
+  border-radius:5px;border:1px solid var(--accent);background:var(--accent-soft);
+  font-family:var(--mono);font-size:10px;color:var(--accent-2);letter-spacing:.03em;
+}
+.tag--up{color:var(--up);background:transparent;border-color:var(--up)}
+.tag--down{color:var(--down);background:transparent;border-color:var(--down)}
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;
+  padding:0 5px;border-radius:20px;background:var(--fill-2);
+  font-family:var(--mono);font-size:9.5px;color:var(--text-3);
+}
+.badge--accent{background:var(--accent-soft);color:var(--accent-2)}
+
+/* ══════════ 7. 表格 Table ══════════ */
+.table-wrap{overflow:auto;position:relative}
+.table{
+  width:100%;border-collapse:separate;border-spacing:0;
+  font-size:12px;white-space:nowrap;
+}
+.table th{
+  position:sticky;top:0;z-index:var(--z-sticky);
+  padding:9px 14px;text-align:right;
+  background:var(--th-bg);color:var(--text-3);
+  font-size:10.5px;font-weight:500;letter-spacing:.04em;
+  border-bottom:1px solid var(--line-2);
+}
+.table td{
+  height:var(--row-h);padding:0 14px;text-align:right;
+  border-bottom:1px solid var(--hairline);
+  color:var(--text-1);font-variant-numeric:tabular-nums;
+}
+.table th:first-child,.table td:first-child{text-align:left;padding-left:16px}
+.table th:last-child,.table td:last-child{padding-right:18px}
+.table tbody tr{transition:background var(--dur-fast) var(--ease)}
+.table tbody tr:hover td{background:var(--row-hover)}
+.table tbody tr:hover td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
+.table .num{font-family:var(--mono);font-size:11.5px;letter-spacing:-.015em}
+.table .mono{font-family:var(--mono);letter-spacing:-.01em;color:var(--text-2)}
+
+/* 数值语义色（中国习惯：红涨绿跌） */
+.is-up{color:var(--up)}
+.is-down{color:var(--down)}
+.is-flat{color:var(--text-3)}
+/* 表格内必须提升到 td 层级：.table td 的 color 特异性(0,2,0)高于 .is-up(0,1,0) */
+.table td.is-up,.table td .is-up{color:var(--up)}
+.table td.is-down,.table td .is-down{color:var(--down)}
+.table td.is-flat,.table td .is-flat{color:var(--text-3)}
+
+/* 条形单元格：进度线画在单元格底部，不占文本节点 */
+.cell-bar{position:relative}
+.cell-bar::after{
+  content:"";position:absolute;right:18px;bottom:7px;
+  width:calc(var(--v, 0) * .62px);max-width:76px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,var(--orange),var(--orange));
+  opacity:.85;
+}
+.cell-bar.is-zero::after{opacity:.25}
+
+/* 空状态 */
+.table tr.table-empty td,
+.table tr.table-empty td:first-child{
+  height:auto;padding:34px 14px;text-align:center;
+  color:var(--text-4);font-size:12px;
+}
+
+/* ══════════ 8. 卡片 Card ══════════ */
+.card{
+  display:flex;flex-direction:column;min-height:0;
+  border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--panel);overflow:hidden;
+}
+.card-head{
+  flex:0 0 auto;display:flex;align-items:center;gap:9px;
+  padding:11px 14px 9px;
+}
+.card-title{font-size:11.5px;font-weight:500;color:var(--text-2);letter-spacing:.02em}
+.card-sub{font-family:var(--mono);font-size:10px;color:var(--text-4)}
+.card-tools{margin-left:auto;display:flex;align-items:center;gap:12px}
+.card-body{padding:0 14px 12px}
+
+/* ══════════ 9. KPI 卡 ══════════ */
+.kpi{
+  position:relative;padding:13px 15px 14px;
+  border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--kpi-grad);overflow:hidden;
+}
+.kpi::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(120px 70px at 100% 0,var(--accent-soft),transparent 70%);
+  opacity:0;transition:opacity var(--dur-slow) var(--ease);
+}
+.kpi:hover::before{opacity:1}
+.kpi-label{font-size:10.5px;color:var(--text-3);letter-spacing:.04em}
+.kpi-value{
+  display:flex;align-items:baseline;gap:2px;margin-top:7px;
+  font-family:var(--mono);font-size:23px;font-weight:500;letter-spacing:-.03em;line-height:1.1;
+}
+.kpi-value small{font-size:13px;font-weight:400;letter-spacing:0}
+.kpi-sub{margin-top:5px;font-size:10.5px;color:var(--text-4)}
+
+/* ══════════ 10. 参数卡 + 滑块 Param / Range ══════════ */
+.param{
+  padding:11px 12px 13px;
+  border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--card-grad);
+  transition:border-color var(--dur-base) var(--ease),background var(--dur-base) var(--ease);
+}
+.param:hover{
+  border-color:var(--accent);
+  background:linear-gradient(170deg,var(--accent-soft),var(--card-grad));
+}
+.param-top{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-bottom:11px}
+.param-label{font-size:10.5px;color:var(--text-3);letter-spacing:.03em}
+.param-value{font-family:var(--mono);font-size:14px;color:var(--text-1);letter-spacing:-.02em}
+.param-value small{font-size:10.5px;color:var(--text-3);margin-left:2px;letter-spacing:0}
+
+input[type=range].range{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:3px;border-radius:3px;outline:none;cursor:pointer;
+  background:linear-gradient(90deg,var(--accent) 0%,var(--accent) var(--p,50%),var(--track) var(--p,50%));
+}
+input[type=range].range::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;
+  background:var(--bg-3);border:1px solid var(--line-2);
+  box-shadow:0 0 0 3px var(--accent-soft),0 1px 4px rgba(0,0,0,.35);
+  transition:box-shadow var(--dur-fast) var(--ease);
+}
+input[type=range].range::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--accent-soft),0 1px 4px rgba(0,0,0,.35)}
+input[type=range].range:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+input[type=range].range::-moz-range-thumb{
+  width:12px;height:12px;border:1px solid var(--line-2);border-radius:50%;background:var(--bg-3);
+}
+
+/* ══════════ 11. 标签页 Tabs ══════════ */
+.tabs{
+  display:flex;align-items:center;height:36px;padding:0 12px;
+  border-top:1px solid var(--line);background:var(--bar-bg);
+}
+.tab{
+  position:relative;display:flex;align-items:center;gap:7px;height:36px;padding:0 13px;
+  border:0;background:none;color:var(--text-3);font-family:inherit;font-size:11.5px;
+  cursor:pointer;transition:color var(--dur-fast) var(--ease);
+}
+.tab:hover{color:var(--text-2)}
+.tab.is-active{color:var(--text-1)}
+.tab.is-active::after{
+  content:"";position:absolute;left:10px;right:10px;bottom:0;height:1.5px;
+  background:var(--accent);border-radius:2px 2px 0 0;box-shadow:0 0 8px var(--accent);
+}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tab-close{
+  color:var(--text-4);font-size:12px;line-height:1;
+  padding:1px 3px;border-radius:3px;transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+}
+.tab-close:hover{background:var(--fill-3);color:var(--text-1)}
+
+/* ══════════ 12. 导航项 Nav item ══════════ */
+.nav-item{
+  position:relative;display:flex;align-items:center;gap:10px;
+  height:34px;width:100%;padding:0 10px;
+  border:0;border-radius:7px;background:none;
+  color:var(--text-2);font-family:inherit;font-size:12.5px;text-align:left;
+  cursor:pointer;transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+}
+.nav-item svg{flex:0 0 auto;opacity:.8}
+.nav-item:hover{background:var(--fill-2);color:var(--text-1)}
+.nav-item.is-active{
+  color:var(--text-1);font-weight:500;
+  background:linear-gradient(90deg,var(--accent-soft),transparent);
+}
+.nav-item.is-active svg{opacity:1;color:var(--accent-2)}
+.nav-item.is-active::before{
+  content:"";position:absolute;left:0;top:9px;bottom:9px;width:2px;border-radius:2px;
+  background:var(--accent);box-shadow:0 0 9px var(--accent);
+}
+.nav-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+/* ══════════ 13. 浮层提示 Tooltip ══════════ */
+.tooltip{
+  display:inline-block;padding:8px 10px;border-radius:7px;
+  background:var(--tip-bg);border:1px solid var(--tip-line);
+  box-shadow:var(--shadow-lg);
+  font-size:11px;color:var(--text-1);white-space:nowrap;
+}
+.tooltip-date{font-family:var(--mono);font-size:10px;color:var(--text-3);letter-spacing:.04em;margin-bottom:5px}
+.tooltip-row{display:flex;align-items:center;justify-content:space-between;gap:14px;line-height:1.7}
+.tooltip-row span{color:var(--text-3)}
+.tooltip-row b{font-family:var(--mono);font-weight:500;color:var(--text-1)}
+
+/* ══════════ 14. 空态与骨架 Empty / Skeleton ══════════ */
+.empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  padding:44px 20px;text-align:center;color:var(--text-4);
+}
+.empty svg{opacity:.55}
+.empty-title{font-size:12.5px;color:var(--text-2)}
+.empty-desc{font-size:11.5px;color:var(--text-4);max-width:280px;line-height:1.7}
+
+.skeleton{
+  display:block;border-radius:4px;
+  background:linear-gradient(90deg,var(--fill-1) 25%,var(--fill-3) 37%,var(--fill-1) 63%);
+  background-size:400% 100%;
+  animation:hq-shimmer 1.4s ease infinite;
+}
+.skeleton--text{height:11px}
+.skeleton--block{height:64px;border-radius:var(--r-sm)}
+@keyframes hq-shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+@media (prefers-reduced-motion:reduce){
+  .btn,.chip,.nav-item,.param,.tab,.kpi::before,.check .box{transition:none}
+  .skeleton,.btn.is-loading::after{animation:none}
+}

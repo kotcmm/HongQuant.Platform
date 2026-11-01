@@ -1,84 +1,18 @@
-<controls:MetroWindow x:Class="HongQuant.Platform.MainWindow"
-        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+<Window x:Class="HongQuant.Platform.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:original="clr-namespace:HongQuant.Platform.Views.Original"
-        xmlns:yitou="clr-namespace:HongQuant.Platform.Views.YiTou"
-        Title="HONG QUANT · 研究终端" Width="1380" Height="850" MinWidth="1024" MinHeight="630"
-        WindowState="Maximized" ShowTitleBar="False" ShowMinButton="False" ShowMaxRestoreButton="False"
-        ShowCloseButton="False" Background="{DynamicResource Hq.AppBackground}"
-        Foreground="{DynamicResource Hq.Text}">
-    <Grid Background="{DynamicResource Hq.AppBackground}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="46"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="28"/>
-        </Grid.RowDefinitions>
-        <!-- 与 hongquant-terminal.html 一致：品牌 / 面包屑 / 本地状态 / 主题 / 窗口操作 -->
-        <Border Grid.Row="0" BorderBrush="{DynamicResource Hq.Border}" BorderThickness="0,0,0,1"
-                Background="{DynamicResource Hq.Sidebar}" MouseLeftButtonDown="DragTitlebar">
-            <Grid Margin="14,0,8,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="190"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="27" Height="27" CornerRadius="7" Background="{DynamicResource Hq.Primary}">
-                        <TextBlock Text="▥" FontSize="17" Foreground="White" FontWeight="Bold"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="HONG QUANT" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource Hq.Text}"/>
-                        <TextBlock Text="RESEARCH TERMINAL" FontSize="8" Foreground="{DynamicResource Hq.TextFaint}"/>
-                    </StackPanel>
-                </StackPanel>
-                <TextBlock Grid.Column="1" Text="研究工作台  /  本地量化分析" HorizontalAlignment="Center"
-                           VerticalAlignment="Center" Foreground="{DynamicResource Hq.TextMuted}" FontSize="11.5"/>
-                <Border Grid.Column="2" CornerRadius="12" Background="{DynamicResource Hq.AccentSoft}"
-                        BorderBrush="{DynamicResource Hq.Border}" BorderThickness="1" Padding="11,4"
-                        VerticalAlignment="Center" Margin="0,0,12,0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="●" Foreground="{DynamicResource Hq.Down}" Margin="0,0,6,0" FontSize="9"/>
-                        <TextBlock Text="本地运行" Foreground="{DynamicResource Hq.TextMuted}" FontSize="11"/>
-                    </StackPanel>
-                </Border>
-                <Button x:Name="ThemeButton" Grid.Column="3" Style="{StaticResource HqGhostButton}"
-                        Width="34" Height="30" Margin="0,0,8,0" ToolTip="切换深色或浅色主题"
-                        Click="ToggleTheme_Click" Content="☾"/>
-                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource HqGhostButton}" Width="32" Height="28" Padding="0"
-                            Content="—" ToolTip="最小化" Click="Minimize_Click"/>
-                    <Button Style="{StaticResource HqGhostButton}" Width="32" Height="28" Padding="0"
-                            Content="□" ToolTip="最大化/还原" Click="Maximize_Click"/>
-                    <Button Style="{StaticResource HqGhostButton}" Width="32" Height="28" Padding="0"
-                            Content="✕" ToolTip="关闭" Click="Close_Click"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-        <TabControl Grid.Row="1" Style="{StaticResource HqSidebarTabControl}" SelectedIndex="0">
-            <TabItem Header="▦   基础数据">
-                <original:OriginalMain/>
-            </TabItem>
-            <TabItem Header="⌁   定投复利">
-                <yitou:YiTouMain InitialAlgorithmName="定投复利"/>
-            </TabItem>
-            <TabItem Header="◷   周期结算">
-                <yitou:YiTouMain InitialAlgorithmName="周期结算"/>
-            </TabItem>
-        </TabControl>
-        <Border Grid.Row="2" Background="{DynamicResource Hq.Sidebar}" BorderBrush="{DynamicResource Hq.Border}"
-                BorderThickness="0,1,0,0">
-            <DockPanel Margin="15,0">
-                <TextBlock DockPanel.Dock="Left" Text="HONG QUANT  ·  本地研究终端"
-                           FontSize="10" VerticalAlignment="Center" Foreground="{DynamicResource Hq.TextFaint}"/>
-                <TextBlock DockPanel.Dock="Right" Text="数据仅在本机处理  ·  原有计算逻辑保持不变"
-                           FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center"
-                           Foreground="{DynamicResource Hq.TextFaint}"/>
-            </DockPanel>
-        </Border>
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="HONG QUANT · 研究终端" Width="1440" Height="900"
+        MinWidth="1030" MinHeight="620" WindowState="Maximized"
+        WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="False"
+        Background="#F1F3F7">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"
+                            CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
+    <!-- 保持现有 WPF 后端，四个工作区由原始 HTML/CSS 负责逐像素绘制。 -->
+    <Grid>
+        <wv2:WebView2 x:Name="TerminalBrowser" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </Grid>
-</controls:MetroWindow>
+</Window>
