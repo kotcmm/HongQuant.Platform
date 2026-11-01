@@ -143,3 +143,20 @@
 5. 运行前确认 NuGet WebView2 SDK 的 `WebView2CompositionControl` 可用（仓库使用 `Microsoft.Web.WebView2 1.0.4314.35`）。
 
 **当前验证范围：** 已核对 Microsoft 官方的 WPF WebView2CompositionControl 替换与鼠标输入机制，但当前容器没有 Windows .NET SDK，不能完成 WPF 编译与实机鼠标验证。不能宣称此问题已经运行验证通过。
+
+
+## 2026-11-01 · 页面脚本中断导致按钮失效（复现后修复）
+
+用户截图指出 `hongquant-terminal.html:1993` 报错：`Uncaught TypeError: $(...).forEach is not a function`。
+
+**明确根因**：页面 JS 定义 `$ = document.querySelector`（单元素）、`$$ = document.querySelectorAll`（数组）。导航初始化错误地写为 `$('.nav-item[data-view]').forEach(...)`。加载到这里便抛出异常，后续导航、参数、工具栏、图表等监听器没有注册，所以窗口能显示但中央页面无法操作。
+
+**修复**：将导航初始化改成 `$$('.nav-item[data-view]').forEach(...)`。同时扫描了整段 JavaScript，确认没有其他 `$().forEach/map/filter/reduce/some/every` 类型误用。保留现有 WPF 标题栏、WebView2CompositionControl 和既有业务接口，不再盲目重构鼠标输入机制。
+
+**回归测试**：新增 `scripts/verify-terminal-ui.mjs`，以 Node.js 自带 `vm` 在模拟 DOM 上执行完整终端脚本，检查无运行时异常、页面完成 `ready`、菜单切换能向宿主发送消息、基础数据刷新按钮注册及通过真实数据结构渲染品种列表。同时加入单元素选择器错误模式检测。运行命令：
+
+```powershell
+node scripts/verify-terminal-ui.mjs
+```
+
+本次已在 V8 模拟 DOM 环境执行等效回归测试，初始化和主要事件均通过；**仍需在用户 Windows 机器上验证真实 WebView2 鼠标操作**。如果程序继续加载旧版 HTML，清理输出目录后重新生成，确认 `Resources/TerminalUi/hongquant-terminal.html` 已更新。

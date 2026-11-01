@@ -1990,7 +1990,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
     hideTip();
     emitNative('view-changed',{name:name});
   }
-  $('.nav-item[data-view]').forEach(function(b){
+  $$('.nav-item[data-view]').forEach(function(b){
     b.addEventListener('click', function(){ switchView(b.dataset.view); });
   });
   $$('.sb-link[data-view]').forEach(function(b){
