@@ -18,7 +18,7 @@
         </StackPanel>
         <TabControl TabStripPlacement="Bottom" 
                     BorderThickness="0,1,0,1" 
-                    BorderBrush="LightGray"  
+                    BorderBrush="{DynamicResource Hq.Border}"  
                     Grid.Row="1">
             <TabItem Header="单品种">
                 <local:ProductListView/>

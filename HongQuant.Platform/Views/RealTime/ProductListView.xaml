@@ -15,7 +15,7 @@
             <ColumnDefinition Width="240"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Border BorderBrush="LightGray" BorderThickness="0,0,1,0">
+        <Border BorderBrush="{DynamicResource Hq.Border}" BorderThickness="0,0,1,0">
             <ListView ItemsSource="{Binding ProductIndexs}"
            SelectedItem="{Binding ProductIndex}">
                 <ListView.ItemContainerStyle>
@@ -38,7 +38,7 @@
         </Border>
         <DataGrid 
               Grid.Column="1"
-              Background="White"
+              Background="{DynamicResource Hq.Panel}"
               AutoGenerateColumns="False" 
               IsReadOnly="True"
               CanUserAddRows="False"

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="Hq.AppBackground" Color="#F1F3F7"/>
+    <SolidColorBrush x:Key="Hq.WindowBackground" Color="#F1F3F7"/>
+    <SolidColorBrush x:Key="Hq.Sidebar" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Hq.Panel" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Hq.Surface" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Hq.Hover" Color="#EEF1F6"/>
+    <SolidColorBrush x:Key="Hq.Border" Color="#E0E5ED"/>
+    <SolidColorBrush x:Key="Hq.Text" Color="#0F1728"/>
+    <SolidColorBrush x:Key="Hq.TextMuted" Color="#3D4A5C"/>
+    <SolidColorBrush x:Key="Hq.TextFaint" Color="#5D6A7D"/>
+    <SolidColorBrush x:Key="Hq.Accent" Color="#2563EB"/>
+    <SolidColorBrush x:Key="Hq.AccentSoft" Color="#E8F0FF"/>
+    <SolidColorBrush x:Key="Hq.Primary" Color="#2563EB"/>
+    <SolidColorBrush x:Key="Hq.Up" Color="#D92D20"/>
+    <SolidColorBrush x:Key="Hq.Down" Color="#079455"/>
+    <SolidColorBrush x:Key="Hq.Header" Color="#F7F9FC"/>
+    <SolidColorBrush x:Key="Hq.RowHover" Color="#EDF3FF"/>
+    <SolidColorBrush x:Key="Hq.Input" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Hq.Chart" Color="#FFFFFF"/>
+</ResourceDictionary>

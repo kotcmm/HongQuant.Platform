@@ -17,12 +17,12 @@
         <Grid>
             <StackPanel Orientation="Horizontal" Margin="8" Cursor="Hand">
                 <Button 
-                    Style="{StaticResource MaterialDesignFlatButton}"
+                    Style="{StaticResource HqButton}"
                     Command="{Binding OpenSettingCommand}">
                     参数配置
                 </Button>
                 <Button 
-                    Style="{StaticResource MaterialDesignFlatButton}">
+                    Style="{StaticResource HqButton}">
                     导入数据
                 </Button>
                 <Label Content="组合方案：" Margin="6 0 0 0"></Label>
@@ -38,15 +38,15 @@
                 </ComboBox>
                 <Button 
                     Command="{Binding StartRunCommand}"
-                    Style="{StaticResource MaterialDesignFlatButton}">
+                    Style="{StaticResource HqButton}">
                     开始计算
                 </Button>
                 <Button 
-                    Style="{StaticResource MaterialDesignFlatButton}">
+                    Style="{StaticResource HqButton}">
                     导出结果
                 </Button>
             </StackPanel>
-            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1" />
+            <Border BorderBrush="{DynamicResource Hq.Border}" BorderThickness="0 0 0 1" />
         </Grid>
         <TabControl Grid.Row="1"
                 TabStripPlacement="Bottom" 

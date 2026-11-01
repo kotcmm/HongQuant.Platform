@@ -1,4 +1,4 @@
-﻿<mah:MetroWindow x:Class="HongQuant.Platform.Views.Original.ShowLastView"
+﻿<mah:MetroWindow Background="{DynamicResource Hq.AppBackground}" Foreground="{DynamicResource Hq.Text}" x:Class="HongQuant.Platform.Views.Original.ShowLastView"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -19,7 +19,7 @@
         </StackPanel>
         <DataGrid
             Grid.Row="1"
-            Background="White"
+            Background="{DynamicResource Hq.Panel}"
             AutoGenerateColumns="False" 
             IsReadOnly="True"
             CanUserAddRows="False"

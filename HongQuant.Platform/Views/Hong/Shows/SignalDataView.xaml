@@ -12,7 +12,7 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <ListBox BorderThickness="0,0,1,0" 
-                 BorderBrush="LightGray"
+                 BorderBrush="{DynamicResource Hq.Border}"
                  ItemsSource="{Binding FileIndexs}"
                  SelectedItem="{Binding FileIndex}">
             <ListBox.ItemTemplate>
@@ -22,7 +22,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
         <DataGrid Grid.Column="1" 
-                  Background="White"
+                  Background="{DynamicResource Hq.Panel}"
                   AutoGenerateColumns="False" 
                   IsReadOnly="True"
                   CanUserAddRows="False"

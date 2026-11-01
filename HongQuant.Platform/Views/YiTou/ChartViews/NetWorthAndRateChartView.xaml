@@ -14,8 +14,8 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <GroupBox Header="累计净值" 
-              materialDesign:ColorZoneAssist.Background="LightGray"
-              materialDesign:ColorZoneAssist.Foreground="White"
+              materialDesign:ColorZoneAssist.Background="{DynamicResource Hq.Panel}"
+              materialDesign:ColorZoneAssist.Foreground="{DynamicResource Hq.Text}"
               materialDesign:ColorZoneAssist.Mode="Custom">
             <GroupBox.HeaderTemplate>
                 <DataTemplate>
@@ -30,7 +30,7 @@
                             Margin="20 0 0 0" 
                             HorizontalAlignment="Right"
                             Width="120"
-                            Style="{StaticResource MaterialDesignOutlinedSecondaryLightButton}">导出数据</Button>
+                            Style="{StaticResource HqButton}">导出数据</Button>
                     </Grid>
                 </DataTemplate>
             </GroupBox.HeaderTemplate>
@@ -42,8 +42,8 @@
         </GroupBox>
 
         <GroupBox Grid.Row="1" Header="最大回撤" 
-              materialDesign:ColorZoneAssist.Background="LightGray"
-              materialDesign:ColorZoneAssist.Foreground="White"
+              materialDesign:ColorZoneAssist.Background="{DynamicResource Hq.Panel}"
+              materialDesign:ColorZoneAssist.Foreground="{DynamicResource Hq.Text}"
               materialDesign:ColorZoneAssist.Mode="Custom">
             <lvc:CartesianChart Series="{Binding Series}"
             YAxes="{Binding YAxes1}" 

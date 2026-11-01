@@ -14,7 +14,7 @@
             <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
         <TreeView BorderThickness="1" 
-            BorderBrush="Black" 
+            BorderBrush="{DynamicResource Hq.Border}" 
             Margin="10" ItemsSource="{Binding ContractTypes}">
             <TreeView.Resources>
                 <HierarchicalDataTemplate 
@@ -35,7 +35,7 @@
             </TreeView.Resources>
         </TreeView>
         <TreeView Grid.Column="1" BorderThickness="1" 
-            BorderBrush="Black" 
+            BorderBrush="{DynamicResource Hq.Border}" 
             Margin="10">
             <TreeView.ContextMenu>
                 <ContextMenu>

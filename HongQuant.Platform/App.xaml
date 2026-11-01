@@ -1,75 +1,37 @@
-﻿<Application x:Class="HongQuant.Platform.App"
+<Application x:Class="HongQuant.Platform.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:HongQuant.Platform"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:infrastucture="clr-namespace:HongQuant.Platform.Infrastucture.Drops.Files"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <materialDesign:BundledTheme BaseTheme="Light"
-                             ColorAdjustment="{materialDesign:ColorAdjustment}"
-                             PrimaryColor="LightBlue"
-                             SecondaryColor="LightBlue" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Cyan.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialdesignColor.Lightblue.xaml" />
+                <!-- 继续加载 MaterialDesign/MahApps 的行为与 DialogHost，视觉效果统一由终端主题覆盖。 -->
+                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="LightBlue" SecondaryColor="LightBlue"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Cyan.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialdesignColor.Lightblue.xaml"/>
+                <ResourceDictionary Source="Resources/TerminalLight.xaml"/>
+                <ResourceDictionary Source="Resources/TerminalControls.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <FontFamily x:Key="HongQuant.Platform.FontFamily" >华文楷体,微软雅黑</FontFamily>
-            <Style BasedOn="{StaticResource MahApps.Styles.TabItem}" TargetType="TabItem" />
-            <Style BasedOn="{StaticResource MahApps.Styles.TabControl}" TargetType="TabControl" />
-            <Style TargetType="{x:Type TextElement }">
+            <FontFamily x:Key="HongQuant.Platform.FontFamily">Segoe UI, Microsoft YaHei UI, Microsoft YaHei</FontFamily>
+            <Style TargetType="{x:Type TextElement}">
                 <Setter Property="FontFamily" Value="{StaticResource HongQuant.Platform.FontFamily}"/>
-                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Foreground" Value="{DynamicResource Hq.Text}"/>
             </Style>
-            <Style TargetType="{x:Type TextBlock }">
-                <Setter Property="FontFamily" Value="{StaticResource HongQuant.Platform.FontFamily}"/>
-                <Setter Property="FontSize" Value="18"/>
-            </Style>
-
-            <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignTextBox}">
-                <Setter Property="FontFamily" Value="{StaticResource HongQuant.Platform.FontFamily}"/>
-                <Setter Property="FontSize" Value="16"/>
-            </Style>
-
-            <Style x:Key="DatagridCellStyleCenter" 
-                   TargetType="{x:Type DataGridCell}" 
-                   BasedOn="{StaticResource MaterialDesignDataGridCell}">
-                <Setter Property="HorizontalAlignment" Value="Center" />
-                <Setter Property="FontFamily" Value="{StaticResource HongQuant.Platform.FontFamily}"/>
-                <Setter Property="FontSize" Value="16"/>
-            </Style>
-
-            <Style x:Key="DataGridColumnHeaderCenter" 
-                   TargetType="{x:Type DataGridColumnHeader}" 
-                   BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
-                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                <Setter Property="FontFamily" Value="{StaticResource HongQuant.Platform.FontFamily}"/>
-                <Setter Property="FontSize" Value="16"/>
-            </Style>
-            
+            <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource HqTextBox}"/>
+            <Style x:Key="DatagridCellStyleCenter" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource HqDataGridCell}"/>
+            <Style x:Key="DataGridColumnHeaderCenter" TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource HqDataGridHeader}"/>
             <DataTemplate DataType="{x:Type infrastucture:FileDropContainer}">
-                <Grid TextElement.Foreground="{DynamicResource MaterialDesignBody}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <materialDesign:PackIcon
-                         Kind="FileDocument"
-                         Width="22"
-                         Height="22"
-                         BorderThickness="0"
-                         Foreground="{DynamicResource PrimaryHueMidBrush}" />
-
-                    <ItemsControl
-                     Grid.Column="1"
-                     Margin="4"
-                     ItemsSource="{Binding Files}" />
-                </Grid>
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="FileDocument" Width="17" Height="17" Margin="0,0,6,0"
+                                             Foreground="{DynamicResource Hq.Accent}"/>
+                    <ItemsControl ItemsSource="{Binding Files}"/>
+                </StackPanel>
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

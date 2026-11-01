@@ -22,7 +22,7 @@
                                 <TextBox Margin="0 8 0 0" MinWidth="100" Text="{Binding InputOtherName}"
                                      materialDesign:HintAssist.Hint="其他名称"/>
                                 <Button Margin="18,8,0,0" Command="{Binding AddOtherNameCommand}"
-                                        Style="{StaticResource MaterialDesignFlatButton}"
+                                        Style="{StaticResource HqButton}"
                                         ToolTip="添加其他名称">
                                     <materialDesign:PackIcon
                                         Kind="CirclesAdd"
@@ -38,7 +38,7 @@
                                             <Button Margin="18,8,0,0" 
                                                 Command="{Binding Content.DeleteOtherNameCommand,RelativeSource={RelativeSource FindAncestor,AncestorType=ContentControl}}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource MaterialDesignFlatButton}"
+                                                Style="{StaticResource HqButton}"
                                                 ToolTip="删除其他名称">
                                                 <materialDesign:PackIcon
                                                     Kind="CloseOctagonOutline"
@@ -50,14 +50,14 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
-                                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                <Button Style="{StaticResource HqButton}"
                                     IsDefault="True"
                                     Margin="0 8 8 0"
                                     Command="{Binding DataContext.AddOrEditContractSubmitCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type UserControl}}}"
                                     CommandParameter="{Binding}">
                                     确定
                                 </Button>
-                                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                <Button Style="{StaticResource HqButton}"
                                     IsCancel="True"
                                     Margin="0 8 8 0"
                                     Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
@@ -75,14 +75,14 @@
                             <TextBox Margin="0 8 0 0" Text="{Binding Name}" 
                                      materialDesign:HintAssist.Hint="板块名称"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
-                                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                <Button Style="{StaticResource HqButton}"
                                         IsDefault="True"
                                         Margin="0 8 8 0"
                                         Command="{Binding DataContext.TypeEditSubmitCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type UserControl}}}"
                                         CommandParameter="{Binding}">
                                     确定
                                 </Button>
-                                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                <Button Style="{StaticResource HqButton}"
                                     IsCancel="True"
                                     Margin="0 8 8 0"
                                     Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
@@ -107,21 +107,21 @@
                  materialDesign:HintAssist.Hint="输入板块名称" 
                  Text="{Binding InputTypeName,UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Content="添加板块"
-                Style="{StaticResource MaterialDesignOutlinedButton}"   
+                Style="{StaticResource HqButton}"   
                 Margin="30,0,0,0" Width="128"
                 Command="{Binding AddTypeCommand}"/>
                 <Button Content="导出配置"
-                Style="{StaticResource MaterialDesignRaisedSecondaryButton}"   
+                Style="{StaticResource HqPrimaryButton}"   
                 Margin="20,0,0,0" Width="128"
                 Command="{Binding ExportCommand}"/>
                 <Button Content="导入配置"
-                Style="{StaticResource MaterialDesignRaisedDarkButton}"   
+                Style="{StaticResource HqPrimaryButton}"   
                 Margin="20,0,0,0" Width="128"
                 Command="{Binding ImportCommand}"/>
             </StackPanel>
 
             <TreeView Grid.Row="1" Grid.Column="0" 
-              BorderThickness="1" BorderBrush="Black"
+              BorderThickness="1" BorderBrush="{DynamicResource Hq.Border}"
               Margin="10" ItemsSource="{Binding ContractTypes}">
                 <TreeView.Resources>
                     <HierarchicalDataTemplate 
@@ -131,7 +131,7 @@
                             <TextBlock Margin="5,4,0,0" MinWidth="80" Text="{Binding Name}"/>
                             <Button Margin="10,0,0,0" Command="{Binding DataContext.AddContractCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type UserControl}}}"
                               CommandParameter="{Binding}"
-                              Style="{StaticResource MaterialDesignFlatButton}"
+                              Style="{StaticResource HqButton}"
                               ToolTip="添加品种">
                                 <materialDesign:PackIcon
                                 Kind="CirclesAdd"
@@ -141,7 +141,7 @@
                             <Button Margin="10,0,0,0" 
                                     Command="{Binding DataContext.EditTypeCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type UserControl}}}"
                                     CommandParameter="{Binding}"
-                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    Style="{StaticResource HqButton}"
                                     ToolTip="编辑">
                                     <materialDesign:PackIcon
                                         Kind="SquareEditOutline"
@@ -151,8 +151,8 @@
                             <Button Margin="0,0,0,0" 
                                     Command="{Binding DataContext.RemoveTypeCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type UserControl}}}"
                                     CommandParameter="{Binding}"
-                                    Style="{StaticResource MaterialDesignFlatButton}"
-                                    ToolTip="点击删除" Foreground="Red">
+                                    Style="{StaticResource HqButton}"
+                                    ToolTip="点击删除" Foreground="{DynamicResource Hq.Up}">
                                     <materialDesign:PackIcon
                                     Kind="DeleteForever"
                                     Height="24"
@@ -167,7 +167,7 @@
                             <Button Margin="10,0,0,0" 
                                     Command="{Binding DataContext.EditContractCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type UserControl}}}"
                                     CommandParameter="{Binding}"
-                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    Style="{StaticResource HqButton}"
                                     ToolTip="编辑">
                                 <materialDesign:PackIcon
                                 Kind="SquareEditOutline"
@@ -177,8 +177,8 @@
                             <Button Margin="0,0,0,0" 
                                     Command="{Binding DataContext.RemoveContractCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type UserControl}}}"
                                     CommandParameter="{Binding}"
-                                    Style="{StaticResource MaterialDesignFlatButton}"
-                                    ToolTip="点击删除"  Foreground="Red">
+                                    Style="{StaticResource HqButton}"
+                                    ToolTip="点击删除"  Foreground="{DynamicResource Hq.Up}">
                                 <materialDesign:PackIcon
                                 Kind="DeleteForever"
                                 Height="24"

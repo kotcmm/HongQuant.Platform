@@ -20,7 +20,7 @@
             <Button Margin="20 0 0 0"
                     Command="{Binding AddOrUpdateCommand}">保存</Button>
         </StackPanel>
-        <DataGrid Background="White" Grid.Row="1"
+        <DataGrid Background="{DynamicResource Hq.Panel}" Grid.Row="1"
                AutoGenerateColumns="False" 
                CanUserAddRows="False"
                CellStyle="{StaticResource DatagridCellStyleCenter}"
@@ -35,10 +35,10 @@
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <Button Margin="18 0 0 0" Content="删除"
-                                Foreground="Red"
+                                Foreground="{DynamicResource Hq.Up}"
                                 Height="20"
                                 Padding="0"
-                                Style="{StaticResource MaterialDesignFlatButton}"
+                                Style="{StaticResource HqButton}"
                                 Command="{Binding DataContext.DeleteCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding}"/>
                             </StackPanel>
