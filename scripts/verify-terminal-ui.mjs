@@ -265,6 +265,28 @@ assert.match(templateWindow, /SaveCommand/, '必须保留保存命令绑定');
 assert.match(templateWindow, /DeleteCommand/, '必须保留删除命令绑定');
 assert.match(templateCode, /RegisterHandler\(/, '必须保留原有 ReactiveUI 删除确认机制');
 assert.match(templateCode, /_confirmationHandler\.Dispose\(\)/, '关闭窗口需释放确认交互订阅');
+assert.doesNotMatch(templateWindow, /<DataGrid\b/,
+  '品种清单不允许继续触发 DataGrid 选中单元格流程');
+assert.match(templateWindow, /<ItemsControl ItemsSource="\{Binding ProductTemplates\}"/,
+  '模板列表使用只读行容器，保留原 ProductTemplates 数据源');
+assert.match(templateWindow, /Text="\{Binding Products\}"[^>]*IsHitTestVisible="False"/s,
+  '品种清单必须是无法获得鼠标输入的只读文本');
+assert.doesNotMatch(templateWindow, /ToolTip="\{Binding Products\}"/,
+  '移除超长品种清单的悬停 ToolTip 绑定');
+assert.match(templateWindow, /Width="164" Height="30"\s+Margin="14,0,12,0"/,
+  '组合名称输入框应缩窄且左右留白');
+assert.match(html, /\.sidebar-foot\s*\{[^}]*align-items:center;justify-content:center/,
+  '引擎/数据源信息必须在底部区域居中');
+assert.match(html, /\.sb-meta\s*\{[^}]*text-align:center/,
+  '引擎和数据源的两行文字必须水平居中');
 
-console.log('PASS: 页面行为、底部分隔线动态对齐及模板管理窗口视觉与操作绑定');
+const templateItemViewModel = readFileSync(resolve(root,
+  'HongQuant.Platform/ViewModels/Original/ProductTemplatesViewModel.cs'), 'utf8');
+assert.match(templateItemViewModel, /public string Products => _products/,
+  '品种清单展示文本应使用缓存快照而不是每次绑定时重新枚举源集合');
+assert.match(templateItemViewModel, /RaisePropertyChanged\(nameof\(Products\)\)/,
+  '品种清单更新时必须通知 WPF 重新绑定');
+
+
+console.log('PASS: 页面行为、底部文字居中、模板列表安全点击与输入框留白');
 

@@ -208,3 +208,17 @@ node scripts/verify-terminal-ui.mjs
 - `node scripts/verify-terminal-ui.mjs` 检查页面初始化、动态分隔线计算和模板窗口结构/命令绑定。
 
 当前执行环境没有 Windows WPF/.NET SDK，已通过模拟 DOM 测试及 XAML 标签平衡检查，但 Windows 实际渲染、窗口动画和业务命令尚待本机运行验收。
+
+
+## 2026-11-01 · 模板列表点击崩溃风险处理与底部文字居中
+
+用户反馈：在「组合模板管理」窗口点击中间的「品种清单」后程序直接退出，且组合名称输入框过宽；左侧引擎/数据源文字需要在底部区域内居中。
+
+- 当前无法取得实际异常堆栈，因此不能断言原崩溃的最终根因。已排查到中间列属于 `DataGridTemplateColumn`：其文本同时绑定 `Text` 与超长 `ToolTip`，点击会走 DataGrid 单元格焦点/选中交互。这一列实际只是只读展示，不应进入编辑和选中流程。
+- 模板窗口使用 `ItemsControl + ScrollViewer + Grid` 替换原 `DataGrid`，不再产生 `DataGridCell` 选择与焦点状态；中间品种清单仅使用 `TextBlock` 显示，设置 `Focusable=False`、`IsHitTestVisible=False`，移除超长 `ToolTip` 绑定。保存、删除仍调用原有命令和后端数据源。
+- `ProductTemplatesEditViewModel.Products` 改为从品种集合生成的字符串快照；源列表发生赋值时主动通知 WPF 刷新，避免 UI 重绘时反复遍历集合。
+- 组合名称输入框改为 164px 宽，在所在列中设置左 14px、右 12px 的外边距，避免紧贴相邻单元格。
+- 左侧 `.sidebar-foot` 调整为纵横居中，`.sb-meta` 增加 `text-align:center`。前一轮分隔线的动态对齐机制保留不变。
+- `scripts/verify-terminal-ui.mjs` 补充检查：模板中不再出现 `DataGrid`、产品列必须不接受鼠标输入、保存/删除命令仍存在、产品清单快照更新、输入框与左侧底栏样式。
+
+已通过脚本初始化、CSS/XAML 静态结构和命令绑定回归检查。**WPF 编译、实际鼠标点击与崩溃复现目前无法在此执行**。如果本机仍发生退出，请保留 `logs/yyyyMMdd.log` 和 Windows 事件查看器中的异常类型及调用堆栈，以进一步定位。

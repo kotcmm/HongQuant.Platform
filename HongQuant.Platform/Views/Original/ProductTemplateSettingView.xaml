@@ -62,15 +62,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="TemplateGridCell" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource HqDataGridCell}">
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="FontFamily" Value="{StaticResource Hq.Font}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Padding" Value="12,4"/>
-        </Style>
-        <Style x:Key="TemplateGridHeader" TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource HqDataGridHeader}">
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        </Style>
     </Window.Resources>
     <Border BorderBrush="#BBC7D8" BorderThickness="1" CornerRadius="8" Background="#F1F3F7">
         <Grid>
@@ -161,55 +152,76 @@
                                Foreground="#8190A7" FontSize="11.5" Margin="0,5,0,0"/>
                 </StackPanel>
 
+                <!-- 只读品种清单不应触发 DataGrid 的选中单元格和焦点流程。
+                     用普通的滚动列表展示，同一行仍保留组合名称编辑和保存/删除。 -->
                 <Border Grid.Row="2" CornerRadius="8" Background="White" BorderBrush="#E2E6EE"
                         BorderThickness="1" ClipToBounds="True">
-                    <DataGrid ItemsSource="{Binding ProductTemplates}"
-                              AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
-                              CanUserSortColumns="False" HeadersVisibility="Column"
-                              RowHeight="48" ColumnHeaderHeight="40" BorderThickness="0"
-                              Background="White" RowBackground="White"
-                              GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#EDF0F5"
-                              CellStyle="{StaticResource TemplateGridCell}"
-                              ColumnHeaderStyle="{StaticResource TemplateGridHeader}">
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="组合名称" Width="200" MinWidth="160" IsReadOnly="True">
-                                <DataGridTemplateColumn.CellTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Background="#F8FAFD">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="214"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="172"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="组合名称" Foreground="#5D6A81"
+                                       VerticalAlignment="Center" Margin="20,0,0,0" FontSize="11.5"/>
+                            <TextBlock Grid.Column="1" Text="品种清单" Foreground="#5D6A81"
+                                       VerticalAlignment="Center" Margin="12,0,0,0" FontSize="11.5"/>
+                            <TextBlock Grid.Column="2" Text="操作" Foreground="#5D6A81"
+                                       VerticalAlignment="Center" Margin="12,0,0,0" FontSize="11.5"/>
+                        </Grid>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Focusable="False" CanContentScroll="True">
+                            <ItemsControl ItemsSource="{Binding ProductTemplates}">
+                                <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBox Text="{Binding TemplateName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource HqTextBox}" Height="30"
-                                                 ToolTip="修改后点击右侧保存"
-                                                 VerticalAlignment="Center"/>
+                                        <Grid Height="49" Background="White" ClipToBounds="True">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="214"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="172"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox Grid.Column="0"
+                                                     Width="164" Height="30"
+                                                     Margin="14,0,12,0" HorizontalAlignment="Left"
+                                                     Text="{Binding TemplateName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource HqTextBox}"
+                                                     ToolTip="修改名称后点击右侧保存"
+                                                     VerticalAlignment="Center"/>
+                                            <!-- 中间为非交互纯文本，不弹大型 ToolTip、不触发单元格选择。 -->
+                                            <TextBlock Grid.Column="1" Text="{Binding Products}"
+                                                       Margin="12,0,18,0" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"
+                                                       Foreground="#65748C" FontSize="11.5"
+                                                       Focusable="False" IsHitTestVisible="False"/>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                        Margin="12,0,0,0">
+                                                <Button Content="保存" Width="62" Height="29"
+                                                        Margin="0,0,6,0" Padding="0"
+                                                        Style="{StaticResource HqPrimaryButton}"
+                                                        IsEnabled="{Binding IsEditing}"
+                                                        Command="{Binding DataContext.SaveCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Content="删除" Width="62" Height="29"
+                                                        Margin="0" Padding="0"
+                                                        Style="{StaticResource HqDangerButton}"
+                                                        Command="{Binding DataContext.DeleteCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
+                                                        CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                            <Border VerticalAlignment="Bottom" Height="1"
+                                                    Background="#EDF0F5" IsHitTestVisible="False"/>
+                                        </Grid>
                                     </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="品种清单" Width="*" MinWidth="220" IsReadOnly="True">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Products}" TextTrimming="CharacterEllipsis"
-                                                   ToolTip="{Binding Products}" Foreground="#65748C"
-                                                   FontSize="11.5" VerticalAlignment="Center"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="操作" Width="158" IsReadOnly="True">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                            <Button Content="保存" Width="62" Height="29" Margin="0,0,6,0"
-                                                    Padding="0" Style="{StaticResource HqPrimaryButton}"
-                                                    IsEnabled="{Binding IsEditing}"
-                                                    Command="{Binding DataContext.SaveCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
-                                                    CommandParameter="{Binding}"/>
-                                            <Button Content="删除" Width="62" Height="29" Padding="0" Margin="0"
-                                                    Style="{StaticResource HqDangerButton}"
-                                                    Command="{Binding DataContext.DeleteCommand,RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"
-                                                    CommandParameter="{Binding}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
                 </Border>
                 <DockPanel Grid.Row="3" Margin="0,10,0,0">
                     <TextBlock Text="编辑名称后保存，删除操作需要再次确认。" Foreground="#91A0B2"
