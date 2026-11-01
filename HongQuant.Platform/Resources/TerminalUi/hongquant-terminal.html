@@ -207,7 +207,7 @@ button{font-family:inherit}
 .shell{flex:1;display:flex;min-height:0}
 .sidebar{
   flex:0 0 214px;display:flex;flex-direction:column;gap:2px;
-  padding:14px 10px 10px;border-right:1px solid var(--line);
+  padding:14px 10px 0;border-right:1px solid var(--line);
   background:var(--sidebar-grad);
 }
 .nav-item{
@@ -232,16 +232,11 @@ button{font-family:inherit}
   padding:1px 6px;border-radius:20px;letter-spacing:.02em;
 }
 .nav-item.active .nav-badge{background:rgba(76,141,255,.18);color:var(--accent-2)}
-.sidebar-foot{margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
-/* 设计规范不是产品模块，只作为参考页放在侧栏底部，不做成一级导航 */
-.sb-link{
-  display:flex;align-items:center;gap:7px;width:100%;height:24px;padding:0 10px;
-  border:0;border-radius:6px;background:none;cursor:pointer;
-  font-size:10.5px;color:var(--text-4);transition:.14s;
+.sidebar-foot{
+  margin-top:auto;height:36px;flex:0 0 36px;box-sizing:border-box;
+  padding:2px 0 0;border-top:1px solid var(--line);
 }
-.sb-link:hover{color:var(--text-2);background:var(--fill-1)}
-.sb-link.is-on{color:var(--accent);background:var(--accent-soft)}
-.sb-meta{padding:8px 10px 2px;font-size:10px;color:var(--text-4);line-height:1.7}
+.sb-meta{padding:0 10px;font-size:10px;color:var(--text-4);line-height:1.5}
 .sb-meta b{color:var(--text-3);font-weight:500;font-family:var(--mono)}
 
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
@@ -379,7 +374,7 @@ td.barcell.zero::after{opacity:.25}
 
 /* ── 表格底部 tab 条 ─────────────────────── */
 .tabbar{
-  flex:0 0 auto;display:flex;align-items:center;gap:0;height:36px;padding:0 12px;
+  flex:0 0 auto;display:flex;align-items:center;gap:0;height:36px;box-sizing:border-box;padding:0 12px;
   border-top:1px solid var(--line);background:var(--bar-bg);
 }
 .tab{
@@ -396,6 +391,7 @@ td.barcell.zero::after{opacity:.25}
   font-size:10.5px;color:var(--text-4);font-family:var(--mono);
 }
 .statusbar .k{color:var(--text-3)}
+#dataSub[hidden],.view[data-panel="data"] .statusbar[hidden]{display:none!important}
 
 /* ── 数据来源：全局切换器 + 基础数据多页签 ───── */
 .tabs{display:flex;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none}
@@ -679,7 +675,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
   .ds-card.wide{grid-column:span 2}
 }
 @media (max-width:1024px){
-  .sidebar{flex-basis:64px;padding:14px 8px 10px}
+  .sidebar{flex-basis:64px;padding:14px 8px 0}
   .nav-item span,.nav-badge,.sb-meta,.sb-link span{display:none}
   .nav-item{justify-content:center;padding:0}
   .asset-pane{flex-basis:200px}
@@ -802,11 +798,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
       </button>
 
       <div class="sidebar-foot">
-        <button class="sb-link" data-view="ds" title="配色、字阶与组件规范">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.6" stroke="currentColor" stroke-width="1.2"/><path d="M8 2.4v11.2M2.4 8h11.2" stroke="currentColor" stroke-width="1" opacity=".5"/></svg>
-          <span>设计规范</span>
-        </button>
-        <div class="sb-meta">引擎 <b>v3.2.1</b> · 本地<br>最后同步 <b>13:48</b></div>
+        <div class="sb-meta">引擎 <b>.NET 8 · 本地</b><br>数据源 <b>未选择</b></div>
       </div>
     </aside>
 
@@ -818,7 +810,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
         <div class="main-head">
           <div class="head-title">
             <h1>基础数据 <span class="pill" id="headPill">GD20</span></h1>
-            <p id="dataSub">回测权益明细 · 24 个品种 · 数据区间 2020-02-10 → 2026-06-05</p>
+            <p id="dataSub" hidden></p>
           </div>
           <div class="toolbar">
             <button class="btn btn--primary">
@@ -884,10 +876,10 @@ html,body{height:100%;min-height:0;overflow:hidden}
             </div>
             <div class="tabbar">
               <div class="tabs" id="dataTabs"></div>
-              <div class="statusbar">
-                <span><span class="k">行数</span> <b id="sbRows">30</b></span>
+              <div class="statusbar" hidden>
+                <span><span class="k">行数</span> <b id="sbRows">0</b></span>
                 <span><span class="k">列</span> <b id="sbCols">9</b></span>
-                <span><span class="k">更新</span> 2026-11-01 13:48</span>
+                <span><span class="k">更新</span> —</span>
               </div>
             </div>
           </div>
@@ -1523,29 +1515,25 @@ html,body{height:100%;min-height:0;overflow:hidden}
     }).join('');
     $('#sbRows').textContent = rows.length;
     $('#sbCols').textContent = 9;
+    // 没有实际权益记录时，不展示回测说明及无意义的行数/列数/更新时间。
+    var hasData = rows.length > 0;
+    $('#dataSub').hidden = !hasData;
+    var statusbar = $('.view[data-panel="data"] .statusbar');
+    if (statusbar) statusbar.hidden = !hasData;
   }
 
   /* ───────── 数据来源：底部页签 / 浮层菜单 / 三页同步 ───────── */
   var dataTabs = $('#dataTabs');
   function renderSourceTabs(){
-    var singles = SOURCES.filter(function(x){return x.grp === '单品';});
-    if (!singles.some(function(x){return x.id===lastSingleSourceId;}))
-      lastSingleSourceId = singles.length ? singles[0].id : '';
+    // 只显示用户计算得到的组合。单品种作为底层数据源，不自动创建占位页签。
     var combos = SOURCES.filter(function(x){return x.grp === '组合' && x.id !== 'combo';});
-    var solo = singles.find(function(x){return x.id === lastSingleSourceId;});
-    var html = solo
-      ? '<button class="tab' + (SOURCE === solo.id ? ' on' : '') +
-        '" data-tab-src="' + solo.id + '"><span class="tab-name">单个品种</span>' +
-        '<span class="code">' + escapeText(solo.code) + '</span></button>'
-      : '<span class="tab disabled">单个品种</span>';
-    html += combos.map(function(combo){
+    dataTabs.innerHTML = combos.map(function(combo){
       return '<button class="tab' + (SOURCE === combo.id ? ' on' : '') + '" data-tab-src="' +
         combo.id + '" title="' + escapeText(combo.note || combo.name) + '">' +
         '<span class="tab-name">' + escapeText(combo.name) + '</span>' +
         '<span class="tab-close" data-close-combo="' + combo.id +
         '" role="button" tabindex="0" title="关闭此组合">×</span></button>';
     }).join('');
-    dataTabs.innerHTML = html;
   }
   dataTabs.addEventListener('click', function(e){
     var close = e.target.closest('[data-close-combo]');
