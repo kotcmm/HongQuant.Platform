@@ -233,8 +233,13 @@ button{font-family:inherit}
 }
 .nav-item.active .nav-badge{background:rgba(76,141,255,.18);color:var(--accent-2)}
 .sidebar-foot{
-  margin-top:auto;height:36px;flex:0 0 36px;box-sizing:border-box;
-  padding:2px 0 0;border-top:1px solid var(--line);
+  /* 与品种侧栏的“组合模板”上边线对齐：高度随模板区和操作栏计算。 */
+  margin-top:auto;
+  height:var(--hq-asset-footer-height,100px);
+  flex:0 0 var(--hq-asset-footer-height,100px);
+  display:flex;align-items:flex-end;
+  box-sizing:border-box;
+  padding:0 0 4px;border-top:1px solid var(--line);
 }
 .sb-meta{padding:0 10px;font-size:10px;color:var(--text-4);line-height:1.5}
 .sb-meta b{color:var(--text-3);font-weight:500;font-family:var(--mono)}
@@ -1991,6 +1996,28 @@ html,body{height:100%;min-height:0;overflow:hidden}
     });
   }
 
+  // 左侧分隔线必须与品种池“组合模板”的上边线位于同一高度。
+  // 不使用固定像素偏移：两块区域的高度会随字体、DPI 和窗口尺寸变化。
+  function alignSidebarFooterDivider(){
+    var sidebarFoot = $('.sidebar-foot');
+    var template = $('.view[data-panel="data"] .pane-template');
+    var assetFoot = $('.view[data-panel="data"] .pane-foot');
+    var dataPanel = $('.view[data-panel="data"]');
+    if(!sidebarFoot || !template || !assetFoot || !dataPanel ||
+       !dataPanel.classList.contains('active')) return;
+    var top = template.getBoundingClientRect().top;
+    var bottom = assetFoot.getBoundingClientRect().bottom;
+    var height = Math.round(bottom - top);
+    if (height > 0)
+      sidebarFoot.style.setProperty('--hq-asset-footer-height',height+'px');
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    var assetFooterObserver = new ResizeObserver(alignSidebarFooterDivider);
+    assetFooterObserver.observe($('.view[data-panel="data"] .pane-template'));
+    assetFooterObserver.observe($('.view[data-panel="data"] .pane-foot'));
+  }
+  window.addEventListener('resize',alignSidebarFooterDivider);
+
   function switchView(name){
     $$('.view').forEach(function(v){ v.classList.toggle('active', v.dataset.panel === name); });
     $$('.nav-item[data-view]').forEach(function(b){ b.classList.toggle('active', b.dataset.view === name); });
@@ -1999,6 +2026,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
     $('#crumbModule').textContent = map[name] || '基础数据';
     if (name === 'compound' || name === 'settle') setMode(name);
     if (name === 'chart') setTimeout(renderCharts, 30);
+    if (name === 'data') setTimeout(alignSidebarFooterDivider, 0);
     var sa = $('.view[data-panel="' + name + '"] .scroll-area');
     if (sa) sa.scrollTop = 0;
     hideTip();
@@ -2447,6 +2475,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
 
   // 只回传第一次真实鼠标输入以帮助区分窗口命中测试问题和脚本事件问题。
   // 捕获监听不取消默认行为，也不改变页面上的点击/拖拽。
+  alignSidebarFooterDivider();
   if (NATIVE) {
     document.addEventListener('pointerdown',function(event) {
       emitNative('input-probe',{target:event.target?.closest?.('button,input,a,.nav-item,.asset')?.className || event.target?.tagName || 'unknown'});

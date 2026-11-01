@@ -221,12 +221,50 @@ assert.equal(get('#dataSub').hidden, false, '有组合权益数据时应显示�
 assert.equal(get('.view[data-panel="data"] .statusbar').hidden, false,
   '有组合权益数据时应显示底部统计信息');
 
-// 左侧引擎/数据源仍然保留。横线位置与右侧 36px tabbar 保持对齐。
+// 左侧引擎/数据源仍保留，左侧分隔线按组合模板与全选操作栏实际高度动态对齐。
 assert.doesNotMatch(html, /data-view="ds"/, '左侧不再显示设计规范入口');
 assert.match(html, /class="sb-meta"/, '必须保留引擎及数据源信息');
-assert.match(html, /\.sidebar-foot\s*\{[^}]*height:36px/, '左侧底部栏高度必须为 36px');
+assert.match(html, /\.sidebar-foot\s*\{[^}]*--hq-asset-footer-height/, '左侧底部栏应随右侧模板区高度变化');
 assert.match(html, /\.tabbar\s*\{[^}]*height:36px/, '右侧底部标签栏高度必须为 36px');
 assert.match(html, /#dataSub\[hidden\]/, '无数据说明需要明确的隐藏样式');
 assert.match(html, /\.statusbar\[hidden\]/, '无数据统计栏需要明确的隐藏样式');
 
-console.log('PASS: 页面初始化、过滤选择、底部对齐、组合标签及无数据时的信息隐藏');
+
+assert.match(html, /--hq-asset-footer-height/, '左侧横线应使用动态同步高度');
+assert.match(html, /function alignSidebarFooterDivider\(/, '需要监听组合模板高度变化以对齐横线');
+assert.ok(callbacks.get('window:resize')?.length,
+  '应在窗口尺寸变化时重新计算左右分隔线的位置');
+// 模拟模板区和操作栏高度随窗口变化，分隔线须追随模板上边线。
+const activeDataView = get('.view[data-panel="data"]');
+activeDataView.classList.contains = cls => cls === 'active';
+const templatePane = get('.view[data-panel="data"] .pane-template');
+const assetActions = get('.view[data-panel="data"] .pane-foot');
+templatePane.getBoundingClientRect = () => ({ top: 202, bottom: 332 });
+assetActions.getBoundingClientRect = () => ({ top: 332, bottom: 400 });
+let alignedHeight = '';
+get('.sidebar-foot').style.setProperty = (key, value) => {
+  if (key === '--hq-asset-footer-height') alignedHeight = value;
+};
+callbacks.get('window:resize')[0]();
+assert.equal(alignedHeight, '198px',
+  '左侧横线必须动态与组合模板顶线对齐，而非使用固定的 36px');
+
+
+// 模板管理对话框不允许回退到 MahApps 蓝色标题栏。
+const templateWindow = readFileSync(resolve(root,
+  'HongQuant.Platform/Views/Original/ProductTemplateSettingView.xaml'), 'utf8');
+const templateCode = readFileSync(resolve(root,
+  'HongQuant.Platform/Views/Original/ProductTemplateSettingView.xaml.cs'), 'utf8');
+assert.match(templateWindow, /<Window\s+x:Class="HongQuant.Platform.Views.Original.ProductTemplateSettingView"/,
+  '模板管理必须使用原生 WPF Window');
+assert.doesNotMatch(templateWindow, /mah:MetroWindow|LightBlue|ShowMessageAsync/,
+  '不能再使用 MahApps 蓝色标题栏');
+assert.match(templateWindow, /WindowChrome\.WindowChrome/, '弹窗必须保留系统拖动与缩放');
+assert.match(templateWindow, /DeleteConfirmationOverlay/, '删除操作应使用主题一致的确认浮层');
+assert.match(templateWindow, /SaveCommand/, '必须保留保存命令绑定');
+assert.match(templateWindow, /DeleteCommand/, '必须保留删除命令绑定');
+assert.match(templateCode, /RegisterHandler\(/, '必须保留原有 ReactiveUI 删除确认机制');
+assert.match(templateCode, /_confirmationHandler\.Dispose\(\)/, '关闭窗口需释放确认交互订阅');
+
+console.log('PASS: 页面行为、底部分隔线动态对齐及模板管理窗口视觉与操作绑定');
+
