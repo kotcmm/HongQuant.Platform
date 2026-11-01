@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace HongQuant.Platform;
@@ -18,6 +19,10 @@ public partial class MainWindow : Window
 {
     private readonly TerminalDataBridge _data = new();
     private int _lastRequest;
+    private int _stateRevision;
+    private bool _updatingHeader;
+
+    private sealed record HeaderSourceChoice(string Id, string Name);
 
     public MainWindow()
     {
@@ -86,17 +91,16 @@ public partial class MainWindow : Window
                 case "ready":
                     await SendState(request);
                     return;
-                case "window-minimize":
-                    WindowState = WindowState.Minimized;
-                    return;
-                case "window-toggle":
-                    ToggleMaximize();
-                    return;
-                case "window-close":
-                    Close();
-                    return;
-                case "window-drag":
-                    BeginSystemDrag();
+                // 窗口控制已经移入原生 WPF 标题栏；不再从 WebView2 转发鼠标事件。
+                case "view-changed":
+                    HeaderModule.Text = ReadString(message, "name") switch
+                    {
+                        "compound" => "定投复利",
+                        "settle" => "周期结算",
+                        "chart" => "图表分析",
+                        "ds" => "设计规范",
+                        _ => "基础数据"
+                    };
                     return;
                 case "choose-path":
                     ChooseFolder();
@@ -163,7 +167,9 @@ public partial class MainWindow : Window
     private async Task SendState(int request)
     {
         if (TerminalBrowser.CoreWebView2 is null) return;
-        var state = _data.BuildState(request);
+        // WPF 标题栏和 WebView2 都能发起选择；状态版本由唯一发送方递增。
+        var state = _data.BuildState(++_stateRevision);
+        UpdateNativeHeader(state);
         await TerminalBrowser.ExecuteScriptAsync("window.__hqNative && window.__hqNative.applyState(" + state + ");");
     }
 
@@ -261,32 +267,67 @@ public partial class MainWindow : Window
             CoreWebView2CapturePreviewImageFormat.Png, stream);
     }
 
-    private void ToggleMaximize() =>
-        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    private void Minimize_Click(object sender, RoutedEventArgs e) =>
+        SystemCommands.MinimizeWindow(this);
 
-    // WebView2 内部的 pointerdown 不会自动冒泡成 WPF MouseDown；
-    // 因此通过 WM_NCLBUTTONDOWN/HTCAPTION 交给 Windows 处理拖动与窗口贴靠。
-    private void BeginSystemDrag()
+    private void Maximize_Click(object sender, RoutedEventArgs e)
     {
-        if (!GetCursorPos(out var cursor)) return;
         if (WindowState == WindowState.Maximized)
-        {
-            var dpi = VisualTreeHelper.GetDpi(this);
-            var ratio = Math.Clamp((cursor.X / dpi.DpiScaleX - Left) / Math.Max(1, ActualWidth), 0.12, 0.88);
-            WindowState = WindowState.Normal;
-            Left = cursor.X / dpi.DpiScaleX - ActualWidth * ratio;
-            Top = cursor.Y / dpi.DpiScaleY - 22;
-        }
-        ReleaseCapture();
-        SendMessage(new WindowInteropHelper(this).Handle, 0xA1, new IntPtr(2), IntPtr.Zero);
+            SystemCommands.RestoreWindow(this);
+        else
+            SystemCommands.MaximizeWindow(this);
     }
 
+    private void Close_Click(object sender, RoutedEventArgs e) =>
+        SystemCommands.CloseWindow(this);
+
+    private async void ToggleTheme_Click(object sender, RoutedEventArgs e)
+    {
+        if (TerminalBrowser.CoreWebView2 is null) return;
+        await TerminalBrowser.ExecuteScriptAsync("document.getElementById('themeToggle')?.click();");
+        ThemeAction.Content = Equals(ThemeAction.Content, "☾") ? "☀" : "☾";
+    }
+
+    private async void HeaderCombinationChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_updatingHeader || HeaderCombinationPicker.SelectedItem is not HeaderSourceChoice choice
+            || string.IsNullOrWhiteSpace(choice.Id)) return;
+        _data.SelectSource(choice.Id);
+        try { await SendState(++_lastRequest); }
+        catch (Exception ex) { await ReportError(ex.Message); }
+    }
+
+    private void UpdateNativeHeader(string stateJson)
+    {
+        using var json = JsonDocument.Parse(stateJson);
+        var state = json.RootElement;
+        _updatingHeader = true;
+        try
+        {
+            var currentId = ReadString(state, "sourceId") ?? string.Empty;
+            var choices = new List<HeaderSourceChoice> { new(string.Empty, "选择组合") };
+            if (state.TryGetProperty("sources", out var sources))
+            {
+                foreach (var item in sources.EnumerateArray())
+                {
+                    if (ReadString(item, "grp") != "组合") continue;
+                    var id = ReadString(item, "id") ?? string.Empty;
+                    if (id == "combo" || string.IsNullOrEmpty(id)) continue;
+                    choices.Add(new HeaderSourceChoice(id, ReadString(item, "name") ?? "组合"));
+                }
+            }
+            HeaderCombinationPicker.ItemsSource = choices;
+            HeaderCombinationPicker.SelectedItem = choices.FirstOrDefault(x => x.Id == currentId) ?? choices[0];
+            HeaderStatus.Text = ReadString(state, "status") ?? "未导入数据";
+            HeaderSourceName.Text = ReadString(state, "activeSourceName") ?? "—";
+        }
+        finally { _updatingHeader = false; }
+    }
 
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
         var hwnd = new WindowInteropHelper(this).Handle;
-        HwndSource.FromHwnd(hwnd)?.AddHook(WindowMessageHook);
         EnableWindowDecoration(hwnd);
     }
 
@@ -307,52 +348,10 @@ public partial class MainWindow : Window
         _ = DwmExtendFrameIntoClientArea(hwnd, ref margins);
     }
 
-    // 无边框窗口最大化时用当前显示器的工作区域（排除任务栏），
-    // 否则 WebView2 的 100vh 可能落在屏幕底边之外，隐藏组合标签与全选/清空。
-    private IntPtr WindowMessageHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-    {
-        const int getMinMaxInfo = 0x0024;
-        if (msg != getMinMaxInfo) return IntPtr.Zero;
-        var monitor = MonitorFromWindow(hwnd, 2);
-        var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
-        if (monitor == IntPtr.Zero || !GetMonitorInfo(monitor, ref info)) return IntPtr.Zero;
-        var limits = Marshal.PtrToStructure<MinMaxInfo>(lParam);
-        limits.MaxPosition.X = info.Work.Left - info.Monitor.Left;
-        limits.MaxPosition.Y = info.Work.Top - info.Monitor.Top;
-        limits.MaxSize.X = info.Work.Right - info.Work.Left;
-        limits.MaxSize.Y = info.Work.Bottom - info.Work.Top;
-        Marshal.StructureToPtr(limits, lParam, false);
-        handled = true;
-        return IntPtr.Zero;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct NativePoint { public int X, Y; }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct NativeRect { public int Left, Top, Right, Bottom; }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct MonitorInfo
-    {
-        public int Size;
-        public NativeRect Monitor, Work;
-        public uint Flags;
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct MinMaxInfo
-    {
-        public NativePoint Reserved, MaxSize, MaxPosition, MinTrackSize, MaxTrackSize;
-    }
     [StructLayout(LayoutKind.Sequential)]
     private struct DwmMargins { public int Left, Right, Top, Bottom; }
 
-    [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr handle, uint flags);
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo info);
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, uint attribute, ref int value, int size);
     [DllImport("dwmapi.dll")] private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref DwmMargins margins);
 
-    [StructLayout(LayoutKind.Sequential)]
-    private struct CursorPoint { public int X; public int Y; }
-    [DllImport("user32.dll")] private static extern bool GetCursorPos(out CursorPoint point);
-    [DllImport("user32.dll")] private static extern bool ReleaseCapture();
-    [DllImport("user32.dll")] private static extern IntPtr SendMessage(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam);
 }

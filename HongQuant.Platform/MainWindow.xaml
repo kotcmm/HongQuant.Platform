@@ -3,26 +3,61 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        Title="HONG QUANT · 研究终端" Width="1440" Height="900"
-        MinWidth="1030" MinHeight="620" WindowState="Maximized"
-        WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="False"
-        Background="#F1F3F7" SnapsToDevicePixels="True">
+        Title="HONG QUANT · 研究终端"
+        Width="1440" Height="900" MinWidth="1030" MinHeight="620"
+        WindowState="Maximized" WindowStyle="SingleBorderWindow" ResizeMode="CanResize"
+        AllowsTransparency="False" Background="#F1F3F7" SnapsToDevicePixels="True">
+    <!-- Windows 原生非客户区命中测试处理拖动/双击最大化/Snap。
+         标题栏必须由 WPF 绘制且不被 WebView2 的子 HWND 覆盖。 -->
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="1"
-                            CornerRadius="8" UseAeroCaptionButtons="False"/>
+        <shell:WindowChrome CaptionHeight="40" ResizeBorderThickness="6"
+                            GlassFrameThickness="1" CornerRadius="8"
+                            UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
-    <!-- 保持现有 WPF 后端，四个工作区由原始 HTML/CSS 负责逐像素绘制。 -->
-    <!-- 细描边留在 WPF 外层；最大化时去掉内缩，避免底部操作栏被工作区边缘裁切。 -->
-    <Border x:Name="WindowFrame" BorderBrush="#BBC7D8"
-            Background="#F1F3F7" ClipToBounds="True">
+    <Window.Resources>
+        <Style x:Key="HeaderActionButton" TargetType="{x:Type Button}">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#68768A"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Arrow"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="Hit" Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Hit" Property="Background" Value="#E7ECF5"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Hit" Property="Background" Value="#D9E4F6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HeaderCloseButton" TargetType="{x:Type Button}" BasedOn="{StaticResource HeaderActionButton}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#C92C38"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Border x:Name="WindowFrame" BorderBrush="#BBC7D8" Background="#F1F3F7" ClipToBounds="True">
         <Border.Style>
             <Style TargetType="{x:Type Border}">
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="8"/>
                 <Setter Property="Padding" Value="1"/>
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}"
-                                 Value="Maximized">
+                    <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}" Value="Maximized">
                         <Setter Property="BorderThickness" Value="0"/>
                         <Setter Property="CornerRadius" Value="0"/>
                         <Setter Property="Padding" Value="0"/>
@@ -30,7 +65,72 @@
                 </Style.Triggers>
             </Style>
         </Border.Style>
-        <wv2:WebView2 x:Name="TerminalBrowser" HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="46"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E2E6EE" BorderThickness="0,0,0,1">
+                <Grid Margin="12,0,6,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" IsHitTestVisible="False">
+                        <Border Width="27" Height="27" CornerRadius="7" Background="#477BE6">
+                            <TextBlock Text="▥" FontSize="17" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="HONG QUANT" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#152239"/>
+                            <TextBlock Text="RESEARCH TERMINAL" FontFamily="Segoe UI" FontSize="8"
+                                       Foreground="#8F9AAD"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"
+                                HorizontalAlignment="Center" IsHitTestVisible="False">
+                        <TextBlock Text="研究工作台 / " FontSize="11" Foreground="#8895AA"/>
+                        <TextBlock x:Name="HeaderModule" Text="基础数据" FontSize="11" Foreground="#35445B"/>
+                        <TextBlock Text=" / " FontSize="11" Foreground="#A6B0BF"/>
+                        <TextBlock x:Name="HeaderSourceName" Text="—" FontSize="11" Foreground="#355CD2"/>
+                    </StackPanel>
+                    <Button Grid.Column="2" Content="☾" x:Name="ThemeAction" ToolTip="切换深浅主题"
+                            Style="{StaticResource HeaderActionButton}" Margin="0,0,10,0"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="ToggleTheme_Click"/>
+                    <ComboBox x:Name="HeaderCombinationPicker" Grid.Column="3"
+                              Width="146" Height="28" Margin="0,0,10,0"
+                              VerticalAlignment="Center" VerticalContentAlignment="Center"
+                              FontSize="11" Foreground="#41516D" Background="#F8FAFD"
+                              BorderBrush="#DCE3ED"
+                              DisplayMemberPath="Name" SelectedValuePath="Id"
+                              shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                              SelectionChanged="HeaderCombinationChanged"/>
+                    <Border Grid.Column="4" BorderBrush="#DDE8E4" BorderThickness="1"
+                            Background="#FFFFFF" CornerRadius="13" Margin="0,0,11,0"
+                            Padding="9,4" VerticalAlignment="Center" IsHitTestVisible="False">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="● " Foreground="#18A86C" FontSize="10"/>
+                            <TextBlock x:Name="HeaderStatus" Text="未导入数据"
+                                       FontSize="10" Foreground="#52637A"/>
+                        </StackPanel>
+                    </Border>
+                    <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="─" ToolTip="最小化" Style="{StaticResource HeaderActionButton}"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Click"/>
+                        <Button Content="□" ToolTip="最大化/还原" Style="{StaticResource HeaderActionButton}"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="Maximize_Click"/>
+                        <Button Content="×" ToolTip="关闭" Style="{StaticResource HeaderCloseButton}"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="Close_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <wv2:WebView2 x:Name="TerminalBrowser" Grid.Row="1"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </Grid>
     </Border>
 </Window>

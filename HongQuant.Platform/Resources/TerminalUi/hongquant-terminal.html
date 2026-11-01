@@ -735,6 +735,10 @@ html,body{height:100%;min-height:0;overflow:hidden}
 
 
 .toolbar .btn.is-active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-2)}
+
+/* 真正可拖动的系统标题栏由 WPF WindowChrome 承载。
+   WebView2 只填充标题栏下面的业务区域，不再截获非客户区鼠标消息。 */
+.titlebar{display:none!important}
 </style>
 </head>
 <body>
@@ -1400,31 +1404,71 @@ html,body{height:100%;min-height:0;overflow:hidden}
     var el = $('#selCount');
     if (el) el.textContent = n;
   }
-  $('#assetSearch').addEventListener('input', function(e){ renderAssets(e.target.value); });
+  var selectionAnchor = null; // 文件原始索引；跨渲染保留，Shift 选择基于当前可见顺序。
+  function visibleAssetInputs(){
+    return Array.from(assetList.querySelectorAll('input[data-idx]'));
+  }
+
+  $('#assetSearch').addEventListener('input', function(e){
+    selectionAnchor = null;
+    renderAssets(e.target.value);
+  });
+
   function sendSelection(){
-    var selected=new Set(NATIVE_SELECTED);
-    assetList.querySelectorAll('input[data-idx]').forEach(function(c){
-      var index=+c.dataset.idx;
-      if(c.checked)selected.add(index); else selected.delete(index);
+    var selected = new Set(NATIVE_SELECTED);
+    visibleAssetInputs().forEach(function(input){
+      var index = +input.dataset.idx;
+      if (input.checked) selected.add(index);
+      else selected.delete(index);
     });
-    NATIVE_SELECTED=Array.from(selected).sort(function(a,b){return a-b;});
+    NATIVE_SELECTED = Array.from(selected).sort(function(a,b){return a-b;});
     updateSelCount();
     emitNative('select-assets',{indexes:NATIVE_SELECTED});
   }
-  assetList.addEventListener('change', function(){ updateSelCount();sendSelection(); });
-  $('#selectAll').addEventListener('click', function(){
-    // 全选必须包含筛选后隐藏的文件，不能只依赖当前 DOM 中的复选框。
-    ACTIVE_TEMPLATE_ID = '';
-    NATIVE_SELECTED = ASSETS.map(function(_,i){return i;});
-    renderAssets($('#assetSearch').value);
-    $('#templatePicker').value = '';
+
+  // Ctrl/普通点击保持单选增删；Shift 点击把当前可见列表中的两个端点及其间的项目勾选。
+  // 在捕获阶段拦截 label 的默认复选框行为，避免点击产生两次 change 互相抵消。
+  assetList.addEventListener('click',function(e){
+    var label=e.target.closest('label.asset');
+    if (!label || !assetList.contains(label)) return;
+    var target=label.querySelector('input[data-idx]');
+    if(!target)return;
+    var currentIndex=+target.dataset.idx;
+    if(e.shiftKey && selectionAnchor!==null){
+      var visible=visibleAssetInputs();
+      var from=visible.findIndex(function(el){return +el.dataset.idx===selectionAnchor;});
+      var to=visible.findIndex(function(el){return +el.dataset.idx===currentIndex;});
+      if(from>=0 && to>=0){
+        e.preventDefault();
+        e.stopPropagation();
+        var start=Math.min(from,to), finish=Math.max(from,to);
+        // input[type=checkbox] 的取消默认行为会在事件返回后回滚 checked；
+        // 延迟到本轮事件完成再设置范围，确保不会出现点亮后又取消的闪烁。
+        setTimeout(function(){
+          for(var i=start;i<=finish;i++)visible[i].checked=true;
+          sendSelection();
+        },0);
+        return;
+      }
+    }
+    selectionAnchor=currentIndex;
+  },true);
+  assetList.addEventListener('change',sendSelection);
+
+  $('#selectAll').addEventListener('click',function(){
+    // 仅勾选当前过滤条件下可见的结果，隐藏的条目不应被全选。
+    var visible=visibleAssetInputs();
+    NATIVE_SELECTED=visible.map(function(input){return +input.dataset.idx;});
+    visible.forEach(function(input){input.checked=true;});
+    selectionAnchor=null;
+    updateSelCount();
     emitNative('select-assets',{indexes:NATIVE_SELECTED});
   });
-  $('#clearAll').addEventListener('click', function(){
-    ACTIVE_TEMPLATE_ID = '';
-    NATIVE_SELECTED = [];
-    renderAssets($('#assetSearch').value);
-    $('#templatePicker').value = '';
+  $('#clearAll').addEventListener('click',function(){
+    NATIVE_SELECTED=[];
+    visibleAssetInputs().forEach(function(input){input.checked=false;});
+    selectionAnchor=null;
+    updateSelCount();
     emitNative('select-assets',{indexes:[]});
   });
 
@@ -1508,10 +1552,8 @@ html,body{height:100%;min-height:0;overflow:hidden}
     srcMenuEl.setAttribute('role', 'listbox');
     srcMenuEl.innerHTML =
       '<div class="src-grp">组合</div>' +
-      SOURCES.filter(function(s){ return s.grp === '组合'; }).map(opt).join('') +
-      '<div class="src-grp">单个品种</div>' +
-      SOURCES.filter(function(s){ return s.grp === '单品'; }).map(opt).join('') +
-      '<div class="src-note">来源为已导入的真实策略数据和实际计算生成的组合，不包含模拟数据。</div>';
+      (SOURCES.filter(function(s){return s.grp==='组合';}).map(opt).join('') ||
+       '<div class="src-note">暂无组合，请到基础数据勾选品种后右键创建组合</div>');
   }
   function openSrcMenu(anchor){
     renderSrcMenu();
@@ -1950,8 +1992,9 @@ html,body{height:100%;min-height:0;overflow:hidden}
     var sa = $('.view[data-panel="' + name + '"] .scroll-area');
     if (sa) sa.scrollTop = 0;
     hideTip();
+    emitNative('view-changed',{name:name});
   }
-  $$('.nav-item[data-view]').forEach(function(b){
+  $('.nav-item[data-view]').forEach(function(b){
     b.addEventListener('click', function(){ switchView(b.dataset.view); });
   });
   $$('.sb-link[data-view]').forEach(function(b){
@@ -2354,15 +2397,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
   });
   var chartExport=$('.view[data-panel="chart"] .toolbar button');
   if(chartExport)chartExport.addEventListener('click',function(){emitNative('export-chart');});
-  var controls=document.querySelectorAll('.win-ctrl button');
-  ['window-minimize','window-toggle','window-close'].forEach(function(action,i){
-    if(controls[i])controls[i].addEventListener('click',function(){emitNative(action);});
-  });
-  $('.titlebar').addEventListener('mousedown',function(e){
-    if(e.button!==0 || e.target.closest('button,input,select,.status,.src-menu'))return;
-    if(e.detail===2){emitNative('window-toggle');return;}
-    emitNative('window-drag');
-  });
+  // 系统窗口按钮与拖动由 WPF 标题栏处理，WebView2 不再传递拖动消息。
   var tokenExport=$('.view[data-panel="ds"] .toolbar button');
   if(tokenExport)tokenExport.addEventListener('click',function(){
     nativeShowError('设计 Tokens 已随应用资源提供，无需重复导出。');
