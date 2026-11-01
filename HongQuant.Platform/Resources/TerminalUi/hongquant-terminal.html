@@ -692,6 +692,49 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
   box-shadow:0 12px 36px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .15s}
 #nativeError.visible{opacity:1;pointer-events:auto}
 
+
+/* Maximized shell: lock every nested flex level to the WebView2 client height.
+   The table and asset list scroll; the two bottom action bars never scroll away. */
+html,body{height:100%;min-height:0;overflow:hidden}
+.app{height:100vh;height:100dvh;max-height:100%;min-height:0;overflow:hidden}
+.shell{flex:1 1 0;min-height:0;max-height:100%;overflow:hidden}
+.main{min-height:0;height:100%;overflow:hidden}
+.view{flex:1 1 0%;height:0;min-height:0;overflow:hidden}
+.view.active{display:flex}
+.split{flex:1 1 0%;min-height:0;height:0;overflow:hidden}
+.sidebar,.asset-pane,.table-pane{min-height:0;overflow:hidden}
+.asset-list,.table-wrap{flex:1 1 0%;min-height:0;overflow:auto}
+.asset-list{overflow-x:hidden}
+.pane-foot,.tabbar,.pane-template{flex:0 0 auto}
+.tabbar{min-height:36px}
+.pane-template{border-top:1px solid var(--line);padding:7px 11px 9px;background:var(--pane-bg)}
+.pane-template label{display:block;color:var(--text-3);font-size:10.5px;margin-bottom:4px}
+.pane-template select{width:100%;height:30px;padding:0 8px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg-2);color:var(--text-1);font-size:11.5px}
+.pane-template select:focus{outline:1px solid var(--accent)}
+.tab{flex:0 0 auto;max-width:230px}
+.tab .tab-name{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tab-close{width:17px;height:20px;display:grid;place-items:center;border-radius:4px;font-size:15px;color:var(--text-4);margin-left:4px}
+.tab-close:hover{color:var(--up);background:var(--fill-2)}
+.asset-menu{position:fixed;min-width:158px;z-index:1300;padding:5px;border:1px solid var(--tip-line);
+  border-radius:8px;background:var(--tip-bg);box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.asset-menu[hidden]{display:none}
+.asset-menu button{display:block;width:100%;padding:8px 11px;text-align:left;cursor:pointer;border:0;
+  border-radius:5px;color:var(--text-1);background:none;font-size:11.5px}
+.asset-menu button:hover{background:var(--accent-soft)}
+.asset-menu hr{height:1px;border:0;background:var(--line);margin:3px 5px}
+.terminal-dialog{position:fixed;inset:0;z-index:1350;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.38)}
+.terminal-dialog[hidden]{display:none}
+.terminal-dialog .dialog-card{width:min(380px,calc(100vw - 30px));background:var(--bg-2);
+  padding:19px;border:1px solid var(--line-2);border-radius:10px;box-shadow:0 18px 56px rgba(0,0,0,.22)}
+.terminal-dialog .dialog-heading{font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:9px}
+.terminal-dialog .dialog-note{font-size:11px;color:var(--text-3);margin-bottom:12px}
+.terminal-dialog input{width:100%;height:34px;padding:0 11px;border:1px solid var(--line-2);
+  background:var(--bg-3);color:var(--text-1);border-radius:6px;font:inherit}
+.terminal-dialog .dialog-buttons{display:flex;justify-content:flex-end;margin-top:16px;gap:8px}
+.terminal-dialog button{margin:0}
+
+
+.toolbar .btn.is-active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-2)}
 </style>
 </head>
 <body>
@@ -810,7 +853,11 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="7.2" cy="7.2" r="4.4" stroke="currentColor" stroke-width="1.3"/><path d="M10.6 10.6L13.4 13.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
               <input id="assetSearch" placeholder="搜索品种代码">
             </div>
-            <div class="asset-list" id="assetList"></div>
+            <div class="asset-list" id="assetList" aria-label="品种列表（右键打开组合操作）"></div>
+            <div class="pane-template">
+              <label for="templatePicker">组合模板</label>
+              <select id="templatePicker" title="选择已保存的组合模板"><option value="">全部品种</option></select>
+            </div>
             <div class="pane-foot">
               <button class="link" id="selectAll">全选</button>
               <span style="color:var(--text-4)">·</span>
@@ -1239,6 +1286,25 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
 
 <div id="tip"></div>
 
+
+  <div id="assetContextMenu" class="asset-menu" role="menu" hidden>
+    <button type="button" data-asset-action="create-combination" role="menuitem">组合计算（已勾选品种）</button>
+    <button type="button" data-asset-action="latest-view" role="menuitem">最新查看</button>
+    <hr>
+    <button type="button" data-asset-action="save-template" role="menuitem">保存模板</button>
+  </div>
+  <div id="saveTemplateDialog" class="terminal-dialog" hidden>
+    <div class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="templateDialogTitle">
+      <div id="templateDialogTitle" class="dialog-heading">保存组合模板</div>
+      <p class="dialog-note">将当前勾选的品种和策略保存为可复用的组合模板。</p>
+      <input id="templateName" type="text" maxlength="70" placeholder="输入模板名称" autocomplete="off">
+      <div class="dialog-buttons">
+        <button class="btn" id="cancelTemplateSave" type="button">取消</button>
+        <button class="btn btn--primary" id="confirmTemplateSave" type="button">保存模板</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 (function(){
   'use strict';
@@ -1309,12 +1375,16 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
   /* ───────── 渲染：品种池 ───────── */
   function escapeText(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   var assetList = $('#assetList');
+  var ACTIVE_TEMPLATE_ID = '';
+  var NATIVE_TEMPLATES = [];
+  var lastSingleSourceId = '';
   function renderAssets(filter){
     var q = (filter || '').trim().toLowerCase();
     assetList.innerHTML = ASSETS.map(function(a, idx){
       var code = a[0], cn = a[1];
       var label = (code + ' ' + (a[2] || '')).toLowerCase();
       if (q && label.indexOf(q) < 0 && cn.indexOf(q) < 0) return '';
+      if (ACTIVE_TEMPLATE_ID && NATIVE_SELECTED.indexOf(idx) < 0) return '';
       var checked = NATIVE_SELECTED.indexOf(idx) >= 0 ? ' checked' : '';
       return '<label class="asset">' +
         '<input type="checkbox" data-idx="' + idx + '"' + checked + '>' +
@@ -1343,10 +1413,19 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
   }
   assetList.addEventListener('change', function(){ updateSelCount();sendSelection(); });
   $('#selectAll').addEventListener('click', function(){
-    document.querySelectorAll('#assetList input').forEach(function(c){ c.checked=true; });updateSelCount();sendSelection();
+    // 全选必须包含筛选后隐藏的文件，不能只依赖当前 DOM 中的复选框。
+    ACTIVE_TEMPLATE_ID = '';
+    NATIVE_SELECTED = ASSETS.map(function(_,i){return i;});
+    renderAssets($('#assetSearch').value);
+    $('#templatePicker').value = '';
+    emitNative('select-assets',{indexes:NATIVE_SELECTED});
   });
   $('#clearAll').addEventListener('click', function(){
-    document.querySelectorAll('#assetList input').forEach(function(c){ c.checked=false; });updateSelCount();sendSelection();
+    ACTIVE_TEMPLATE_ID = '';
+    NATIVE_SELECTED = [];
+    renderAssets($('#assetSearch').value);
+    $('#templatePicker').value = '';
+    emitNative('select-assets',{indexes:[]});
   });
 
   /* ───────── 渲染：表格 ───────── */
@@ -1383,16 +1462,35 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
   /* ───────── 数据来源：底部页签 / 浮层菜单 / 三页同步 ───────── */
   var dataTabs = $('#dataTabs');
   function renderSourceTabs(){
-    dataTabs.innerHTML = SOURCES.map(function(s){
-      return '<button class="tab' + (s.id === SOURCE ? ' on' : '') + '" data-tab-src="' + s.id + '" title="' + escapeText(s.note || '') + '">' +
-        '<span>' + escapeText(s.grp === '组合' ? '组合' : s.name) + '</span>' +
-        '<span class="code">' + escapeText(s.code) + '</span>' +
-      '</button>';
+    var singles = SOURCES.filter(function(x){return x.grp === '单品';});
+    if (!singles.some(function(x){return x.id===lastSingleSourceId;}))
+      lastSingleSourceId = singles.length ? singles[0].id : '';
+    var combos = SOURCES.filter(function(x){return x.grp === '组合' && x.id !== 'combo';});
+    var solo = singles.find(function(x){return x.id === lastSingleSourceId;});
+    var html = solo
+      ? '<button class="tab' + (SOURCE === solo.id ? ' on' : '') +
+        '" data-tab-src="' + solo.id + '"><span class="tab-name">单个品种</span>' +
+        '<span class="code">' + escapeText(solo.code) + '</span></button>'
+      : '<span class="tab disabled">单个品种</span>';
+    html += combos.map(function(combo){
+      return '<button class="tab' + (SOURCE === combo.id ? ' on' : '') + '" data-tab-src="' +
+        combo.id + '" title="' + escapeText(combo.note || combo.name) + '">' +
+        '<span class="tab-name">' + escapeText(combo.name) + '</span>' +
+        '<span class="tab-close" data-close-combo="' + combo.id +
+        '" role="button" tabindex="0" title="关闭此组合">×</span></button>';
     }).join('');
+    dataTabs.innerHTML = html;
   }
   dataTabs.addEventListener('click', function(e){
-    var t = e.target.closest('[data-tab-src]');
-    if (t) setSource(t.dataset.tabSrc);
+    var close = e.target.closest('[data-close-combo]');
+    if (close){e.preventDefault();e.stopPropagation();emitNative('close-combination',{id:close.dataset.closeCombo});return;}
+    var tab = e.target.closest('[data-tab-src]');
+    if (tab) setSource(tab.dataset.tabSrc);
+  });
+  dataTabs.addEventListener('keydown', function(e){
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var close = e.target.closest('[data-close-combo]');
+    if (close){e.preventDefault();e.stopPropagation();emitNative('close-combination',{id:close.dataset.closeCombo});}
   });
 
   var srcMenuEl = document.createElement('div');
@@ -1463,6 +1561,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
     if (!def) return;
     var changed = id !== SOURCE;
     SOURCE = id;
+    if (def.grp === '单品') lastSingleSourceId = id;
     if (changed){
       STATE.sel = 0;
       if (!applyingNative) {
@@ -2183,6 +2282,10 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
     applyingNative = true;
     ASSETS = data.assets || [];
     NATIVE_SELECTED = data.selected || [];
+    ACTIVE_TEMPLATE_ID = data.activeTemplateId || '';
+    NATIVE_TEMPLATES = data.templates || [];
+    renderTemplatePicker();
+    if (!lastSingleSourceId) lastSingleSourceId = data.singleSourceId || '';
     SOURCES = data.sources && data.sources.length ? data.sources :
       [{id:'combo', name:'未导入数据',code:'—',grp:'组合',note:'请先导入真实 CSV'}];
     NATIVE_DATA.equity = data.equity || [];
@@ -2205,6 +2308,12 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
     }
     var foot = $('.sb-meta');
     if(foot) foot.innerHTML = '引擎 <b>.NET 8 · 本地</b><br>数据源 <b>' + escapeText(data.activeSourceName || '未选择') + '</b>';
+    var syncButton = dataButtons[3];
+    if (syncButton) {
+      syncButton.setAttribute('aria-pressed',data.templateSync ? 'true' : 'false');
+      syncButton.title = data.templateSync ? '自动同步组合：已开启' : '自动同步组合：已关闭';
+      syncButton.classList.toggle('is-active', !!data.templateSync);
+    }
     var footPath = $('.view[data-panel="data"] .toolbar button:last-child');
     if(footPath) footPath.title = data.folderPath || '尚未指定数据路径';
     var lastUpdated = $('.statusbar span:last-child');
@@ -2223,8 +2332,19 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
     layer._timer=setTimeout(function(){layer.classList.remove('visible');},6000);
   }
   window.__hqNative={applyState:nativeApply,showError:nativeShowError};
+  function renderTemplatePicker(){
+    var picker=$('#templatePicker');
+    picker.innerHTML='<option value="">全部品种</option>'+NATIVE_TEMPLATES.map(function(t){
+      return '<option value="'+escapeText(t.id)+'">'+escapeText(t.name)+'</option>';
+    }).join('');
+    picker.value=ACTIVE_TEMPLATE_ID;
+  }
+  $('#templatePicker').addEventListener('change',function(e){
+    ACTIVE_TEMPLATE_ID=e.target.value;
+    emitNative('select-template',{id:ACTIVE_TEMPLATE_ID});
+  });
   var dataButtons=document.querySelectorAll('.view[data-panel="data"] .toolbar button');
-  var dataActions=['refresh','edit-templates','export-data','sync-combination','choose-path'];
+  var dataActions=['refresh','edit-templates','export-data','toggle-template-sync','choose-path'];
   dataButtons.forEach(function(button,i){
     if(dataActions[i])button.addEventListener('click',function(){emitNative(dataActions[i]);});
   });
@@ -2247,6 +2367,61 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
   if(tokenExport)tokenExport.addEventListener('click',function(){
     nativeShowError('设计 Tokens 已随应用资源提供，无需重复导出。');
   });
+
+  // 恢复旧版品种列表右键操作：计算组合取已勾选集，而不是当前正在查看的单品。
+  var assetMenu=$('#assetContextMenu');
+  function hideAssetMenu(){assetMenu.hidden=true;}
+  assetList.addEventListener('contextmenu',function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    assetMenu.hidden=false;
+    var width=assetMenu.offsetWidth, height=assetMenu.offsetHeight;
+    assetMenu.style.left=Math.max(8,Math.min(e.clientX,window.innerWidth-width-8))+'px';
+    assetMenu.style.top=Math.max(8,Math.min(e.clientY,window.innerHeight-height-8))+'px';
+  });
+  assetMenu.addEventListener('click',function(e){
+    var option=e.target.closest('[data-asset-action]');
+    if(!option)return;
+    var action=option.dataset.assetAction;
+    hideAssetMenu();
+    if(action==='save-template'){
+      if(!NATIVE_SELECTED.length){nativeShowError('请先勾选要保存为模板的品种。');return;}
+      $('#saveTemplateDialog').hidden=false;
+      $('#templateName').value='';
+      $('#templateName').focus();
+      return;
+    }
+    if(!NATIVE_SELECTED.length){
+      nativeShowError('请先勾选参与操作的品种。');return;
+    }
+    emitNative(action);
+  });
+  document.addEventListener('pointerdown',function(e){
+    if(!assetMenu.hidden && !assetMenu.contains(e.target))hideAssetMenu();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      hideAssetMenu();
+      $('#saveTemplateDialog').hidden=true;
+    }
+  });
+  $('#cancelTemplateSave').addEventListener('click',function(){
+    $('#saveTemplateDialog').hidden=true;
+  });
+  $('#saveTemplateDialog').addEventListener('click',function(e){
+    if(e.target.id==='saveTemplateDialog')e.currentTarget.hidden=true;
+  });
+  function confirmTemplateName(){
+    var name=$('#templateName').value.trim();
+    if(!name){nativeShowError('请输入模板名称。');return;}
+    $('#saveTemplateDialog').hidden=true;
+    emitNative('save-template',{name:name});
+  }
+  $('#confirmTemplateSave').addEventListener('click',confirmTemplateName);
+  $('#templateName').addEventListener('keydown',function(e){
+    if(e.key==='Enter'){e.preventDefault();confirmTemplateName();}
+  });
+
   if(NATIVE) emitNative('ready');
 
 })();

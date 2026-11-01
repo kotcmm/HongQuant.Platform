@@ -1,6 +1,7 @@
 using HongQuant.Platform.Terminal;
 using HongQuant.Platform.Infrastucture;
 using HongQuant.Platform.Views.Original;
+using HongQuant.Platform.ViewModels.Original;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -112,8 +113,24 @@ public partial class MainWindow : Window
                         _data.SelectAssets(indexes.EnumerateArray().Where(x => x.TryGetInt32(out _)).Select(x => x.GetInt32()));
                     break;
                 case "sync-combination":
+                case "create-combination":
                     _data.SynchronizeCombination();
                     break;
+                case "toggle-template-sync":
+                    _data.ToggleTemplateSync();
+                    break;
+                case "close-combination":
+                    _data.CloseCombination(ReadString(message, "id") ?? string.Empty);
+                    break;
+                case "select-template":
+                    _data.SelectTemplate(ReadString(message, "id") ?? string.Empty);
+                    break;
+                case "save-template":
+                    _data.SaveSelectionAsTemplate(ReadString(message, "name") ?? string.Empty);
+                    break;
+                case "latest-view":
+                    ShowLatestSelected();
+                    return;
                 case "edit-templates":
                     new ProductTemplateSettingView { Owner = this }.ShowDialog();
                     break;
@@ -201,6 +218,28 @@ public partial class MainWindow : Window
         _data.LoadFiles(files);
     }
 
+    // 原来右键菜单的“最新查看”：继续使用原有窗口及 ShowLastViewModel，
+    // 只把 WebView 品种勾选映射回旧视图模型，避免另造一套不一致的计算逻辑。
+    private void ShowLatestSelected()
+    {
+        var selectedFiles = _data.GetSelectedFiles();
+        if (selectedFiles.Count == 0)
+            throw new InvalidOperationException("请先勾选需要查看最新数据的品种。");
+
+        var selectedNames = selectedFiles.Select(file => file.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var viewModel = new ShowDataViewModel();
+        foreach (var item in viewModel.FileIndexs)
+            item.IsSelected = selectedNames.Contains(item.DataFile.Name) && item.Items?.Any() == true;
+
+        var latest = new ShowLastView
+        {
+            Owner = this,
+            DataContext = new ShowLastViewModel(viewModel)
+        };
+        latest.Closed += (_, _) => viewModel.Dispose();
+        latest.Show();
+    }
+
     private void ExportData()
     {
         var dialog = new OpenFolderDialog { Title = "选择权益数据导出目录" };
@@ -241,6 +280,75 @@ public partial class MainWindow : Window
         ReleaseCapture();
         SendMessage(new WindowInteropHelper(this).Handle, 0xA1, new IntPtr(2), IntPtr.Zero);
     }
+
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        var hwnd = new WindowInteropHelper(this).Handle;
+        HwndSource.FromHwnd(hwnd)?.AddHook(WindowMessageHook);
+        EnableWindowDecoration(hwnd);
+    }
+
+    private static void EnableWindowDecoration(IntPtr hwnd)
+    {
+        // Windows 11 优先采用 DWM 原生圆角和系统投影阴影；
+        // Windows 10 仍保留 1px 的可见窗口描边。
+        const uint cornerPreference = 33; // DWMWA_WINDOW_CORNER_PREFERENCE
+        const uint borderColor = 34;      // DWMWA_BORDER_COLOR
+        const uint ncRenderingPolicy = 2; // DWMWA_NCRENDERING_POLICY
+        var corners = 2; // DWMWCP_ROUND
+        var border = 0x00D8C7BB; // COLORREF (BGR)
+        var enabled = 2; // DWMNCRP_ENABLED
+        _ = DwmSetWindowAttribute(hwnd, cornerPreference, ref corners, sizeof(int));
+        _ = DwmSetWindowAttribute(hwnd, borderColor, ref border, sizeof(int));
+        _ = DwmSetWindowAttribute(hwnd, ncRenderingPolicy, ref enabled, sizeof(int));
+        var margins = new DwmMargins { Left = 1, Right = 1, Top = 1, Bottom = 1 };
+        _ = DwmExtendFrameIntoClientArea(hwnd, ref margins);
+    }
+
+    // 无边框窗口最大化时用当前显示器的工作区域（排除任务栏），
+    // 否则 WebView2 的 100vh 可能落在屏幕底边之外，隐藏组合标签与全选/清空。
+    private IntPtr WindowMessageHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        const int getMinMaxInfo = 0x0024;
+        if (msg != getMinMaxInfo) return IntPtr.Zero;
+        var monitor = MonitorFromWindow(hwnd, 2);
+        var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
+        if (monitor == IntPtr.Zero || !GetMonitorInfo(monitor, ref info)) return IntPtr.Zero;
+        var limits = Marshal.PtrToStructure<MinMaxInfo>(lParam);
+        limits.MaxPosition.X = info.Work.Left - info.Monitor.Left;
+        limits.MaxPosition.Y = info.Work.Top - info.Monitor.Top;
+        limits.MaxSize.X = info.Work.Right - info.Work.Left;
+        limits.MaxSize.Y = info.Work.Bottom - info.Work.Top;
+        Marshal.StructureToPtr(limits, lParam, false);
+        handled = true;
+        return IntPtr.Zero;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativePoint { public int X, Y; }
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeRect { public int Left, Top, Right, Bottom; }
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MonitorInfo
+    {
+        public int Size;
+        public NativeRect Monitor, Work;
+        public uint Flags;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MinMaxInfo
+    {
+        public NativePoint Reserved, MaxSize, MaxPosition, MinTrackSize, MaxTrackSize;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    private struct DwmMargins { public int Left, Right, Top, Bottom; }
+
+    [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr handle, uint flags);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo info);
+    [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, uint attribute, ref int value, int size);
+    [DllImport("dwmapi.dll")] private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref DwmMargins margins);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct CursorPoint { public int X; public int Y; }

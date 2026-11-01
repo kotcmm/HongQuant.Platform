@@ -6,13 +6,31 @@
         Title="HONG QUANT · 研究终端" Width="1440" Height="900"
         MinWidth="1030" MinHeight="620" WindowState="Maximized"
         WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="False"
-        Background="#F1F3F7">
+        Background="#F1F3F7" SnapsToDevicePixels="True">
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"
-                            CornerRadius="0" UseAeroCaptionButtons="False"/>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="1"
+                            CornerRadius="8" UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
     <!-- 保持现有 WPF 后端，四个工作区由原始 HTML/CSS 负责逐像素绘制。 -->
-    <Grid>
-        <wv2:WebView2 x:Name="TerminalBrowser" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-    </Grid>
+    <!-- 细描边留在 WPF 外层；最大化时去掉内缩，避免底部操作栏被工作区边缘裁切。 -->
+    <Border x:Name="WindowFrame" BorderBrush="#BBC7D8"
+            Background="#F1F3F7" ClipToBounds="True">
+        <Border.Style>
+            <Style TargetType="{x:Type Border}">
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="1"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}"
+                                 Value="Maximized">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="CornerRadius" Value="0"/>
+                        <Setter Property="Padding" Value="0"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+        <wv2:WebView2 x:Name="TerminalBrowser" HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"/>
+    </Border>
 </Window>

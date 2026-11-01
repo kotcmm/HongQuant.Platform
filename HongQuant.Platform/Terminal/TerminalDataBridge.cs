@@ -6,6 +6,8 @@ using HongQuant.Core.Models;
 using HongQuant.Core.Services;
 using HongQuant.Core.Stores;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Splat;
 
@@ -20,7 +22,9 @@ internal sealed class TerminalDataBridge
     private readonly IOriginalService _original = Locator.Current.GetService<IOriginalService>()
         ?? throw new InvalidOperationException("未注册基础数据服务");
 
-    private readonly HashSet<string> _selectedFileIds = new(StringComparer.Ordinal);
+    // BasicDataFile.Id 没有赋值，不能用它做复选框身份；以实际文件路径区分同品种不同策略。
+    private readonly HashSet<string> _selectedFileIds = new(StringComparer.OrdinalIgnoreCase);
+    private string _activeTemplateId = string.Empty;
     private readonly Dictionary<string, double> _parameters = new()
     {
         ["ret"] = 100, ["months"] = 36, ["lev0"] = 1, ["levStep"] = 1,
@@ -45,12 +49,78 @@ internal sealed class TerminalDataBridge
 
     internal void SelectSource(string id) => _sourceId = id;
 
+    internal bool TemplateSync =>
+        bool.TryParse(GlobalSettingStroe.GetValue("TemplateSync"), out var enabled) && enabled;
+
+    internal void ToggleTemplateSync() =>
+        GlobalSettingStroe.SetValue(new GlobalSetting
+        {
+            Key = "TemplateSync",
+            Value = (!TemplateSync).ToString()
+        });
+
+    private static string FileKey(IDataFile file) => file is BasicDataFile basic
+        ? basic.FileInfo.FullName
+        : file.Name;
+
+    private static string ComboSourceId(IDataFile combo)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(combo.Id));
+        return "combo-" + Convert.ToHexString(hash.AsSpan(0, 12));
+    }
+
+    internal void CloseCombination(string sourceId)
+    {
+        IndexSources();
+        var combo = _sources.FirstOrDefault(x => x.Id == sourceId && x.Group == "组合");
+        if (combo is null) return;
+        _original.Remove(combo.File.Id);
+        if (_sourceId == sourceId)
+            _sourceId = _sources.FirstOrDefault(x => x.Group == "单品")?.Id ?? string.Empty;
+    }
+
+    internal void SelectTemplate(string templateId)
+    {
+        _activeTemplateId = templateId;
+        _selectedFileIds.Clear();
+        if (Guid.TryParse(templateId, out var guid))
+        {
+            var template = _original.ProductTemplates.Items.FirstOrDefault(x => x.Id == guid);
+            if (template is not null)
+                foreach (var file in _files.Where(file =>
+                    template.Products.Any(p => p.Product == file.Product && p.Strategy == file.Strategy)))
+                    _selectedFileIds.Add(FileKey(file));
+        }
+    }
+
+    internal void SaveSelectionAsTemplate(string name)
+    {
+        var selected = _files.Where(f => _selectedFileIds.Contains(FileKey(f))).ToList();
+        if (selected.Count == 0) throw new InvalidOperationException("请先勾选要保存为模板的品种。");
+        if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException("请输入组合模板名称。");
+        name = name.Trim();
+        var existing = _original.ProductTemplates.Items.FirstOrDefault(x => x.TemplateName == name);
+        var template = new ProductTemplate
+        {
+            Id = existing?.Id ?? Guid.NewGuid(),
+            TemplateName = name,
+            Products = selected.Select(f => new SelectProduct(f.Product, f.Strategy)).Distinct().ToList()
+        };
+        _original.SaveProductTemplate(template);
+        _activeTemplateId = template.Id.ToString("D");
+    }
+
+    internal IReadOnlyList<IDataFile> GetSelectedFiles() =>
+        _files.Where(f => _selectedFileIds.Contains(FileKey(f))).ToList();
+
     internal void SelectAssets(IEnumerable<int> indexes)
     {
+        // 手工修改勾选后退出模板筛选，避免只显示之前模板中的文件。
+        _activeTemplateId = string.Empty;
         _selectedFileIds.Clear();
         foreach (var i in indexes)
             if (i >= 0 && i < _files.Count)
-                _selectedFileIds.Add(_files[i].Id);
+                _selectedFileIds.Add(FileKey(_files[i]));
     }
 
     internal void LoadFiles(IEnumerable<string> paths)
@@ -70,17 +140,21 @@ internal sealed class TerminalDataBridge
                 if (matches.Count > 0) _original.Combination(matches, template.TemplateName);
             }
         }
-        _selectedFileIds.Clear();
-        foreach (var file in _original.FileIndexs.Items) _selectedFileIds.Add(file.Id);
+        _selectedFileIds.Clear(); // 与旧版保持一致：导入后由用户勾选，不自动全选。
+        _activeTemplateId = string.Empty;
         _sourceId = string.Empty;
     }
 
     internal void SynchronizeCombination()
     {
-        var files = _files.Where(x => _selectedFileIds.Contains(x.Id)).ToList();
-        if (files.Count == 0) throw new InvalidOperationException("请先选择需要组合的品种。");
-        _original.Combination(files, $"组合 ({files.Count}品种)");
-        _sourceId = "combo-0";
+        IndexSources();
+        var files = _files.Where(x => _selectedFileIds.Contains(FileKey(x))).ToList();
+        if (files.Count == 0) throw new InvalidOperationException("请先勾选参与组合计算的品种。");
+        var name = $"组合 {DateTime.Now:HHmmss} ({files.Count}品种)";
+        _original.Combination(files, name);
+        var result = _original.CombinationFileIndexs.Items.FirstOrDefault(x => x.Name == name);
+        if (result is null) throw new InvalidOperationException("组合计算未生成结果。");
+        _sourceId = ComboSourceId(result);
     }
 
     internal void ExportSelected(string folder)
@@ -111,7 +185,7 @@ internal sealed class TerminalDataBridge
         for (var i = 0; i < combos.Count; i++)
         {
             var name = combos[i].Name;
-            _sources.Add(new SourceEntry($"combo-{i}", name, name, "组合", name, combos[i]));
+            _sources.Add(new SourceEntry(ComboSourceId(combos[i]), name, name, "组合", name, combos[i]));
         }
         for (var i = 0; i < _files.Count; i++)
         {
@@ -120,9 +194,10 @@ internal sealed class TerminalDataBridge
         }
 
         if (_sources.All(x => x.Id != _sourceId))
-            _sourceId = _sources.FirstOrDefault()?.Id ?? string.Empty;
+            _sourceId = _sources.FirstOrDefault(x => x.Group == "单品")?.Id
+                ?? _sources.FirstOrDefault()?.Id ?? string.Empty;
 
-        _selectedFileIds.RemoveWhere(id => _files.All(f => f.Id != id));
+        _selectedFileIds.RemoveWhere(id => _files.All(f => FileKey(f) != id));
     }
 
     private CycleIncomeService Calculate(IDataFile source, string mode)
@@ -198,9 +273,9 @@ internal sealed class TerminalDataBridge
             x.Yields * 100, x.TotalYields * 100, x.WithdrawDeep * 100,
             x.MaxWithdraw * 100, x.WithdrawLevel * 100
         }).ToArray() ?? [];
-        var assets = _files.Select(f => new[] { f.Product, f.Name, f.Name, f.Id }).ToArray();
+        var assets = _files.Select(f => new[] { f.Product, f.Name, f.Name, FileKey(f) }).ToArray();
         var selected = _files.Select((f, index) => (f, index))
-            .Where(x => _selectedFileIds.Contains(x.f.Id)).Select(x => x.index).ToArray();
+            .Where(x => _selectedFileIds.Contains(FileKey(x.f))).Select(x => x.index).ToArray();
         var selectedSource = _sources.FirstOrDefault(x => x.Id == _sourceId);
         var result = new
         {
@@ -211,6 +286,11 @@ internal sealed class TerminalDataBridge
                 id = x.Id, name = x.Name, code = x.Code, grp = x.Group, note = x.Note
             }).ToArray(),
             assets, selected,
+            templateSync = TemplateSync,
+            activeTemplateId = _activeTemplateId,
+            templates = _original.ProductTemplates.Items.OrderBy(x => x.TemplateName)
+                .Select(x => new { id = x.Id.ToString("D"), name = x.TemplateName }).ToArray(),
+            singleSourceId = _sources.FirstOrDefault(x => x.Group == "单品")?.Id ?? string.Empty,
             equity,
             compound = source is null ? null : ComputeRows(source, "compound"),
             settle = source is null ? null : ComputeRows(source, "settle"),
