@@ -270,20 +270,27 @@ internal sealed class TerminalDataBridge
     {
         var stats = Calculate(source, mode).IncomeStatistics.Items.ToList();
         var compound = mode == "compound";
-        var usable = stats.Where(s => s.IncomeInfoResults.Count > 0 && s.DayCount > 0);
-        if (compound)
-        {
-            // 目标收益与时间参数直接作用于原算法，不能对原型示例行筛选。
-            usable = usable.Where(s => s.Total >= _parameters["ret"] - 1e-6
-                && s.DayCount <= _parameters["months"] * 31 + 2
-                && s.LastMultiples <= _parameters["levMax"] + 1e-6);
-        }
-        var rows = usable.ToList();
+
+        // 明细必须呈现所有实际产生交易记录的样本（含未达标、未完成目标的样本）。
+        // 只把达标判断用于 KPI，不得在数据桥上提前裁剪表格/图表的数据。
+        // 与原算法一致：无任何交易日的空对象不构成可展示的样本。
+        var rows = stats.Where(s => s.IncomeInfoResults.Count > 0 && s.DayCount > 0)
+            .ToList();
+        var qualifiedIndexes = rows
+            .Select((sample, index) => (sample, index))
+            .Where(x => !compound ||
+                (x.sample.Total >= _parameters["ret"] - 1e-6 &&
+                 x.sample.DayCount <= _parameters["months"] * 31 + 2 &&
+                 x.sample.LastMultiples <= _parameters["levMax"] + 1e-6))
+            .Select(x => x.index)
+            .ToArray();
+
         return new
         {
             rows = rows.Select(s => Row(s, compound)).ToArray(),
             curves = rows.Select(Points).ToArray(),
-            all = stats.Count
+            qualifiedIndexes,
+            all = rows.Count
         };
     }
 

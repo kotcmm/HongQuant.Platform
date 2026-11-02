@@ -1025,7 +1025,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
               </table>
             </div>
             <div class="dca-foot">
-              <span class="k">筛选规则</span>
+              <span class="k" id="ruleLabel">达标条件</span>
               <span id="ruleText">累计收益 ≥ 目标收益 · 交易天数 ≤ 目标时间 · 累计杠杆 ≤ 杠杆上限</span>
               <span class="sep">·</span>
               数据来自「基础数据 · <b id="footSrc" style="color:var(--accent-2)">GD20</b>」，改参数即时重算
@@ -1344,6 +1344,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
   var NATIVE_DATA = { equity:[], compound:[], settle:[] };
   var NATIVE_CURVES = { compound:[], settle:[] };
   var NATIVE_TOTAL = { compound:0, settle:0 };
+  var NATIVE_QUALIFIED_INDEXES = { compound:[], settle:[] };
   var NATIVE_SELECTED = [];
   var NATIVE_INCOMING = -1;
   var NATIVE_OUTGOING = 0;
@@ -1634,6 +1635,8 @@ html,body{height:100%;min-height:0;overflow:hidden}
         NATIVE_CURVES.settle = [];
         NATIVE_TOTAL.compound = 0;
         NATIVE_TOTAL.settle = 0;
+        NATIVE_QUALIFIED_INDEXES.compound = [];
+        NATIVE_QUALIFIED_INDEXES.settle = [];
       }
     }
     renderSourceTabs();
@@ -2111,74 +2114,73 @@ html,body{height:100%;min-height:0;overflow:hidden}
     pick.value = String(STATE.sel);
   }
 
-  /* 定投复利的达标筛选，只有这一处定义，badge / 标题 / 表格共用 */
-  function compoundFilter(){
-    var limitDays = Math.round(PARAMS.months * MONTH_DAYS);
-    return sourceDca(SOURCE);
+  /* 所有计算样本都进入样本明细；达标索引只用于统计卡片与导航达标数。 */
+  function qualifyingRows(mode){
+    var rows = mode === 'settle' ? sourceSettle(SOURCE) : sourceDca(SOURCE);
+    var indexes = NATIVE_QUALIFIED_INDEXES[mode] || [];
+    return indexes.filter(function(index){return index >= 0 && index < rows.length;})
+      .map(function(index){return rows[index];});
   }
-  function countCompound(){ return compoundFilter().length; }
+  function countCompound(){ return qualifyingRows('compound').length; }
 
-  /* 实时重算：从基础数据里按当前参数筛样本，表格 / KPI / 图表同步刷新 */
+  /* 统一刷新表格、KPI 和图表，但各自样本数量的口径不同。 */
   var liveTimer = null;
   function recompute(flash){
     var all = MODE === 'settle' ? sourceSettle(SOURCE) : sourceDca(SOURCE);
     var src = srcMeta(SOURCE);
     var withLev = MODE === 'compound';
-    var kept, msg;
+    var qualified = qualifyingRows(MODE);
 
-    if (MODE === 'settle'){
-      kept = all.slice();
-      msg = '尚未导入数据或当前结算周期没有可用样本';
-    } else {
-      kept = compoundFilter();
-      msg = '当前参数下没有达标样本 —— 目标收益 ' + fmtNum(PARAMS.ret) + '% · 目标时间 ' + fmtNum(PARAMS.months) + ' 个月';
-    }
+    // 表格、样本选择器、样本柱图及逐日净值/回撤曲线使用完整数据集。
+    STATE.rows = all.slice();
+    if (STATE.sel > STATE.rows.length - 1) STATE.sel = 0;
 
-    STATE.rows = kept;
-    if (STATE.sel > kept.length - 1) STATE.sel = 0;
-
-    $('#dcaBody').innerHTML = kept.length
-      ? dcaRows(kept, withLev)
-      : emptyRow(msg, withLev ? 9 : 8);
+    $('#dcaBody').innerHTML = STATE.rows.length
+      ? dcaRows(STATE.rows, withLev)
+      : emptyRow('当前数据源没有可用的计算样本', withLev ? 9 : 8);
     $$('#dcaBody tr[data-idx]').forEach(function(tr){
       tr.classList.toggle('row-sel', +tr.dataset.idx === STATE.sel);
     });
 
+    // 指标口径保持原有逻辑：定投复利的收益/回撤/天数只统计达标样本；
+    // 周期结算没有收益目标筛选，统计全部实际结算样本。
     var avgRet = 0, minDD = 0, ddDate = '—', avgDays = 0, minDays = 0, maxDays = 0;
-    if (kept.length){
-      kept.forEach(function(r){
+    if (qualified.length){
+      qualified.forEach(function(r){
         avgRet += r[2];
         if (r[3] < minDD){ minDD = r[3]; ddDate = r[4]; }
         avgDays += r[7];
         if (!minDays || r[7] < minDays) minDays = r[7];
         if (r[7] > maxDays) maxDays = r[7];
       });
-      avgRet /= kept.length;
-      avgDays = Math.round(avgDays / kept.length);
+      avgRet /= qualified.length;
+      avgDays = Math.round(avgDays / qualified.length);
     }
 
     var kRet = $('#kAvgRet');
-    kRet.innerHTML = (kept.length ? '+' + avgRet.toFixed(2) : '—') + '<span style="font-size:14px">%</span>';
-    kRet.className = 'kpi-value ' + (kept.length ? (avgRet >= 0 ? 'up' : 'down') : 'flat');
-    $('#kAvgRetSub').textContent = kept.length
-      ? '达标 ' + kept.length + ' 组 · ' +
-        (MODE === 'settle' ? fmtNum(PARAMS.period) + ' 月结算' : '目标 ' + fmtNum(PARAMS.ret) + '%')
-      : '无达标样本';
+    kRet.innerHTML = (qualified.length ? (avgRet >= 0 ? '+' : '') + avgRet.toFixed(2) : '—') + '<span style="font-size:14px">%</span>';
+    kRet.className = 'kpi-value ' + (qualified.length ? (avgRet >= 0 ? 'up' : 'down') : 'flat');
+    $('#kAvgRetSub').textContent = qualified.length
+      ? (MODE === 'settle'
+          ? '共 ' + qualified.length + ' 期 · ' + fmtNum(PARAMS.period) + ' 月结算'
+          : '达标 ' + qualified.length + ' 组 · 目标 ' + fmtNum(PARAMS.ret) + '%')
+      : (STATE.rows.length ? '暂无达标样本' : '暂无样本');
 
     var kDD = $('#kMaxDD');
-    kDD.innerHTML = (kept.length ? (minDD > 0 ? '+' : '') + minDD.toFixed(2) : '—') + '<span style="font-size:14px">%</span>';
-    kDD.className = 'kpi-value ' + (kept.length ? (minDD < 0 ? 'risk' : 'flat') : 'flat');
-    $('#kMaxDDSub').textContent = kept.length ? ('发生于 ' + ddDate) : '—';
+    kDD.innerHTML = (qualified.length ? (minDD > 0 ? '+' : '') + minDD.toFixed(2) : '—') + '<span style="font-size:14px">%</span>';
+    kDD.className = 'kpi-value ' + (qualified.length ? (minDD < 0 ? 'risk' : 'flat') : 'flat');
+    $('#kMaxDDSub').textContent = qualified.length ? ('发生于 ' + ddDate) : '—';
 
     var kDays = $('#kAvgDays');
-    kDays.innerHTML = (kept.length ? avgDays : '—') + '<span style="font-size:14px">天</span>';
-    $('#kAvgDaysSub').textContent = kept.length ? ('最短 ' + minDays + ' · 最长 ' + maxDays) : '—';
+    kDays.innerHTML = (qualified.length ? avgDays : '—') + '<span style="font-size:14px">天</span>';
+    $('#kAvgDaysSub').textContent = qualified.length ? ('最短 ' + minDays + ' · 最长 ' + maxDays) : '—';
 
     var sampleTotal = NATIVE_TOTAL[MODE] || all.length;
-    var winRate = sampleTotal ? Math.round(kept.length / sampleTotal * 100) : 0;
-    $('#kSamples').innerHTML = kept.length + '<span style="font-size:14px">/' + sampleTotal + '</span>';
-    $('#kSamplesSub').textContent = kept.length
-      ? '胜率 ' + winRate + '% · ' + (MODE === 'settle' ? fmtNum(PARAMS.period) + ' 月结算' : '杠杆 ' + fmtNum(PARAMS.lev0) + '→' + fmtNum(PARAMS.levMax) + '×')
+    var winRate = sampleTotal ? Math.round(qualified.length / sampleTotal * 100) : 0;
+    $('#kSamples').innerHTML = qualified.length + '<span style="font-size:14px">/' + sampleTotal + '</span>';
+    $('#kSamplesSub').textContent = sampleTotal
+      ? (MODE === 'settle' ? '有效结算期 · ' + fmtNum(PARAMS.period) + ' 月结算'
+          : '达标率 ' + winRate + '% · 杠杆 ' + fmtNum(PARAMS.lev0) + '→' + fmtNum(PARAMS.levMax) + '×')
       : '—';
 
     $('#pnLev0').textContent = '首月建仓 ' + fmtNum(PARAMS.lev0) + '×';
@@ -2188,14 +2190,18 @@ html,body{height:100%;min-height:0;overflow:hidden}
     $('#specPeriod').textContent = fmtNum(PARAMS.period);
     $('#specCount').textContent = sourceSettle(SOURCE).length + ' 期 · 结算周期 ' + fmtNum(PARAMS.period) + ' 月';
 
-    $('#dcaCount').textContent = kept.length + ' / ' + all.length + (MODE === 'settle' ? ' 期' : ' 组') + ' · 按开始日期升序';
+    $('#dcaCount').textContent = '全部 ' + all.length + ' / ' + sampleTotal +
+      (MODE === 'settle' ? ' 期' : ' 组') + ' · 按开始日期升序';
 
-    // 两个页面都在文档里，各自标题按自己的口径写，不跟着当前模式漂移
-    $('#compoundSub').textContent = '数据来源 ' + src.code + ' · 达标 ' + countCompound() + '/' + sourceDca(SOURCE).length +
+    $('#compoundSub').textContent = '数据来源 ' + src.code + ' · 全部 ' + sourceDca(SOURCE).length +
+      ' 组 · 达标 ' + countCompound() + '/' + sourceDca(SOURCE).length +
       ' · 目标 ' + fmtNum(PARAMS.ret) + '% / ' + fmtNum(PARAMS.months) + ' 月 · 杠杆 ' +
       fmtNum(PARAMS.lev0) + '→' + fmtNum(PARAMS.levMax) + '×';
-    $('#settleSub').textContent = '数据来源 ' + src.code + ' · 每 ' + fmtNum(PARAMS.period) + ' 月结算 · ' + sourceSettle(SOURCE).length + ' 期';
+    $('#settleSub').textContent = '数据来源 ' + src.code + ' · 每 ' + fmtNum(PARAMS.period) +
+      ' 月结算 · 全部 ' + sourceSettle(SOURCE).length + ' 期';
 
+    var ruleLabel = $('#ruleLabel');
+    if (ruleLabel) ruleLabel.textContent = MODE === 'settle' ? '结算规则' : '达标条件';
     var rule = $('#ruleText');
     if (rule) rule.textContent = MODE === 'settle'
       ? '每 ' + fmtNum(PARAMS.period) + ' 个月滚动切分 · 到期结算 · 不加杠杆'
@@ -2359,6 +2365,11 @@ html,body{height:100%;min-height:0;overflow:hidden}
     NATIVE_CURVES.settle = data.settle ? data.settle.curves : [];
     NATIVE_TOTAL.compound = data.compound ? data.compound.all : 0;
     NATIVE_TOTAL.settle = data.settle ? data.settle.all : 0;
+    // 达标索引与完整明细分离，未达标的记录仍能被选中和绘制图表。
+    NATIVE_QUALIFIED_INDEXES.compound = data.compound
+      ? (data.compound.qualifiedIndexes || data.compound.rows.map(function(_,i){return i;})) : [];
+    NATIVE_QUALIFIED_INDEXES.settle = data.settle
+      ? (data.settle.qualifiedIndexes || data.settle.rows.map(function(_,i){return i;})) : [];
     SOURCE = SOURCES.some(function(x){return x.id===data.sourceId;}) ? data.sourceId : SOURCES[0].id;
     window.__hqDates = data.dateStart && data.dateEnd ? data.dateStart + ' → ' + data.dateEnd : '尚未导入数据';
     renderAssets($('#assetSearch').value);

@@ -288,5 +288,72 @@ assert.match(templateItemViewModel, /RaisePropertyChanged\(nameof\(Products\)\)/
   '品种清单更新时必须通知 WPF 重新绑定');
 
 
-console.log('PASS: 页面行为、底部文字居中、模板列表安全点击与输入框留白');
+// 定投复利/周期结算必须向表格交付全部样本，达标索引只参与 KPI 统计。
+const compoundRows = [
+  ['20200101','20201230',104.25,-5.12,'20200402',110.32,'20201230',240,6],
+  ['20200201','20210501',42.15,-9.80,'20200410',55.10,'20210418',290,6],
+  ['20200301','20210601',102.18,-6.20,'20200515',105.22,'20210519',280,6],
+  ['20200401','20211101',-7.18,-17.30,'20200614',12.50,'20200503',312,6]
+];
+const settleRows = [
+  ['20200101','20201231',16.5,-4.0,'20200402',19.2,'20201220',240,0],
+  ['20200201','20210131',-4.8,-12.3,'20200604',7.2,'20200418',245,0],
+  ['20200301','20210228',8.9,-7.0,'20200510',11.2,'20210110',244,0]
+];
+window.__hqNative.applyState({
+  requestId: 4, sourceId: 'combo-1',
+  sources: [{id:'combo-1',name:'测试组合',code:'COMBO',grp:'组合',note:'计算样本测试'}],
+  assets: [['ag','ag_GD20','ag_GD20.csv','f0']], selected: [0],
+  equity: [['2020-01-01',1000000,0,0,0,0,0,0]],
+  compound: { rows:compoundRows, curves:compoundRows.map(() => []),
+              qualifiedIndexes:[0,2], all:4 },
+  settle: { rows:settleRows, curves:settleRows.map(() => []),
+            qualifiedIndexes:[0,1,2], all:3 },
+  status:'数据源已连接', activeSourceName:'测试组合', templates:[]
+});
+nav.dataset.view = 'compound';
+requireListener('.nav-item[data-view]:1:click')();
+assert.match(get('#dcaBody').innerHTML, /20200101/, '定投复利应展示第一条达标样本');
+assert.match(get('#dcaBody').innerHTML, /20200201/, '定投复利必须展示未达标样本');
+assert.match(get('#dcaBody').innerHTML, /20200401/, '定投复利必须展示负收益样本');
+assert.equal((get('#dcaBody').innerHTML.match(/<tr data-idx=/g) || []).length, 4,
+  '定投复利应展示全部四组计算样本');
+assert.match(get('#dcaCount').textContent, /全部 4 \/ 4 组/,
+  '定投复利表头应说明展示全部样本');
+assert.match(get('#kSamples').innerHTML, /2<span[^>]*>\/4<\/span>/,
+  '定投复利的达标统计不能因为显示全部明细而变成 4/4');
+assert.match(get('#compoundSub').textContent, /达标 2\/4/,
+  '定投复利副标题应保留达标统计');
+assert.equal(get('#ruleLabel').textContent, '达标条件',
+  '展示全部样本后不能误称表格已筛掉未达标项');
+assert.equal((get('#samplePick').innerHTML.match(/<option /g) || []).length, 4,
+  '图表样本选择器必须包含未达标样本');
+
+nav.dataset.view = 'settle';
+requireListener('.nav-item[data-view]:1:click')();
+assert.equal((get('#dcaBody').innerHTML.match(/<tr data-idx=/g) || []).length, 3,
+  '周期结算应展示所有实际计算期数');
+assert.match(get('#dcaBody').innerHTML, /20200201/,
+  '结算明细不能隐藏亏损的结算期');
+assert.match(get('#dcaCount').textContent, /全部 3 \/ 3 期/,
+  '结算明细表头应体现完整期数');
+assert.match(get('#kSamples').innerHTML, /3<span[^>]*>\/3<\/span>/,
+  '周期结算的有效期数应按真实样本统计');
+assert.equal(get('#ruleLabel').textContent, '结算规则',
+  '周期结算不能显示复利的达标条件');
+assert.equal((get('#samplePick').innerHTML.match(/<option /g) || []).length, 3,
+  '周期结算的图表选择器应包含全部结算期');
+
+// 禁止回归：C# 数据桥不能再次过滤掉未达标样本。
+const bridge = readFileSync(resolve(root,
+  'HongQuant.Platform/Terminal/TerminalDataBridge.cs'), 'utf8');
+assert.match(bridge, /qualifiedIndexes/,
+  '服务端应单独返回达标索引，不能裁剪样本明细');
+assert.match(bridge, /rows = stats\.Where\(s => s\.IncomeInfoResults\.Count > 0 && s\.DayCount > 0\)/,
+  '服务端明细必须来自全部有效交易样本');
+assert.doesNotMatch(bridge, /usable = usable\.Where\(/,
+  '不得再次在数据桥中根据达标条件筛选样本明细');
+
+console.log('PASS: 定投复利与周期结算全部样本、达标统计独立、图表选择器及原有交互回归');
+
 
