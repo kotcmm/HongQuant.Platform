@@ -1529,7 +1529,9 @@ html,body{height:100%;min-height:0;overflow:hidden}
       // 风险类列（实时回撤/最大回撤）用橙色，与涨跌的红绿分开，避免两种语义混在一起
       function riskCls(v){ return v === 0 ? 'flat' : 'risk'; }
       return '<tr>' +
-        '<td><span class="tag">' + def.code + '</span></td>' +
+        // 与旧界面一致：组合按交易日显示实际参与的品种数，如 20(10)、20(14)。
+        // 组合名称只出现在顶部来源及底部页签，不覆盖每行的 Product 字段。
+        '<td><span class="tag">' + escapeText(r[8] || def.code) + '</span></td>' +
         '<td class="mono" style="color:var(--text-2)">' + r[0] + '</td>' +
         '<td class="num">' + fmtInt(r[1]) + '</td>' +
         '<td class="num ' + cls(net) + '">' + (net > 0 ? '+' : '') + fmtInt(net) + '</td>' +

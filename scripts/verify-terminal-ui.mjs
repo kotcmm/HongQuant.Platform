@@ -438,6 +438,46 @@ assert.doesNotMatch(html, /<span style="margin-left:auto" class="mono">CSV<\/spa
 assert.match(html, /id="selectAll"/, '必须保留全选按钮');
 assert.match(html, /id="clearAll"/, '必须保留清空按钮');
 
-console.log('PASS: 更新数据选择文件夹、保留 Export 导入和移除 CSV 底栏文案');
+// UI 重构只能改变展示，不能更换原有 CombinationBasicDataFile 的命名方式。
+const namingBridge = readFileSync(resolve(root,
+  'HongQuant.Platform/Terminal/TerminalDataBridge.cs'), 'utf8');
+const legacyCombination = readFileSync(resolve(root,
+  'HongQuant.Analysis/Original/CombinationBasicDataFile.cs'), 'utf8');
+assert.match(namingBridge, /_original\.Combination\(files\);/,
+  '必须调用原有组合计算逻辑，让原始 DataNameToString 命名');
+assert.doesNotMatch(namingBridge, /_original\.Combination\(files,\s*name\)/,
+  '禁止再次生成带时间戳的自定义组合名称');
+assert.match(legacyCombination, /GroupBy\(x => x\.Strategy\)/,
+  '组合名称必须按原算法按策略分组');
+assert.match(legacyCombination, /g\.Key\}\(\{g\.Count\(\)\}\)/,
+  '组合名称要保留 YD01(20) 等格式');
+assert.match(namingBridge, /new CombinationBasicDataFile\(files\)\.Id/,
+  '组合结果应按原始组合 ID 回查，不依赖命名是否重复');
+assert.match(namingBridge, /x\.MaxWithdraw \* 100,\s*x\.WithdrawLevel \* 100, x\.Product/,
+  '权益快照要包含每天真实的品种标签');
+assert.match(html, /escapeText\(r\[8\] \|\| def\.code\)/,
+  '基础数据第一列必须用每天真实的 Product 标签');
+
+window.__hqNative.applyState({
+  requestId: 5, sourceId: 'combo-1',
+  sources: [{ id:'combo-1',name:'YD01(20)',code:'YD01(20)',grp:'组合',note:'YD01(20)' }],
+  assets: [['ag','ag_YD01','ag_YD01_history.csv','f0']], selected:[0],
+  equity: [['2020-02-03',10000000,0,0,0,0,0,0,'20(10)'],
+           ['2020-02-04',13975548,3975548,39.76,39.76,0,0,0,'20(14)']],
+  compound:null, settle:null, status:'数据源已连接',
+  activeSourceName:'YD01(20)', templates:[]
+});
+assert.match(get('#equityBody').innerHTML, /20\(10\)/,
+  '首条权益行应显示 20(10) 而不是固定组合名称');
+assert.match(get('#equityBody').innerHTML, /20\(14\)/,
+  '第二条权益行应显示 20(14)');
+assert.match(get('#equityBody').innerHTML, /10,000,000/,
+  '界面修改不能改变原始权益数据');
+assert.match(get('#dataTabs').innerHTML, /YD01\(20\)/,
+  '组合标签应展示原有格式 YD01(20)');
+assert.doesNotMatch(get('#dataTabs').innerHTML, /组合 \d{6} \(\d+品种\)/,
+  '不能继续生成时间戳样式的组合标签');
+
+console.log('PASS: 旧版组合命名及每交易日品种数量显示，与权益值保持一致');
 
 

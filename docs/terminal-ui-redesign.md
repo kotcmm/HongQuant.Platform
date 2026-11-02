@@ -279,3 +279,15 @@ node scripts/verify-terminal-ui.mjs
 - `scripts/verify-terminal-ui.mjs` 增加上述文件夹选择、取消行为和底栏文案的检查，现有终端交互测试仍通过。
 
 在脚本模拟测试环境中已通过逻辑和静态检查；Windows 原生文件夹对话框的实际交互仍需本机验收。
+
+
+## 2026-11-02 · 恢复旧版“品种”列和组合名称
+
+对照用户提供的相同 YD01(20) 组合截图，确认权益数值并没有因为重做 UI 而变化。本次仅恢复两个显示/命名约定：
+
+- **基础数据表第一列**：旧版按每日实际参与品种显示 `20(10)`、`20(14)`、`20(15)` 等；原实现 `MeragedByTradeDate` 已把这个值保存在 `BasicTransformData.Product`。新数据桥必须逐行传出该字段，HTML 表格应展示每行的 `Product`，不能统一渲染为组合名称。
+- **新建组合名称**：旧版在 `CombinationBasicDataFile.Calculate()` 中自动按策略分组命名（`YD01(20)`，混合策略则分别显示分组及数量）；新数据桥不再传 `组合 HHmmss (N品种)` 自定义名称，而是直接调用 `IOriginalService.Combination(files)`。组合创建后按与旧逻辑一致的 `CombinationBasicDataFile.Id` 获取结果，避免名称冲突。
+- 顶部来源选择、底部组合标签继续显示组合名称；每笔权益值、收益率、回撤计算与原有算法均不改动。已存在且由此前版本生成的时间戳命名组合本次不会擅自改名，重新创建的组合会使用旧版命名。
+- `scripts/verify-terminal-ui.mjs` 增加 `20(10)`、`20(14)` 和 `YD01(20)` 的渲染回归检查，并确认权益值不被转换。
+
+已在模拟 DOM 环境执行回归脚本通过；真实 Windows WPF 程序尚需本机验证。

@@ -185,9 +185,12 @@ internal sealed class TerminalDataBridge
         IndexSources();
         var files = _files.Where(x => _selectedFileIds.Contains(FileKey(x))).ToList();
         if (files.Count == 0) throw new InvalidOperationException("请先勾选参与组合计算的品种。");
-        var name = $"组合 {DateTime.Now:HHmmss} ({files.Count}品种)";
-        _original.Combination(files, name);
-        var result = _original.CombinationFileIndexs.Items.FirstOrDefault(x => x.Name == name);
+        // 直接使用原有 CombinationBasicDataFile.DataNameToString 命名规则：
+        // YD01(20)；多个策略则使用 GD20(12), GD25(8) 等分组名称。
+        // 用原有组合 ID 找回结果，不另造“组合 + 时间”的命名或依赖显示名查找。
+        var combinationId = new CombinationBasicDataFile(files).Id;
+        _original.Combination(files);
+        var result = _original.CombinationFileIndexs.Items.FirstOrDefault(x => x.Id == combinationId);
         if (result is null) throw new InvalidOperationException("组合计算未生成结果。");
         _sourceId = ComboSourceId(result);
         InvalidateStatistics();
@@ -314,7 +317,7 @@ internal sealed class TerminalDataBridge
         {
             x.TradeDate.ToString("yyyy-MM-dd"), x.Equity, x.TodayProfitAndLoss,
             x.Yields * 100, x.TotalYields * 100, x.WithdrawDeep * 100,
-            x.MaxWithdraw * 100, x.WithdrawLevel * 100
+            x.MaxWithdraw * 100, x.WithdrawLevel * 100, x.Product
         }).ToArray() ?? [];
         var assets = _files.Select(f => new[] { f.Product, f.Name, f.Name, FileKey(f) }).ToArray();
         var selected = _files.Select((f, index) => (f, index))
