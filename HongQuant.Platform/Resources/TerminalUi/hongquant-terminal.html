@@ -466,7 +466,15 @@ td.barcell.zero::after{opacity:.25}
   transition:.16s;
 }
 .param:hover{border-color:rgba(76,141,255,.3);background:linear-gradient(170deg,var(--accent-soft),var(--card-grad))}
-.param-top{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-bottom:11px}
+.param-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:11px}
+.param-check-label{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:10.5px;color:var(--text-3);letter-spacing:.03em;white-space:nowrap}
+.param-check-label input[type=checkbox]{width:14px;height:14px;margin:0;accent-color:var(--accent);cursor:pointer;flex:0 0 auto}
+.param.param-disabled{background:var(--fill-1)}
+.param.param-disabled .param-value,.param.param-disabled input[type=range],.param.param-disabled .param-quick{opacity:.48}
+.param.param-disabled .param-check-label{color:var(--text-3)}
+.chart-mode-select{appearance:auto;cursor:pointer;height:24px;vertical-align:middle;padding:0 6px;font:inherit;font-size:11px;line-height:20px;max-width:150px}
+.chart-mode-select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chart-mode-select option{background:var(--bg-3);color:var(--text-1)}
 .param-label{font-size:10.5px;color:var(--text-3);letter-spacing:.03em}
 .param-value{font-family:var(--mono);font-size:14px;color:var(--text-1);letter-spacing:-.02em;display:inline-flex;align-items:baseline;gap:2px}
 .param-value em{font-style:normal;font-size:10.5px;color:var(--text-3);margin-left:1px;letter-spacing:0}
@@ -919,9 +927,12 @@ html,body{height:100%;min-height:0;overflow:hidden}
 
         <div class="scroll-area">
           <div class="param-grid" id="pgCompound">
-            <div class="param">
+            <div class="param" id="incomeTargetParam">
               <div class="param-top">
-                <span class="param-label">目标收益</span>
+                <label class="param-check-label" for="useIncomeCheck">
+                  <input type="checkbox" id="useIncomeCheck" checked aria-label="启用目标收益停止条件">
+                  <span>目标收益</span>
+                </label>
                 <span class="param-value"><input class="pv" data-key="ret" value="100" inputmode="decimal" aria-label="目标收益百分比" title="可直接输入，超出滑杆范围会自动放宽上限"><em>%</em></span>
               </div>
               <input type="range" min="10" max="1000" step="5" value="100" data-key="ret">
@@ -932,9 +943,12 @@ html,body{height:100%;min-height:0;overflow:hidden}
                 <button data-set="ret:800">800</button>
               </div>
             </div>
-            <div class="param">
+            <div class="param" id="timeTargetParam">
               <div class="param-top">
-                <span class="param-label">目标时间</span>
+                <label class="param-check-label" for="useTimeCheck">
+                  <input type="checkbox" id="useTimeCheck" checked aria-label="启用目标时间停止条件">
+                  <span>目标时间</span>
+                </label>
                 <span class="param-value"><input class="pv" data-key="months" value="36" inputmode="numeric" aria-label="目标时间月数" title="可直接输入月数，超出滑杆范围会自动放宽上限"><em>月</em><i class="pv-alt" data-alt="months"></i></span>
               </div>
               <input type="range" min="1" max="360" step="1" value="36" data-key="months">
@@ -1086,7 +1100,10 @@ html,body{height:100%;min-height:0;overflow:hidden}
       <section class="view" data-panel="chart">
         <div class="main-head">
           <div class="head-title">
-            <h1>图表分析 <span class="pill" id="chartModeTag">定投复利</span></h1>
+            <h1>图表分析 <select id="chartModeSelect" class="pill chart-mode-select" aria-label="选择图表分析模式" title="切换定投复利或周期结算的图表数据">
+                <option value="compound">定投复利</option>
+                <option value="settle">周期结算</option>
+              </select></h1>
             <p id="chartSub">24 组样本 · 当前选中 2020-03-02 → 2021-11-02</p>
           </div>
           <div class="toolbar">
@@ -1936,8 +1953,8 @@ html,body{height:100%;min-height:0;overflow:hidden}
   }
 
   function paintRiskStats(row){
-    var tag = MODE === 'settle' ? '周期结算' : '定投复利';
-    $('#chartModeTag').textContent = tag;
+    var selector = $('#chartModeSelect');
+    if (selector) selector.value = MODE;
     var levWrap = $('#rsLev');
     if (levWrap){
       var box = levWrap.parentNode;
@@ -1968,11 +1985,11 @@ html,body{height:100%;min-height:0;overflow:hidden}
 
   function paintChartHeads(row){
     $('#sampleSub').textContent = STATE.rows.length
-      ? '全部 ' + STATE.rows.length + ' 组 · 点柱体可切换下方样本' +
+      ? '全部 ' + STATE.rows.length + (MODE === 'settle' ? ' 期' : ' 组') + ' · 点柱体可切换下方样本' +
         (SAMPLE_ZOOM !== null ? ' · 纵轴自 ' + SAMPLE_ZOOM.toFixed(0) + ' 起' : '')
       : '暂无样本';
     $('#chartSub').textContent = row
-      ? srcMeta(SOURCE).code + ' · ' + STATE.rows.length + ' 组样本 · 当前选中 ' + fmtYMD(row[0]) + ' → ' + fmtYMD(row[1])
+      ? srcMeta(SOURCE).code + ' · ' + STATE.rows.length + (MODE === 'settle' ? ' 期结算' : ' 组样本') + ' · 当前选中 ' + fmtYMD(row[0]) + ' → ' + fmtYMD(row[1])
       : srcMeta(SOURCE).code + ' · 当前参数下没有样本';
     $('#navSub').textContent = row ? (row[0] + ' — ' + row[1]) : '—';
     $('#ddSub').textContent = row ? '峰值 ' + pct(row[3]) : '—';
@@ -2053,6 +2070,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
   /* ───────── 参数：可拖拽 + 可直接输入，超出滑杆范围自动放宽上限 ───────── */
   // 定投页没有“运行”这一步：数据在基础数据里已经生成，这里只是按参数筛样本并重算
   var PARAMS = { ret:100, months:36, lev0:1, levStep:1, levMax:6, interval:3, period:12 };
+  var STOPPING_OPTIONS = { useIncome:true, useTime:true };
   var STEP   = { ret:5, months:1, lev0:0.5, levStep:0.5, levMax:1, interval:1, period:1 };
   var MONTH_DAYS = 30.44;
   var MODE = 'compound';
@@ -2074,6 +2092,40 @@ html,body{height:100%;min-height:0;overflow:hidden}
     r.style.setProperty('--p', Math.max(0, Math.min(100, p)) + '%');
   }
 
+  function syncStoppingControls(){
+    [['useIncome','useIncomeCheck','incomeTargetParam','ret'],
+     ['useTime','useTimeCheck','timeTargetParam','months']].forEach(function(item){
+      var enabled = !!STOPPING_OPTIONS[item[0]];
+      var check = $('#' + item[1]);
+      var card = $('#' + item[2]);
+      if (check) check.checked = enabled;
+      if (card){
+        card.classList.toggle('param-disabled',!enabled);
+        card.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+      }
+      if (ranges[item[3]]) ranges[item[3]].disabled = !enabled;
+      var field = $('.pv[data-key="' + item[3] + '"]');
+      if (field) field.disabled = !enabled;
+      $$('#' + item[2] + ' .param-quick button').forEach(function(button){
+        button.disabled = !enabled;
+      });
+    });
+  }
+  function scheduleParameterUpdate(){
+    clearTimeout(updateTimer);
+    updateTimer = setTimeout(function(){
+      emitNative('parameters',{values:PARAMS,options:STOPPING_OPTIONS});
+    },110);
+  }
+  ['useIncome','useTime'].forEach(function(key){
+    var check = $('#' + (key === 'useIncome' ? 'useIncomeCheck' : 'useTimeCheck'));
+    if(check) check.addEventListener('change',function(){
+      STOPPING_OPTIONS[key] = !!check.checked;
+      syncStoppingControls();
+      scheduleParameterUpdate();
+    });
+  });
+
   function setParam(key, v, opts){
     opts = opts || {};
     v = Number(v);
@@ -2092,8 +2144,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
       if (alt) alt.textContent = v >= 12 ? '≈ ' + (v / 12).toFixed(v % 12 === 0 ? 0 : 1) + ' 年' : '';
     }
     if (!opts.silent) {
-      clearTimeout(updateTimer);
-      updateTimer = setTimeout(function(){ emitNative('parameters',{values:PARAMS}); }, 110);
+      scheduleParameterUpdate();
     }
   }
 
@@ -2292,7 +2343,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
         $$('.chip[data-ind]').forEach(function(c){ c.classList.toggle('on', c.dataset.ind === 'ret'); });
       }
     }
-    $('#chartModeTag').textContent = m === 'settle' ? '周期结算' : '定投复利';
+    $('#chartModeSelect').value = m;
     var secH = $('.sec-head h2');
     if (secH) secH.textContent = m === 'settle' ? '结算明细' : '样本明细';
     var hint = $('#selHint');
@@ -2310,6 +2361,10 @@ html,body{height:100%;min-height:0;overflow:hidden}
     if (tr) selectSample(+tr.dataset.idx, true);
   });
   $('#samplePick').addEventListener('change', function(){ selectSample(+this.value); });
+  // 图表页的模式选择不跳出图表：表格、样本选择器、净值与回撤同步切换。
+  $('#chartModeSelect').addEventListener('change',function(){
+    if(this.value === 'compound' || this.value === 'settle') setMode(this.value);
+  });
 
   /* 样本数据图：切换指标 */
   $$('.chip[data-ind]').forEach(function(chip){
@@ -2324,6 +2379,7 @@ html,body{height:100%;min-height:0;overflow:hidden}
 
   setMode('compound');
   Object.keys(PARAMS).forEach(function(k){ setParam(k, PARAMS[k], { silent:true }); });
+  syncStoppingControls();
 
   // 主题切换：所有颜色走 CSS 变量，切换后 SVG 与表格自动跟随
   // 统一浅色主题：忽略并清理历史保存的深色偏好。
@@ -2352,6 +2408,17 @@ html,body{height:100%;min-height:0;overflow:hidden}
     applyingNative = true;
     ASSETS = data.assets || [];
     NATIVE_SELECTED = data.selected || [];
+    if (data.stoppingOptions){
+      STOPPING_OPTIONS.useIncome = data.stoppingOptions.useIncome !== false;
+      STOPPING_OPTIONS.useTime = data.stoppingOptions.useTime !== false;
+      syncStoppingControls();
+    }
+    if (data.parameters){
+      Object.keys(PARAMS).forEach(function(key){
+        if (typeof data.parameters[key] === 'number')
+          setParam(key,data.parameters[key],{silent:true});
+      });
+    }
     ACTIVE_TEMPLATE_ID = data.activeTemplateId || '';
     NATIVE_TEMPLATES = data.templates || [];
     renderTemplatePicker();

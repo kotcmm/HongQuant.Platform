@@ -212,6 +212,13 @@ public partial class MainWindow : Window
                         foreach (var property in values.EnumerateObject())
                             if (property.Value.ValueKind == JsonValueKind.Number && property.Value.TryGetDouble(out var number))
                                 _data.SetParameter(property.Name, number);
+                    if (message.TryGetProperty("options", out var options) &&
+                        options.ValueKind == JsonValueKind.Object &&
+                        options.TryGetProperty("useIncome", out var income) &&
+                        options.TryGetProperty("useTime", out var time) &&
+                        income.ValueKind is JsonValueKind.True or JsonValueKind.False &&
+                        time.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                        _data.SetStoppingOptions(income.GetBoolean(), time.GetBoolean());
                     break;
                 default:
                     return;

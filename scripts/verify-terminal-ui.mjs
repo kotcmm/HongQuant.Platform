@@ -96,10 +96,11 @@ const window = {
   }
 };
 
+const scheduledTasks = [];
 vm.runInNewContext(script, {
   window, document,
   location: { hash: '' },
-  setTimeout: () => 1,
+  setTimeout: callback => { scheduledTasks.push(callback); return scheduledTasks.length; },
   clearTimeout: () => {},
   getComputedStyle: () => ({ getPropertyValue: () => 'auto' })
 }, { timeout: 5000, filename: 'hongquant-terminal.html' });
@@ -354,6 +355,68 @@ assert.match(bridge, /rows = stats\.Where\(s => s\.IncomeInfoResults\.Count > 0 
 assert.doesNotMatch(bridge, /usable = usable\.Where\(/,
   '不得再次在数据桥中根据达标条件筛选样本明细');
 
-console.log('PASS: 定投复利与周期结算全部样本、达标统计独立、图表选择器及原有交互回归');
+
+// 图表分析页的模式选择必须独立于左侧导航，模式改变后表格/样本选择器同步。
+assert.match(html, /<select id="chartModeSelect"/, '图表标题必须提供模式选择框');
+const chartModeSelect = get('#chartModeSelect');
+chartModeSelect.value = 'compound';
+requireListener('#chartModeSelect:change').call(chartModeSelect);
+assert.equal(chartModeSelect.value, 'compound', '模式选择应显示定投复利');
+assert.equal((get('#samplePick').innerHTML.match(/<option /g) || []).length, 4,
+  '从周期结算切回定投复利，图表样本下拉必须有四个复利样本');
+assert.match(get('#chartSub').textContent, /4 组样本/,
+  '图表说明应同步到定投复利样本口径');
+chartModeSelect.value = 'settle';
+requireListener('#chartModeSelect:change').call(chartModeSelect);
+assert.equal(chartModeSelect.value, 'settle', '模式选择应显示周期结算');
+assert.equal((get('#samplePick').innerHTML.match(/<option /g) || []).length, 3,
+  '切换周期结算后，图表样本下拉必须是三个结算样本');
+assert.match(get('#sampleSub').textContent, /全部 3 期/,
+  '周期结算图表标题必须使用“期”而不是“组”');
+
+// 独立复选框：关闭收益目标后禁用对应参数控件，并将状态发给 WPF。
+assert.match(html, /id="useIncomeCheck" checked/, '目标收益开关应默认启用');
+assert.match(html, /id="useTimeCheck" checked/, '目标时间开关应默认启用');
+const incomeCheck = get('#useIncomeCheck');
+incomeCheck.checked = false;
+requireListener('#useIncomeCheck:change')();
+assert.equal(get('.pv[data-key="ret"]').disabled, true,
+  '取消目标收益时应禁用收益数值编辑');
+scheduledTasks.at(-1)();
+assert.equal(messages.at(-1).action, 'parameters', '开关变化应通知 WPF 重新计算');
+assert.equal(messages.at(-1).options.useIncome, false, '收益停止条件应传递 false');
+assert.equal(messages.at(-1).options.useTime, true, '时间停止条件不应受到收益开关影响');
+
+const timeCheck = get('#useTimeCheck');
+timeCheck.checked = false;
+requireListener('#useTimeCheck:change')();
+scheduledTasks.at(-1)();
+assert.equal(messages.at(-1).options.useIncome, false, '关闭两项时收益条件应保持关闭');
+assert.equal(messages.at(-1).options.useTime, false, '关闭两项时停止时间条件应为 false');
+assert.equal(get('.pv[data-key="months"]').disabled, true, '时间开关关闭时应禁用月份输入');
+
+incomeCheck.checked = true;
+requireListener('#useIncomeCheck:change')();
+scheduledTasks.at(-1)();
+assert.equal(messages.at(-1).options.useIncome, true, '重新启用收益条件应通知后端');
+assert.equal(messages.at(-1).options.useTime, false, '收益和时间开关必须独立');
+
+const bridgeWithOptions = readFileSync(resolve(root,
+  'HongQuant.Platform/Terminal/TerminalDataBridge.cs'), 'utf8');
+const windowCode = readFileSync(resolve(root, 'HongQuant.Platform/MainWindow.xaml.cs'), 'utf8');
+const multipleAlgorithm = readFileSync(resolve(root,
+  'HongQuant.Analysis/YiTou/IncomeStatistics/Multiple5IncomeStatistics.cs'), 'utf8');
+assert.match(bridgeWithOptions, /UseIncome = _useIncome/, '后端计算必须应用收益开关');
+assert.match(bridgeWithOptions, /UseTime = _useTime/, '后端计算必须应用时间开关');
+assert.match(bridgeWithOptions, /stoppingOptions = new \{ useIncome = _useIncome, useTime = _useTime \}/,
+  '后端快照必须回显开关状态');
+assert.match(windowCode, /_data.SetStoppingOptions\(income.GetBoolean\(\), time.GetBoolean\(\)\)/,
+  'WPF 消息处理必须读取两项布尔开关');
+assert.match(multipleAlgorithm, /!_config.UseIncome \|\| Total < _config.MaxIncome/,
+  '取消收益目标后算法不能继续根据收益退出');
+assert.match(multipleAlgorithm, /!_config.UseTime \|\| incomeInfoModel.Date < _stopTime/,
+  '取消目标时间后算法不能继续根据时间退出');
+
+console.log('PASS: 两项目标停止条件独立开关、图表模式切换、完整样本及原有交互');
 
 

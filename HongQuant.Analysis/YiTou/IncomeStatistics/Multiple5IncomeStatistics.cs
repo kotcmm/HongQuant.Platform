@@ -41,17 +41,11 @@ internal class Multiple5IncomeStatistics : BaseIncomeStatistics, IMultiples, IMa
 
     public override bool Continue(IncomeInfoModel incomeInfoModel)
     {
-        if (_config.UseTime && !_config.UseIncome)
-        {
-            return _stopTime > incomeInfoModel.Date;
-        }
-
-        if (_config.UseTime && _config.UseIncome)
-        {
-            return _config.MaxIncome > Total && _stopTime > incomeInfoModel.Date;
-        }
-
-        return _config.MaxIncome > Total;
+        // 两个开关独立控制停止条件；均未勾选时一直运行到数据末尾。
+        // 不能在两个条件都关闭时偷偷继续按目标收益停止。
+        var incomeAllowsContinue = !_config.UseIncome || Total < _config.MaxIncome;
+        var timeAllowsContinue = !_config.UseTime || incomeInfoModel.Date < _stopTime;
+        return incomeAllowsContinue && timeAllowsContinue;
     }
 
     public override double GetMultiples(NetWorthInfo netWorthInfo,

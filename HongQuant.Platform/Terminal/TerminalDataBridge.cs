@@ -25,6 +25,18 @@ internal sealed class TerminalDataBridge
     // BasicDataFile.Id 没有赋值，不能用它做复选框身份；以实际文件路径区分同品种不同策略。
     private readonly HashSet<string> _selectedFileIds = new(StringComparer.OrdinalIgnoreCase);
     private string _activeTemplateId = string.Empty;
+    // 初始保持与当前版本一致：收益目标和时间上限都参与计算。
+    private bool _useIncome = true;
+    private bool _useTime = true;
+
+    internal void SetStoppingOptions(bool useIncome, bool useTime)
+    {
+        if (_useIncome == useIncome && _useTime == useTime) return;
+        _useIncome = useIncome;
+        _useTime = useTime;
+        InvalidateStatistics();
+    }
+
     private readonly Dictionary<string, double> _parameters = new()
     {
         ["ret"] = 100, ["months"] = 36, ["lev0"] = 1, ["levStep"] = 1,
@@ -236,8 +248,8 @@ internal sealed class TerminalDataBridge
                 Increment = _parameters["levStep"],
                 Max = Math.Max(_parameters["levMax"], _parameters["lev0"]),
                 Month = (int)_parameters["interval"],
-                UseIncome = true,
-                UseTime = true
+                UseIncome = _useIncome,
+                UseTime = _useTime
             };
         var algorithm = mode == "settle" ? AlgorithmType.Cycle : AlgorithmType.Multiple5;
         var records = source.Items.OrderBy(x => x.TradeDate)
@@ -279,8 +291,8 @@ internal sealed class TerminalDataBridge
         var qualifiedIndexes = rows
             .Select((sample, index) => (sample, index))
             .Where(x => !compound ||
-                (x.sample.Total >= _parameters["ret"] - 1e-6 &&
-                 x.sample.DayCount <= _parameters["months"] * 31 + 2 &&
+                ((!_useIncome || x.sample.Total >= _parameters["ret"] - 1e-6) &&
+                 (!_useTime || x.sample.DayCount <= _parameters["months"] * 31 + 2) &&
                  x.sample.LastMultiples <= _parameters["levMax"] + 1e-6))
             .Select(x => x.index)
             .ToArray();
@@ -326,6 +338,7 @@ internal sealed class TerminalDataBridge
             }).ToArray(),
             assets, selected,
             templateSync = TemplateSync,
+            stoppingOptions = new { useIncome = _useIncome, useTime = _useTime },
             activeTemplateId = _activeTemplateId,
             templates = _original.ProductTemplates.Items.OrderBy(x => x.TemplateName)
                 .Select(x => new { id = x.Id.ToString("D"), name = x.TemplateName }).ToArray(),
