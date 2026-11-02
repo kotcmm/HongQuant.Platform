@@ -417,6 +417,27 @@ assert.match(multipleAlgorithm, /!_config.UseIncome \|\| Total < _config.MaxInco
 assert.match(multipleAlgorithm, /!_config.UseTime \|\| incomeInfoModel.Date < _stopTime/,
   '取消目标时间后算法不能继续根据时间退出');
 
-console.log('PASS: 两项目标停止条件独立开关、图表模式切换、完整样本及原有交互');
+// 数据路径必须走文件夹选择，而不是旧版 CSV 文件选择弹窗。
+assert.match(windowCode, /private bool ChooseFolder\(\)/,
+  '数据路径选择应返回确认/取消结果');
+assert.match(windowCode, /new OpenFolderDialog \{ Title = "选择策略数据文件夹" \}/,
+  '数据路径必须选择文件夹');
+assert.match(windowCode, /if \(!Directory\.Exists\(_data\.FolderPath\) && !ChooseFolder\(\)\) return;/,
+  '更新数据时没有有效路径应先弹出文件夹选择，取消时不继续导入');
+const refreshSource = windowCode.slice(
+  windowCode.indexOf('private async Task RefreshFiles()'),
+  windowCode.indexOf('// 原来右键菜单'));
+assert.doesNotMatch(refreshSource, /new OpenFileDialog|dialog\.FileNames/,
+  '更新数据流程不能回退到逐个选择 CSV 文件');
+assert.match(refreshSource, /Path\.Combine\(folder, "Export"\)/,
+  '应兼容现有 Export 子文件夹约定');
+assert.match(refreshSource, /Directory\.GetFiles\(folder, "\*\.csv"/,
+  '应该允许用户直接选择装有 CSV 的文件夹');
+assert.doesNotMatch(html, /<span style="margin-left:auto" class="mono">CSV<\/span>/,
+  '全选/清空的右侧不再显示 CSV 文案');
+assert.match(html, /id="selectAll"/, '必须保留全选按钮');
+assert.match(html, /id="clearAll"/, '必须保留清空按钮');
+
+console.log('PASS: 更新数据选择文件夹、保留 Export 导入和移除 CSV 底栏文案');
 
 

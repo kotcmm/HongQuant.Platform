@@ -248,22 +248,31 @@ public partial class MainWindow : Window
                 "window.__hqNative && window.__hqNative.showError(" + JsonSerializer.Serialize(error) + ");");
     }
 
-    private void ChooseFolder()
+    // 首次刷新和“数据路径”按钮都选择文件夹，并持久化本地目录。
+    // 取消选择时必须保留原目录和已加载的数据。
+    private bool ChooseFolder()
     {
-        var dialog = new OpenFolderDialog { Title = "选择策略数据目录" };
+        var dialog = new OpenFolderDialog { Title = "选择策略数据文件夹" };
         if (Directory.Exists(_data.FolderPath)) dialog.InitialDirectory = _data.FolderPath;
-        if (dialog.ShowDialog(this) == true) _data.FolderPath = dialog.FolderName;
+        if (dialog.ShowDialog(this) != true) return false;
+
+        _data.FolderPath = dialog.FolderName;
+        return true;
     }
 
     private async Task RefreshFiles()
     {
+        // 未配置路径、路径被移动或删除时，先选择整个文件夹。
+        // 不再弹出 CSV 单文件/多文件选择器。
+        if (!Directory.Exists(_data.FolderPath) && !ChooseFolder()) return;
+
         var folder = _data.FolderPath;
         var exporter = Path.Combine(AppContext.BaseDirectory, "BatchFileExport", "BatchFileExport.exe");
-        if (Directory.Exists(folder) && File.Exists(exporter))
+        if (File.Exists(exporter))
         {
             var process = Process.Start(new ProcessStartInfo(exporter)
             {
-                Arguments = "\""+ folder + "\"",
+                Arguments = "\"" + folder + "\"",
                 WorkingDirectory = Path.GetDirectoryName(exporter)!,
                 UseShellExecute = false
             }) ?? throw new InvalidOperationException("批量导出工具启动失败。");
@@ -275,20 +284,18 @@ public partial class MainWindow : Window
             }
         }
 
+        // 延续原先的 Export 文件夹约定；若没有导出数据，也允许直接选择
+        // 存放 CSV 的文件夹，而不是要求再次逐个选择 CSV 文件。
         var exportFolder = Path.Combine(folder, "Export");
         var files = Directory.Exists(exportFolder)
-            ? Directory.GetFiles(exportFolder, "*.csv") : [];
+            ? Directory.GetFiles(exportFolder, "*.csv", SearchOption.TopDirectoryOnly)
+            : [];
         if (files.Length == 0)
-        {
-            var dialog = new OpenFileDialog
-            {
-                Title = "导入真实策略数据文件",
-                Filter = "CSV 数据文件 (*.csv)|*.csv",
-                Multiselect = true
-            };
-            if (dialog.ShowDialog(this) != true) return;
-            files = dialog.FileNames;
-        }
+            files = Directory.GetFiles(folder, "*.csv", SearchOption.TopDirectoryOnly);
+        if (files.Length == 0)
+            throw new InvalidOperationException(
+                $"在所选文件夹及其 Export 子文件夹中没有找到 CSV 数据文件：{folder}");
+
         _data.LoadFiles(files);
     }
 
